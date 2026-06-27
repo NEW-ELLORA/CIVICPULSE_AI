@@ -771,49 +771,73 @@ function setNav(el) { switchView(el); }
 
 /* ── PIPELINE RUNNER ───────────────────────────── */
 let isRunning = false;
-function runPipeline() {
+async function runPipeline() {
   if (isRunning) return;
   isRunning = true;
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
-  btn.textContent = '⏳  Processing…';
+  btn.textContent = '⏳  Connecting to AI...';
   document.getElementById('ticket').style.display = 'none';
   resetSteps();
   const term = document.getElementById('terminal');
   term.innerHTML = '';
+  
+  const selectedCat = document.querySelector('#cat-pills .pill.on').dataset.cat;
+  const selectedSev = document.querySelector('#sev-pills .pill.on').dataset.sev;
+  const description = document.querySelector('.ftex').value || 'Pothole on 5th Cross';
+  const langSel = document.getElementById('lang-sel');
+  const lang = langSel.options[langSel.selectedIndex].text;
+  
   const ticketId = 'CP-' + (1200 + ++reportCount);
-  const cat = selectedCat, sev = selectedSev.toUpperCase();
-  const lang = document.getElementById('lang-sel').options[document.getElementById('lang-sel').selectedIndex].text;
   document.getElementById('tb-count').textContent = 'Reports Today: ' + reportCount;
   document.getElementById('pipeline-time').textContent = new Date().toLocaleTimeString('en-IN');
 
+  appendLine(`<span class="t-k">> Fetching real analysis from Gemini 2.0 API...</span>`, () => {});
+
+  let aiData = null;
+  try {
+    const res = await fetch('http://localhost:3000/api/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category: selectedCat, severity: selectedSev, description, language: lang })
+    });
+    aiData = await res.json();
+  } catch (err) {
+    appendLine(`<span class="t-w">> API Error: Falling back to mock data...</span>`, () => {});
+    aiData = {
+      extracted_category: selectedCat,
+      assessed_severity: selectedSev,
+      confidence_score: 0.94,
+      priority_score: 85,
+      ward_department: "Ward 14, Roads",
+      assigned_officer_mock: "Ravi K.",
+      summary: description
+    };
+  }
+
   const seq = [
     { step:'step1', delay:0, lines:[
-      { t:'08:14:02', k:'ReporterAgent.classify()', plain:'' },
-      { t:'', k:'', plain:'  > gemini_vision_classify()  →  <v>' + cat + '/critical</v>' },
-      { t:'', k:'', plain:'  > confidence: <v>0.94</v>  |  ward_id: <v>14</v>' },
-      { t:'', k:'', plain:'  > language: <v>' + lang.split(' ')[0] + '</v>  |  elapsed: <v>0.8s</v>' },
+      { t:'08:14:02', k:'ReporterAgent.gemini_vision()', plain:'' },
+      { t:'', k:'', plain:'  > Real API Call  →  <v>' + aiData.extracted_category + ' / ' + aiData.assessed_severity + '</v>' },
+      { t:'', k:'', plain:'  > confidence: <v>' + aiData.confidence_score + '</v>  |  priority: <v>' + aiData.priority_score + '/100</v>' },
+      { t:'', k:'', plain:'  > summary: <v>' + aiData.summary + '</v>' },
     ]},
-    { step:'step2', delay:1000, lines:[
+    { step:'step2', delay:800, lines:[
       { t:'08:14:03', k:'VerificationAgent.dedup()', plain:'' },
       { t:'', k:'', plain:'  > PostGIS_proximity(radius=50m)  →  <v>3 nearby</v>' },
       { t:'', k:'', plain:'  > pHash similarity: <v>0.23</v>  <w>below threshold</w>  →  <v>NEW issue</v>' },
-      { t:'', k:'', plain:'  > trust_score: <v>0.92</v>  |  dedup: <v>PASS</v>' },
     ]},
-    { step:'step3', delay:1900, lines:[
+    { step:'step3', delay:1600, lines:[
       { t:'08:14:04', k:'RoutingAgent.assign()', plain:'' },
-      { t:'', k:'', plain:'  > ward_boundary_lookup()  →  <v>Ward 14, Roads & Infra</v>' },
-      { t:'', k:'', plain:'  > officer_workload_query()  →  <v>Ravi K. (load: 3)</v>' },
-      { t:'', k:'', plain:'  > SLA tier: <e>CRITICAL</e>  |  ACK required: <v>24h</v>' },
+      { t:'', k:'', plain:'  > ward_boundary_lookup()  →  <v>' + aiData.ward_department + '</v>' },
+      { t:'', k:'', plain:'  > assigned_officer  →  <v>' + aiData.assigned_officer_mock + '</v>' },
     ]},
-    { step:'step4', delay:2700, lines:[
+    { step:'step4', delay:2200, lines:[
       { t:'08:14:05', k:'EscalationAgent.sla_start()', plain:'' },
-      { t:'', k:'', plain:'  > timer: <v>24h</v>  |  FCM queued → <v>Ravi K., Supervisor</v>' },
-      { t:'', k:'', plain:'  > SMS queued → citizen (<v>BBMP ref: Sec 4.2.1</v>)' },
+      { t:'', k:'', plain:'  > timer: <v>24h</v>  |  FCM queued → <v>' + aiData.assigned_officer_mock + ', Supervisor</v>' },
     ]},
-    { step:'step5', delay:3400, lines:[
+    { step:'step5', delay:2800, lines:[
       { t:'08:14:06', k:'PredictionAgent.risk_refresh()', plain:'' },
-      { t:'', k:'', plain:'  > Ward 14 waterlogging risk: <e>82%</e>' },
       { t:'', k:'', plain:'  > BigQuery ML model: <v>updated</v>  |  Digital Twin: <v>synced</v>' },
     ]},
   ];
@@ -833,7 +857,7 @@ function runPipeline() {
 
   function runStep(idx) {
     if (idx >= seq.length) {
-      showTicket(ticketId, cat, sev, lang, term);
+      showTicket(ticketId, aiData.extracted_category, aiData.assessed_severity, lang, term, aiData);
       return;
     }
     const { step, delay, lines } = seq[idx];
@@ -873,16 +897,23 @@ function setStepDone(id) {
   s.querySelector('.step-circle').textContent = '✓';
 }
 
-function showTicket(id, cat, sev, lang, term) {
+function showTicket(id, cat, sev, lang, term, aiData) {
   const sevColors = {low:['var(--green)','OK'],medium:['var(--orange)','MEDIUM'],high:['#ef7844','HIGH'],critical:['var(--red)','CRITICAL']};
-  const [sevColor, sevLabel] = sevColors[selectedSev] || ['var(--green)','OK'];
+  // Handle dynamically generated severity
+  let safeSev = (sev || 'low').toLowerCase();
+  if (!sevColors[safeSev]) safeSev = 'high';
+  const [sevColor, sevLabel] = sevColors[safeSev];
+  
+  const officer = aiData ? aiData.assigned_officer_mock : 'Ravi K.';
+  const score = aiData ? aiData.priority_score : 91;
+
   const fields = [
     { l:'Ticket ID', v:'<span class="t-v" style="font-family:var(--mono)">' + id + '</span>' },
     { l:'Category', v:cat },
     { l:'Severity', v:'<span style="color:' + sevColor + ';font-weight:700">' + sevLabel + '</span>' },
-    { l:'Officer Assigned', v:'<span class="t-v">Ravi K.</span>' },
+    { l:'Officer Assigned', v:'<span class="t-v">' + officer + '</span>' },
     { l:'SLA Deadline', v:'24 hours (Critical)' },
-    { l:'Priority Score', v:'<span class="score-big">91</span>' },
+    { l:'Priority Score', v:'<span class="score-big">' + score + '</span>' },
     { l:'Ward', v:'Ward 14 · Koramangala' },
     { l:'Language', v:lang.split(' ')[0] },
   ];
@@ -890,7 +921,7 @@ function showTicket(id, cat, sev, lang, term) {
   document.getElementById('ticket-grid').innerHTML = fields.map(f =>
     `<div class="tfield"><div class="tf-lbl">${f.l}</div><div class="tf-val">${f.v}</div></div>`
   ).join('');
-  document.getElementById('ticket-msg').textContent = '🎙️ AI: "Your complaint has been registered. Ravi K. will inspect within 24 hours." · ನಿಮ್ಮ ದೂರು ದಾಖಲಾಗಿದೆ.';
+  document.getElementById('ticket-msg').textContent = `🎙️ AI: "Your complaint has been registered. ${officer} will inspect within 24 hours." · ನಿಮ್ಮ ದೂರು ದಾಖಲಾಗಿದೆ.`;
 
   const ticket = document.getElementById('ticket');
   ticket.style.display = 'block';
@@ -909,7 +940,7 @@ function showTicket(id, cat, sev, lang, term) {
 
   // Append final log
   term.innerHTML += `<br/><span class="t-sys">──────────────────────────────────</span><br/>`
-    + `<span class="t-v">✓ Pipeline complete · ${id} · Priority: 91 · Assigned: Ravi K.</span><br/>`
+    + `<span class="t-v">✓ Pipeline complete · ${id} · Priority: ${score} · Assigned: ${officer}</span><br/>`
     + `<span class="t-v">✓ All agents confirmed · Ticket active · SLA timer running</span><br/>`
     + `<span class="cursor"></span>`;
   term.scrollTop = term.scrollHeight;
