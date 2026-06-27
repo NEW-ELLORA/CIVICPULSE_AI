@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicPulse AI — AI Operating System for Cities</title>
+  <meta name="description" content="5-agent autonomous AI platform on Google Cloud. Transforms citizen reports into government action in under 2 seconds. Gemini 2.0 · Google ADK · BigQuery ML." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+  <style>
+    /* ============================================================
+       CIVICPULSE AI — PREMIUM CSS (Apple × Linear × Awwwards)
+       ============================================================ */
+    :root {
+      --bg: #000;
+      --bg-1: #080808;
+      --bg-2: #111;
+      --bg-glass: rgba(255,255,255,0.035);
+      --border: rgba(255,255,255,0.08);
+      --border-light: rgba(255,255,255,0.15);
+      --text: #f0f0f0;
+      --text-2: #a0a0a0;
+      --text-3: #555;
+      --accent: #fff;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --green: #10b981;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --cyan: #06b6d4;
+      --r-xl: 28px; --r-lg: 20px; --r-md: 14px; --r-sm: 8px; --r-pill: 999px;
+      --shadow: 0 0 0 1px var(--border), 0 8px 40px rgba(0,0,0,0.6);
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    /* RESET */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); overflow-x: hidden; -webkit-font-smoothing: antialiased; line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    ul { list-style: none; }
+
+    /* LENIS */
+    html.lenis { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+    /* UTILITIES */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 28px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; clip: rect(0,0,0,0); overflow: hidden; }
+    .text-gradient { background: linear-gradient(120deg, #fff 30%, #666 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .text-blue { color: var(--blue); }
+    .text-green { color: var(--green); }
+    .text-red { color: var(--red); }
+    .text-muted { color: var(--text-2); }
+    .mono { font-family: var(--mono); }
+
+    /* ── LOADING SCREEN ── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 20px;
+    }
+    .loader-logo { font-size: 3rem; animation: float 2s ease infinite; }
+    .loader-bar-wrap { width: 200px; height: 2px; background: rgba(255,255,255,0.1); border-radius: var(--r-pill); overflow: hidden; }
+    .loader-bar { height: 100%; background: #fff; border-radius: var(--r-pill); width: 0; }
+    .loader-text { font-size: 0.8rem; color: var(--text-3); letter-spacing: 0.15em; font-family: var(--mono); }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 20px 0;
+      transition: var(--transition);
+    }
+    .navbar.scrolled {
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(16px) saturate(1.5);
+      -webkit-backdrop-filter: blur(16px) saturate(1.5);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; letter-spacing: -0.025em; }
+    .nav-logo-icon { font-size: 1.4rem; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      padding: 8px 16px; border-radius: var(--r-pill); font-size: 0.9rem;
+      color: var(--text-2); font-weight: 500; transition: var(--transition);
+    }
+    .nav-link:hover { color: var(--text); background: var(--bg-glass); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .btn-launch {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: var(--r-pill);
+      background: #fff; color: #000;
+      font-size: 0.9rem; font-weight: 700; letter-spacing: -0.01em;
+      transition: var(--transition);
+      box-shadow: 0 0 20px rgba(255,255,255,0.15);
+    }
+    .btn-launch:hover { transform: scale(1.04); box-shadow: 0 0 32px rgba(255,255,255,0.25); }
+    .btn-launch .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; width: 32px; padding: 6px; }
+    .hamburger span { display: block; height: 2px; background: #fff; border-radius: 2px; transition: var(--transition); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; padding-top: 80px;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% -5%, rgba(59,130,246,0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 45% at 85% 40%, rgba(139,92,246,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 15% 70%, rgba(16,185,129,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 60% 80%, rgba(6,182,212,0.10) 0%, transparent 50%);
+      pointer-events: none;
+      animation: heroBgShift 8s ease-in-out infinite alternate;
+    }
+    @keyframes heroBgShift {
+      0%   { opacity: 1; filter: hue-rotate(0deg); }
+      100% { opacity: 0.85; filter: hue-rotate(15deg); }
+    }
+    /* Animated glow orbs */
+    .hero-orb {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      filter: blur(80px); animation: orbFloat var(--dur,10s) ease-in-out infinite alternate;
+    }
+    .hero-orb-1 { width: 600px; height: 500px; top: -100px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, rgba(59,130,246,0.35) 0%, transparent 70%); --dur:9s; }
+    .hero-orb-2 { width: 400px; height: 350px; top: 20%; right: -100px; background: radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%); --dur:11s; animation-delay:-3s; }
+    .hero-orb-3 { width: 350px; height: 300px; bottom: 5%; left: -80px; background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%); --dur:13s; animation-delay:-6s; }
+    .hero-orb-4 { width: 280px; height: 280px; top: 40%; left: 30%; background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%); --dur:15s; animation-delay:-2s; }
+    @keyframes orbFloat { 0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-30px) scale(1.08)} }
+    .hero-orb-1 { animation-name: orbFloat1; }
+    @keyframes orbFloat1 { 0%{transform:translateX(-50%) translateY(0) scale(1)} 100%{transform:translateX(-50%) translateY(-25px) scale(1.06)} }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+      pointer-events: none;
+    }
+    #hero-canvas { position: absolute; inset: 0; opacity: 0.5; pointer-events: none; }
+
+    .hero-content { position: relative; z-index: 2; text-align: center; max-width: 900px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: var(--r-pill);
+      border: 1px solid var(--border); background: var(--bg-glass);
+      backdrop-filter: blur(8px);
+      font-size: 0.8rem; font-weight: 500; color: var(--text-2);
+      margin-bottom: 32px; letter-spacing: 0.05em;
+    }
+    .hero-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+    .hero-h1 {
+      font-size: clamp(3.2rem, 7vw, 6rem);
+      font-weight: 900; line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 28px;
+    }
+    .hero-h1 .line2 { display: block; background: linear-gradient(120deg, #fff 0%, #888 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-2); max-width: 600px; margin: 0 auto 44px; line-height: 1.7; }
+    .hero-actions { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 32px; border-radius: var(--r-pill);
+      background: #fff; color: #000; font-weight: 700; font-size: 1rem;
+      letter-spacing: -0.01em; transition: var(--transition);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.2), 0 8px 32px rgba(255,255,255,0.1);
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.06); opacity: 0; transition: var(--transition); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px rgba(255,255,255,0.3), 0 16px 40px rgba(255,255,255,0.15); }
+    .btn-primary:hover::after { opacity: 1; }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 32px; border-radius: var(--r-pill);
+      border: 1px solid var(--border); background: var(--bg-glass);
+      backdrop-filter: blur(8px); color: var(--text); font-weight: 600; font-size: 1rem;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover { border-color: var(--border-light); background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+
+    .hero-stats {
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+      gap: 0; margin-top: 72px; padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .hero-stat { text-align: center; padding: 0 40px; border-right: 1px solid var(--border); }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat-val { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px; }
+    .hero-stat-label { font-size: 0.8rem; color: var(--text-2); font-weight: 500; letter-spacing: 0.03em; }
+
+    /* ── SECTION BASE ── */
+    .section { padding: 130px 0; }
+    .section-alt { background: var(--bg-1); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; }
+    .section-label::before { content: ''; width: 18px; height: 2px; background: currentColor; border-radius: 2px; }
+    .section-h { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.1; margin-bottom: 16px; }
+    .section-sub { font-size: 1.05rem; color: var(--text-2); max-width: 560px; line-height: 1.7; }
+
+    /* ── PROBLEMS ── */
+    .problems-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 60px; border: 2px solid var(--border); border-radius: var(--r-xl); overflow: hidden; }
+    .problem-card {
+      background: var(--bg-1); padding: 36px 28px;
+      border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      transition: var(--transition); position: relative; overflow: hidden;
+    }
+    .problem-card:nth-child(3n) { border-right: none; }
+    .problem-card:nth-child(n+4) { border-bottom: none; }
+    .problem-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(239,68,68,0.06), transparent 60%); opacity: 0; transition: var(--transition); }
+    .problem-card:hover::before { opacity: 1; }
+    .problem-card:hover { background: var(--bg-2); }
+    .problem-icon { font-size: 1.8rem; margin-bottom: 20px; }
+    .problem-card h3 { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 10px; }
+    .problem-card p { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; }
+    .problem-cross { color: var(--red); font-size: 0.8rem; font-weight: 700; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); padding: 2px 8px; border-radius: var(--r-pill); display: inline-block; margin-bottom: 12px; }
+
+    /* ── PIPELINE ── */
+    .pipeline-track { display: flex; align-items: center; justify-content: center; gap: 0; margin: 56px 0 40px; }
+    .pipe-node {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      cursor: pointer;
+    }
+    .pipe-node-circle {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--bg-1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; transition: var(--transition); position: relative;
+    }
+    .pipe-node-circle::before {
+      content: ''; position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px solid transparent; transition: var(--transition);
+    }
+    .pipe-node.active .pipe-node-circle { border-color: var(--node-color); background: rgba(0,0,0,0.6); box-shadow: 0 0 24px var(--node-color), inset 0 0 16px rgba(0,0,0,0.8); }
+    .pipe-node.active .pipe-node-circle::before { border-color: var(--node-color); transform: scale(1.1); opacity: 0.4; }
+    .pipe-node-label { font-size: 0.75rem; font-weight: 600; color: var(--text-2); transition: var(--transition); text-align: center; letter-spacing: 0.02em; }
+    .pipe-node.active .pipe-node-label { color: var(--node-color); }
+    .pipe-connector { width: 60px; height: 2px; background: var(--border); position: relative; overflow: hidden; margin-bottom: 38px; }
+    .pipe-connector::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); transform: translateX(-100%); animation: shimmer 2s infinite linear; }
+    .pipe-connector.dashed { background: none; border-top: 2px dashed var(--border); }
+    .pipe-connector.dashed::after { display: none; }
+
+    .agent-panel {
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-xl);
+      display: grid; grid-template-columns: 1fr 1fr; min-height: 340px; overflow: hidden;
+    }
+    .agent-panel-left { padding: 36px; border-right: 1px solid var(--border); }
+    .agent-panel-right { padding: 0; display: flex; flex-direction: column; }
+    .agent-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 12px; border-radius: var(--r-pill);
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .agent-name { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .agent-tech { font-family: var(--mono); font-size: 0.8rem; color: var(--text-2); margin-bottom: 28px; }
+    .agent-caps { display: flex; flex-direction: column; gap: 10px; }
+    .agent-cap { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: var(--text-2); }
+    .agent-cap-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; margin-top: 7px; }
+    .terminal {
+      background: #000; flex: 1; font-family: var(--mono); font-size: 0.82rem;
+      padding: 20px 24px; line-height: 1.8; overflow-y: auto; border-radius: 0 var(--r-xl) 0 0;
+    }
+    .terminal-header { display: flex; align-items: center; gap: 8px; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--bg-2); border-radius: 0 var(--r-xl) 0 0; }
+    .t-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .t-red { background: #ff5f56; } .t-yel { background: #ffbd2e; } .t-grn { background: #27c93f; }
+    .t-title { font-family: var(--mono); font-size: 0.75rem; color: var(--text-3); margin-left: auto; margin-right: auto; }
+    .t-line { color: var(--text-2); } .t-key { color: var(--blue); } .t-val { color: var(--green); } .t-time { color: var(--text-3); }
+    .terminal-footer { padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg-2); }
+    .btn-ai-thinking {
+      width: 100%; padding: 10px; border-radius: var(--r-sm);
+      border: 1px solid var(--border); background: var(--bg-glass); color: var(--text);
+      font-size: 0.82rem; font-weight: 500; transition: var(--transition); cursor: pointer;
+    }
+    .btn-ai-thinking:hover { background: rgba(255,255,255,0.08); border-color: var(--border-light); }
+
+    /* ── SOLUTIONS (LIVE DEMO) ── */
+    .solutions-grid { display: flex; flex-direction: column; gap: 3px; margin-top: 60px; }
+    .sol-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3px;
+    }
+    .sol-row.full { grid-template-columns: 1fr; }
+    .sol-card {
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-lg);
+      padding: 36px; overflow: hidden; position: relative;
+      transition: var(--transition);
+      display: flex; flex-direction: column;
+    }
+    .sol-card:hover { border-color: var(--border-light); background: var(--bg-2); }
+    .sol-tag { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; padding: 3px 10px; border-radius: var(--r-pill); display: inline-block; }
+    .sol-card h3 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 12px; }
+    .sol-card > p { font-size: 0.93rem; color: var(--text-2); line-height: 1.65; margin-bottom: 28px; }
+    .sol-wide { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+
+    /* Digital Twin map */
+    .twin-wrap { background: #000; border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; height: 280px; }
+    #twin-canvas { width: 100%; height: 100%; display: block; }
+
+    /* Chat AI Mayor */
+    .mayor-chat { display: flex; flex-direction: column; gap: 12px; background: #000; border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px; min-height: 160px; }
+    .chat-msg { padding: 10px 14px; border-radius: 12px; font-size: 0.88rem; line-height: 1.55; max-width: 90%; }
+    .chat-msg.user { background: var(--bg-2); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .chat-msg.ai { background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+
+    /* Alerts */
+    .sim-result { display: none; padding: 16px 20px; border-radius: var(--r-md); font-size: 0.9rem; font-weight: 600; margin-top: 20px; line-height: 1.5; }
+    .sim-result.danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+    .sim-result.warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: var(--orange); }
+    .sim-result span { font-weight: 400; color: var(--text-2); display: block; margin-top: 6px; font-size: 0.83rem; }
+
+    /* Lang pills */
+    .lang-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0; }
+    .lang-pill { padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.78rem; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); color: var(--cyan); }
+
+    /* Action btns */
+    .btn-demo {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; border-radius: var(--r-pill); font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: var(--transition); border: 1px solid;
+      align-self: flex-start; margin-top: auto;
+    }
+    .btn-demo.white { background: #fff; color: #000; border-color: #fff; }
+    .btn-demo.white:hover { background: #e5e5e5; transform: translateY(-2px); }
+    .btn-demo.red { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3); color: var(--red); }
+    .btn-demo.red:hover { background: rgba(239,68,68,0.15); transform: translateY(-2px); }
+    .btn-demo.orange { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); color: var(--orange); }
+    .btn-demo.orange:hover { background: rgba(245,158,11,0.15); transform: translateY(-2px); }
+    .btn-demo.cyan { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.25); color: var(--cyan); }
+    .btn-demo.cyan:hover { background: rgba(6,182,212,0.15); transform: translateY(-2px); }
+
+    /* ── IMPACT ── */
+    .impact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; }
+    .impact-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 40px 32px; text-align: center; transition: var(--transition); }
+    .impact-card:hover { border-color: var(--border-light); transform: translateY(-4px); }
+    .impact-num { font-size: 3.2rem; font-weight: 900; letter-spacing: -0.05em; line-height: 1; margin-bottom: 12px; }
+    .impact-label { font-size: 0.9rem; color: var(--text-2); font-weight: 500; }
+    .impact-note { font-size: 0.78rem; color: var(--text-3); margin-top: 8px; }
+    .g-blue { background: linear-gradient(120deg, #60a5fa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .g-green { background: linear-gradient(120deg, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .g-orange { background: linear-gradient(120deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* ── TECH STACK ── */
+    .tech-wrapper { margin-top: 60px; background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; }
+    .tech-table { width: 100%; border-collapse: collapse; }
+    .tech-table th { padding: 14px 24px; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); border-bottom: 1px solid var(--border); }
+    .tech-table td { padding: 18px 24px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
+    .tech-table tr:last-child td { border-bottom: none; }
+    .tech-table tr { transition: var(--transition); }
+    .tech-table tr:hover td { background: var(--bg-2); }
+    .tech-table td:first-child { color: var(--text-2); font-size: 0.85rem; }
+    .tech-table td:nth-child(2) strong { color: var(--text); font-weight: 600; }
+    .tech-table td:last-child { color: var(--text-3); font-size: 0.83rem; }
+    .tech-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.78rem; font-weight: 600; background: rgba(59,130,246,0.08); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+
+    /* ── FOOTER ── */
+    .footer { border-top: 1px solid var(--border); padding: 72px 0 40px; }
+    .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 60px; }
+    .footer-brand p { font-size: 0.9rem; color: var(--text-2); line-height: 1.65; margin-top: 16px; max-width: 260px; }
+    .footer-col h5 { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); margin-bottom: 16px; }
+    .footer-col ul { display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a { font-size: 0.9rem; color: var(--text-2); transition: var(--transition); }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; border-top: 1px solid var(--border); gap: 16px; flex-wrap: wrap; }
+    .footer-bottom p { font-size: 0.83rem; color: var(--text-3); }
+    .footer-tech-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .f-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: var(--r-pill); border: 1px solid var(--border); color: var(--text-3); }
+
+    /* ── MODALS ── */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      opacity: 0; pointer-events: none; transition: var(--transition);
+    }
+    .modal-bg.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto;
+      background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--r-xl);
+      padding: 36px; position: relative;
+      transform: translateY(24px) scale(0.98); transition: var(--transition);
+    }
+    .modal-bg.open .modal { transform: none; }
+    .modal-close { position: absolute; top: 20px; right: 20px; width: 32px; height: 32px; border-radius: 50%; background: var(--bg-glass); border: 1px solid var(--border); color: var(--text); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
+    .modal-close:hover { background: var(--bg-2); }
+    .modal h3 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 24px; }
+    .score-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .score-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-glass); border: 1px solid var(--border); border-radius: var(--r-md); font-size: 0.9rem; }
+    .score-pts { font-weight: 700; color: var(--green); }
+    .score-total { text-align: center; font-size: 3rem; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 24px; background: linear-gradient(120deg, #fff, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* ── TOASTS ── */
+    #toast-root { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+    .toast {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: var(--r-lg);
+      background: var(--bg-2); border: 1px solid var(--border);
+      font-size: 0.9rem; font-weight: 500;
+      transform: translateX(120%); transition: var(--transition);
+      max-width: 360px; box-shadow: var(--shadow);
+      pointer-events: none;
+    }
+    .toast.show { transform: none; pointer-events: auto; }
+    .toast.success { border-color: rgba(16,185,129,0.3); }
+    .toast.error { border-color: rgba(239,68,68,0.3); }
+    .toast.info { border-color: rgba(59,130,246,0.3); }
+
+    /* ── AR MODAL ── */
+    .ar-view { background: #0a0a18; border: 1px solid var(--border); border-radius: var(--r-lg); height: 280px; position: relative; overflow: hidden; }
+    #ar-canvas { width: 100%; height: 100%; }
+    .ar-hud { position: absolute; bottom: 16px; left: 16px; right: 16px; }
+    .ar-pin-card { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); border: 1px solid rgba(239,68,68,0.4); border-radius: var(--r-md); padding: 14px 18px; font-size: 0.85rem; box-shadow: 0 0 24px rgba(239,68,68,0.2); }
+    .ar-pin-title { font-weight: 700; color: var(--red); margin-bottom: 8px; }
+    .ar-pin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.78rem; color: var(--text-2); }
+    .ar-gps { position: absolute; top: 12px; left: 12px; font-family: var(--mono); font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+
+    /* Voice */
+    .voice-wrap { text-align: center; padding: 32px; }
+    .voice-emoji { font-size: 4rem; margin-bottom: 16px; }
+    .voice-lang { font-size: 1.1rem; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+    .voice-transcript { font-size: 1.4rem; margin-bottom: 6px; font-weight: 600; }
+    .voice-translation { font-size: 0.9rem; color: var(--text-2); margin-bottom: 32px; }
+    .voice-pipeline { display: none; text-align: left; }
+    .voice-step { padding: 12px 16px; border-radius: var(--r-sm); font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; }
+    .vs-1 { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); }
+    .vs-2 { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); }
+    .vs-3 { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); }
+    .vs-final { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: var(--green); font-size: 0.9rem; padding: 14px 16px; border-radius: var(--r-md); margin-top: 12px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)} 50%{box-shadow:0 0 0 8px rgba(16,185,129,0)} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes shimmer { 100%{transform:translateX(200%)} }
+    @keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+    /* ── GSAP INIT STATES ── */
+    .reveal { opacity: 0; transform: translateY(40px); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .hero-stats { gap: 0; }
+      .hero-stat { padding: 0 24px; }
+      .problems-grid { grid-template-columns: repeat(2, 1fr); }
+      .problem-card:nth-child(2n) { border-right: none; }
+      .problem-card:nth-child(3) { border-right: 1px solid var(--border); }
+      .impact-grid { grid-template-columns: 1fr 1fr; }
+      .agent-panel { grid-template-columns: 1fr; }
+      .agent-panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+      .sol-row { grid-template-columns: 1fr; }
+      .sol-wide { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    }
+    @media (max-width: 640px) {
+      .hero-h1 { font-size: 2.6rem; }
+      .hero-stat { padding: 0 16px; }
+      .hero-stat-val { font-size: 1.6rem; }
+      .nav-links, .nav-right { display: none; }
+      .hamburger { display: flex; }
+      .problems-grid { grid-template-columns: 1fr; }
+      .problem-card { border-right: none !important; }
+      .impact-grid { grid-template-columns: 1fr; }
+      .pipeline-track { flex-wrap: wrap; justify-content: center; gap: 16px; }
+      .pipe-connector { display: none; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loader" role="status" aria-label="Loading CivicPulse AI">
+  <div class="loader-logo">🏙️</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+  <div class="loader-text">INITIALIZING CIVICPULSE AI</div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo" aria-label="CivicPulse AI Home">
+      <span class="nav-logo-icon">🏙️</span>
+      <span>CivicPulse AI</span>
+    </a>
+    <div class="nav-links" id="nav-links" role="menubar">
+      <a href="#problems" class="nav-link" role="menuitem">Problems</a>
+      <a href="#agents" class="nav-link" role="menuitem">5 Agents</a>
+      <a href="#solutions" class="nav-link" role="menuitem">Live Solutions</a>
+      <a href="#impact" class="nav-link" role="menuitem">Impact</a>
+      <a href="#tech-stack" class="nav-link" role="menuitem">Tech Stack</a>
+    </div>
+    <div class="nav-right">
+      <a href="demo.html" target="_blank" class="btn-launch" id="btn-launch" aria-label="Launch interactive demo">
+        <span class="dot-pulse"></span>
+        Launch Working App
+      </a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero" aria-label="Hero section">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <!-- Animated glow orbs for vivid hero background -->
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-orb hero-orb-4"></div>
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow reveal">
+        <span class="hero-eyebrow-dot"></span>
+        Google for Developers Hackathon 2026 · Community Hero
+      </div>
+      <h1 class="hero-h1 reveal">
+        India's Cities Deserve
+        <span class="line2">Intelligent Governance.</span>
+      </h1>
+      <p class="hero-sub reveal">
+        CivicPulse AI is a 5-agent autonomous platform on Google Cloud that transforms any citizen complaint — photo, voice, or text — into government action in under 2 seconds.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="demo.html" target="_blank" class="btn-primary" aria-label="Open the live working demo">
+          <span>🚀</span> Try The Live App
+        </a>
+        <a href="#solutions" class="btn-secondary" aria-label="See solutions in action">
+          <span>▶</span> See Solutions
+        </a>
+      </div>
+      <div class="hero-stats reveal">
+        <div class="hero-stat">
+          <div class="hero-stat-val">&lt;2s</div>
+          <div class="hero-stat-label">End-to-End Pipeline</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">5</div>
+          <div class="hero-stat-label">Google ADK Agents</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">12</div>
+          <div class="hero-stat-label">Indic Languages</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">~85%</div>
+          <div class="hero-stat-label">Classification Acc.</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">12+</div>
+          <div class="hero-stat-label">Google Services</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS -->
+<section class="section section-alt" id="problems" aria-label="Problems we solve">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-h">Six Failures Destroying<br/>India's Civic Systems.</h2>
+      <p class="section-sub">600 million urban Indians deserve better. CivicPulse AI eliminates every single failure.</p>
+    </div>
+    <div class="problems-grid">
+      <div class="problem-card reveal"><div class="problem-icon">📡</div><div class="problem-cross">✗ UNSOLVED</div><h3>Fragmented Reporting</h3><p>Citizens use WhatsApp, Twitter, calls. Most issues are never officially logged or tracked.</p></div>
+      <div class="problem-card reveal"><div class="problem-icon">👻</div><div class="problem-cross">✗ UNSOLVED</div><h3>Zero Accountability</h3><p>Once filed (if ever), no tracking. Reports vanish into bureaucracy with zero visibility.</p></div>
+      <div class="problem-card reveal"><div class="problem-icon">🔁</div><div class="problem-cross">✗ UNSOLVED</div><h3>Duplicate Complaints</h3><p>The same pothole is reported 50+ times, wasting triage resources and creating noise.</p></div>
+      <div class="problem-card reveal"><div class="problem-icon">⏳</div><div class="problem-cross">✗ UNSOLVED</div><h3>No Predictive Action</h3><p>Authorities react only after failure. Data-driven preventive maintenance does not exist.</p></div>
+      <div class="problem-card reveal"><div class="problem-icon">📵</div><div class="problem-cross">✗ UNSOLVED</div><h3>Digital Divide</h3><p>Existing apps require English literacy and smartphones — excluding 60% of citizens.</p></div>
+      <div class="problem-card reveal"><div class="problem-icon">💰</div><div class="problem-cross">✗ UNSOLVED</div><h3>Corruption &amp; Impunity</h3><p>Officers file fake resolutions, misuse budgets, and delay responses with zero detection.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5-AGENT PIPELINE -->
+<section class="section" id="agents" aria-label="5-Agent Pipeline">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Google ADK Orchestration</div>
+      <h2 class="section-h">The 5-Agent Autonomous Pipeline.</h2>
+      <p class="section-sub">Reporter → Verification → Routing fire synchronously in under 2 seconds. Escalation and Prediction run async via Cloud Tasks and BigQuery ML.</p>
+    </div>
+
+    <div class="pipeline-track reveal">
+      <div class="pipe-node active" data-agent="1" style="--node-color:#3b82f6;" onclick="selectAgent(1)" role="button" tabindex="0" aria-label="Reporter Agent">
+        <div class="pipe-node-circle">📸</div>
+        <div class="pipe-node-label">Reporter</div>
+      </div>
+      <div class="pipe-connector"></div>
+      <div class="pipe-node" data-agent="2" style="--node-color:#8b5cf6;" onclick="selectAgent(2)" role="button" tabindex="0" aria-label="Verification Agent">
+        <div class="pipe-node-circle">🔍</div>
+        <div class="pipe-node-label">Verification</div>
+      </div>
+      <div class="pipe-connector"></div>
+      <div class="pipe-node" data-agent="3" style="--node-color:#10b981;" onclick="selectAgent(3)" role="button" tabindex="0" aria-label="Routing Agent">
+        <div class="pipe-node-circle">🗺️</div>
+        <div class="pipe-node-label">Routing</div>
+      </div>
+      <div class="pipe-connector dashed"></div>
+      <div class="pipe-node" data-agent="4" style="--node-color:#f59e0b;" onclick="selectAgent(4)" role="button" tabindex="0" aria-label="Escalation Agent">
+        <div class="pipe-node-circle">⚡</div>
+        <div class="pipe-node-label">Escalation</div>
+      </div>
+      <div class="pipe-connector dashed"></div>
+      <div class="pipe-node" data-agent="5" style="--node-color:#ef4444;" onclick="selectAgent(5)" role="button" tabindex="0" aria-label="Prediction Agent">
+        <div class="pipe-node-circle">🔮</div>
+        <div class="pipe-node-label">Prediction</div>
+      </div>
+    </div>
+
+    <div class="agent-panel reveal" id="agent-panel">
+      <div class="agent-panel-left">
+        <div class="agent-badge" id="a-badge">⚡ LIVE IN DEMO</div>
+        <div class="agent-name" id="a-name">Reporter Agent</div>
+        <div class="agent-tech mono" id="a-tech">Gemini 2.0 Flash · Multimodal</div>
+        <ul class="agent-caps" id="a-caps"></ul>
+      </div>
+      <div class="agent-panel-right">
+        <div class="terminal-header">
+          <div class="t-dot t-red"></div><div class="t-dot t-yel"></div><div class="t-dot t-grn"></div>
+          <span class="t-title">agent_trace.log</span>
+        </div>
+        <div class="terminal" id="a-trace" aria-live="polite">
+          <span class="t-line">// Click any agent node to inspect its live trace</span>
+        </div>
+        <div class="terminal-footer">
+          <button class="btn-ai-thinking" onclick="openModal('modal-thinking')" aria-label="View full AI reasoning">🧠 View Full AI Reasoning</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE SOLUTIONS -->
+<section class="section section-alt" id="solutions" aria-label="Live Interactive Solutions">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Interactive Demo</div>
+      <h2 class="section-h">See Every Problem<br/>Get Solved — Live.</h2>
+      <p class="section-sub">Each feature below directly solves one of the six civic failures. All simulations show exactly what the AI does under the hood.</p>
+    </div>
+
+    <div class="solutions-grid">
+      <!-- Civic Digital Twin -->
+      <div class="sol-row full">
+        <div class="sol-card sol-wide reveal">
+          <div class="sol-card-text">
+            <div class="sol-tag" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--green);">Solves: No Predictive Action</div>
+            <h3>Civic Digital Twin</h3>
+            <p>BigQuery ML trains a logistic regression model on 3 years of Bengaluru infrastructure data. The result is a live city health map refreshed weekly via Cloud Scheduler — predicting failure 10 days ahead.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;">
+              <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Ward 5 — OK (22%)</span>
+              <span style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--orange);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Koramangala — Risk 82%</span>
+              <span style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Ward 14 — Critical 91%</span>
+            </div>
+          </div>
+          <div class="twin-wrap">
+            <canvas id="twin-canvas" aria-label="Civic Digital Twin city health map"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Mayor + Voice -->
+      <div class="sol-row reveal">
+        <div class="sol-card">
+          <div class="sol-tag" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);color:var(--purple);">Solves: Information Silos</div>
+          <h3>Civic AI Mayor</h3>
+          <p>Gemini 2.0 Pro with BBMP's governance guidelines pre-loaded in the 2M-token context window. Ask any question about city infrastructure policy.</p>
+          <div class="mayor-chat" id="mayor-chat" aria-live="polite">
+            <div class="chat-msg user">Why are potholes increasing in Whitefield?</div>
+            <div class="chat-msg ai" id="mayor-response">Click below to query the AI Mayor…</div>
+          </div>
+          <button class="btn-demo white" onclick="askAIMayor()" id="btn-mayor" aria-label="Ask the Civic AI Mayor">🏛️ Ask AI Mayor</button>
+        </div>
+        <div class="sol-card">
+          <div class="sol-tag" style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);color:var(--cyan);">Solves: Digital Divide</div>
+          <h3>12-Language Voice Agent</h3>
+          <p>Citizens speak in their native tongue. Gemini Live transcribes, classifies, and creates a structured ticket — no app, no English, no smartphone required.</p>
+          <div class="lang-pills">
+            <span class="lang-pill">ಕನ್ನಡ</span><span class="lang-pill">हिंदी</span>
+            <span class="lang-pill">தமிழ்</span><span class="lang-pill">తెలుగు</span>
+            <span class="lang-pill">मराठी</span><span class="lang-pill">+7 more</span>
+          </div>
+          <button class="btn-demo cyan" onclick="simulateVoice()" aria-label="Simulate Kannada voice report">🎙️ Simulate Kannada Voice</button>
+        </div>
+      </div>
+
+      <!-- Disaster + Corruption -->
+      <div class="sol-row reveal">
+        <div class="sol-card">
+          <div class="sol-tag" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);">Solves: Sluggish Emergency Response</div>
+          <h3>Disaster Mode</h3>
+          <p>25 waterlogging reports in under 10 minutes triggers autonomous Disaster Mode. Evacuation routes generated. BBMP + NDRF auto-alerted. No human needed.</p>
+          <div class="sim-result danger" id="disaster-result">
+            🚨 DISASTER MODE ACTIVE — FLOOD DETECTED
+            <span>25 waterlogging reports clustered in Koramangala. Evacuation routes dispatched. NDRF notified. Shelter locations mapped.</span>
+          </div>
+          <button class="btn-demo red" onclick="simulateDisaster()" id="btn-disaster" aria-label="Simulate flood disaster trigger">🌊 Simulate Flood Trigger</button>
+        </div>
+        <div class="sol-card">
+          <div class="sol-tag" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:var(--orange);">Solves: Corruption &amp; Impunity</div>
+          <h3>Corruption Detection AI</h3>
+          <p>Gemini Vision diffs before/after resolution photos. Detects fake closures, SLA breach patterns, and mismatches. Per-officer Integrity Risk Score is auto-computed.</p>
+          <div class="sim-result warning" id="corruption-result">
+            ⚠️ INTEGRITY RISK: HIGH — Officer #147
+            <span>12 SLA breaches. 7 suspicious closures. Gemini Vision diff mismatch: 0.91 confidence. Auto-flagged for human review.</span>
+          </div>
+          <button class="btn-demo orange" onclick="simulateCorruption()" id="btn-corruption" aria-label="Simulate fake closure detection">🚔 Simulate Fake Closure</button>
+        </div>
+      </div>
+
+      <!-- AR + Explainability -->
+      <div class="sol-row reveal">
+        <div class="sol-card">
+          <div class="sol-tag" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:var(--blue);">Solves: Lack of Transparency</div>
+          <h3>CivicLens AR Overlay</h3>
+          <p>Point your phone at any street. Live issue pins appear via browser MediaDevices API — severity, officer ETA, risk score — all overlaid on reality.</p>
+          <button class="btn-demo" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);color:var(--blue);" onclick="openModal('modal-ar')" aria-label="Launch AR demo view">📱 Launch AR View</button>
+        </div>
+        <div class="sol-card">
+          <div class="sol-tag" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-2);">Solves: Black-Box AI</div>
+          <h3>AI Explainability Panel</h3>
+          <p>Every AI decision is auditable. Priority Score 91 shown with factor breakdown, routing rationale, and live agent_trace log from the database.</p>
+          <div class="score-grid" style="margin-top:16px;">
+            <div class="score-row"><span>Severity = Critical</span><span class="score-pts">+30</span></div>
+            <div class="score-row"><span>School within 100m</span><span class="score-pts">+15</span></div>
+            <div class="score-row"><span>13 citizen reports</span><span class="score-pts">+26</span></div>
+          </div>
+          <button class="btn-demo white" onclick="openModal('modal-thinking')" aria-label="View full AI reasoning">🧠 View Full Reasoning</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MID-PAGE LAUNCH APP CTA -->
+<section style="padding: 100px 0; background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(139,92,246,0.06) 50%, rgba(16,185,129,0.06) 100%); border-top: 1px solid rgba(59,130,246,0.15); border-bottom: 1px solid rgba(139,92,246,0.15); position: relative; overflow: hidden;" aria-label="Launch App CTA">
+  <!-- Background orbs -->
+  <div style="position:absolute;width:400px;height:400px;top:-100px;left:-100px;background:radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%);border-radius:50%;filter:blur(60px);pointer-events:none"></div>
+  <div style="position:absolute;width:350px;height:350px;bottom:-80px;right:-80px;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);border-radius:50%;filter:blur(60px);pointer-events:none"></div>
+  <div class="container" style="position:relative;z-index:1;text-align:center;">
+    <div class="reveal" style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.06);font-size:0.8rem;font-weight:600;color:var(--green);margin-bottom:28px;letter-spacing:0.05em;">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;display:inline-block"></span>
+      Live & Interactive — Try It Now
+    </div>
+    <h2 class="reveal" style="font-size:clamp(2.2rem,4.5vw,3.8rem);font-weight:900;letter-spacing:-0.04em;line-height:1.1;margin-bottom:20px;">See It Work.<br/><span style="background:linear-gradient(120deg,#3b82f6,#8b5cf6,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Not Just Read About It.</span></h2>
+    <p class="reveal" style="font-size:1.1rem;color:var(--text-2);max-width:520px;margin:0 auto 44px;line-height:1.7;">Open the interactive dashboard. Submit a real complaint. Watch all 5 Google ADK agents process it live in under 2 seconds — Gemini Vision, PostGIS, BigQuery ML and all.</p>
+    <div class="reveal" style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;">
+      <a href="demo.html" target="_blank" style="display:inline-flex;align-items:center;gap:12px;padding:18px 40px;border-radius:999px;background:#fff;color:#000;font-weight:800;font-size:1.05rem;letter-spacing:-0.02em;transition:all 0.3s;box-shadow:0 0 0 1px rgba(255,255,255,0.2),0 12px 40px rgba(255,255,255,0.15);text-decoration:none;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 0 0 1px rgba(255,255,255,0.3),0 20px 48px rgba(255,255,255,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow='0 0 0 1px rgba(255,255,255,0.2),0 12px 40px rgba(255,255,255,0.15)'">
+        <span style="width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite;display:inline-block"></span>
+        🚀 Launch Working App
+      </a>
+      <a href="#solutions" style="display:inline-flex;align-items:center;gap:10px;padding:18px 32px;border-radius:999px;border:1px solid var(--border);color:var(--text);font-weight:600;font-size:1rem;transition:all 0.3s;text-decoration:none;" onmouseover="this.style.borderColor='rgba(255,255,255,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
+        ▼ See Solutions Below
+      </a>
+    </div>
+    <!-- Social proof row -->
+    <div class="reveal" style="display:flex;align-items:center;justify-content:center;gap:32px;margin-top:56px;padding-top:40px;border-top:1px solid var(--border);flex-wrap:wrap;">
+      <div style="text-align:center"><div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em">5</div><div style="font-size:0.78rem;color:var(--text-2);margin-top:3px">AI Agents</div></div>
+      <div style="width:1px;height:36px;background:var(--border)"></div>
+      <div style="text-align:center"><div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em">&lt;2s</div><div style="font-size:0.78rem;color:var(--text-2);margin-top:3px">Processing Time</div></div>
+      <div style="width:1px;height:36px;background:var(--border)"></div>
+      <div style="text-align:center"><div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em">12+</div><div style="font-size:0.78rem;color:var(--text-2);margin-top:3px">Google Services</div></div>
+      <div style="width:1px;height:36px;background:var(--border)"></div>
+      <div style="text-align:center"><div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em">100%</div><div style="font-size:0.78rem;color:var(--text-2);margin-top:3px">Google Cloud Native</div></div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="impact" aria-label="Impact metrics">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Economic Impact</div>
+      <h2 class="section-h">Tangible, Measurable Savings.</h2>
+      <p class="section-sub">Modelled on BBMP 2023 expenditure data. All numbers labelled as projections.</p>
+    </div>
+    <div class="impact-grid">
+      <div class="impact-card reveal">
+        <div class="impact-num g-green" id="c1" aria-label="8.4 crore rupees prevented road damage">₹0 Cr</div>
+        <div class="impact-label">Prevented Road Damage</div>
+        <div class="impact-note">12-month model, 3 wards</div>
+      </div>
+      <div class="impact-card reveal">
+        <div class="impact-num g-blue" id="c2" aria-label="2.1 crore rupees flood prevention savings">₹0 Cr</div>
+        <div class="impact-label">Flood Prevention Savings</div>
+        <div class="impact-note">Early warning vs reactive cost delta</div>
+      </div>
+      <div class="impact-card reveal">
+        <div class="impact-num g-orange" id="c3" aria-label="1.8 crore rupees maintenance budget optimised">₹0 Cr</div>
+        <div class="impact-label">Maintenance Budget Saved</div>
+        <div class="impact-note">Civic AI Mayor recommendation, pilot</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section class="section section-alt" id="tech-stack" aria-label="Technology Stack">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">100% Google Native</div>
+      <h2 class="section-h">Every Layer on<br/>Google Cloud.</h2>
+      <p class="section-sub">Zero third-party LLMs. Zero self-hosted infra. Maximum Google tech score.</p>
+    </div>
+    <div class="tech-wrapper reveal">
+      <table class="tech-table" aria-label="Technology stack comparison">
+        <thead>
+          <tr><th>Layer</th><th>Google Technology</th><th>Why Over Alternatives</th></tr>
+        </thead>
+        <tbody id="tech-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo"><span class="nav-logo-icon">🏙️</span><span>CivicPulse AI</span></div>
+        <p>An AI Operating System for India's cities. Built on Gemini 2.0 &amp; Google Cloud. Solving real civic problems for 600M+ urban citizens.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="#agents">5-Agent Pipeline</a></li>
+          <li><a href="#solutions">Live Solutions</a></li>
+          <li><a href="demo.html" target="_blank">Working App</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Impact</h5>
+        <ul>
+          <li><a href="#impact">Impact Metrics</a></li>
+          <li><a href="#problems">Problems Solved</a></li>
+          <li><a href="#tech-stack">Tech Stack</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="civicpulse_graph.json" target="_blank">Knowledge Graph</a></li>
+          <li><a href="CivicPulse_AI_v5_FINAL.pdf" target="_blank">Technical PDF</a></li>
+          <li><a href="demo.html" target="_blank">Try the App</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 CivicPulse AI · Google for Developers Hackathon · Community Hero</p>
+      <div class="footer-tech-badges">
+        <span class="f-badge">Gemini 2.0</span>
+        <span class="f-badge">Google ADK</span>
+        <span class="f-badge">BigQuery ML</span>
+        <span class="f-badge">Firebase</span>
+        <span class="f-badge">Cloud Run</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- MODALS -->
+<div class="modal-bg" id="modal-thinking" role="dialog" aria-modal="true" aria-label="AI Thinking Panel">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-thinking')" aria-label="Close">✕</button>
+    <h3>🧠 AI Reasoning — Priority Score 91</h3>
+    <div class="score-total">91</div>
+    <div class="score-grid">
+      <div class="score-row"><span>Severity = Critical</span><span class="score-pts">+30</span></div>
+      <div class="score-row"><span>School within 100m</span><span class="score-pts">+15</span></div>
+      <div class="score-row"><span>13 citizen reports</span><span class="score-pts">+26</span></div>
+      <div class="score-row"><span>Monsoon forecast 72h</span><span class="score-pts">+12</span></div>
+      <div class="score-row"><span>Prior accidents on record</span><span class="score-pts">+8</span></div>
+    </div>
+    <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:var(--r-md);padding:14px 16px;font-size:0.85rem;margin-bottom:24px;">
+      ⚡ Auto-escalated: score &gt; 85 → SLA_CRITICAL (24h ACK required)
+    </div>
+    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);margin-bottom:12px;">Live Agent Trace Log</div>
+    <div class="terminal" style="border-radius:var(--r-md);max-height:220px;" aria-label="Agent trace log">
+      <span class="t-time">[08:14:02]</span> <span class="t-key">ReporterAgent.classify()</span><br/>
+      &nbsp;&nbsp;<span class="t-line">gemini_vision_classify() →</span> <span class="t-val">pothole/critical</span><br/>
+      &nbsp;&nbsp;<span class="t-line">confidence: </span><span class="t-val">0.94</span> · ward_id: <span class="t-val">14</span><br/>
+      <span class="t-time">[08:14:03]</span> <span class="t-key">VerificationAgent.dedup()</span><br/>
+      &nbsp;&nbsp;<span class="t-line">PostGIS_proximity(50m) →</span> <span class="t-val">13 matches</span><br/>
+      &nbsp;&nbsp;<span class="t-line">pHash similarity: </span><span class="t-val">0.81</span> · merged → issue <span class="t-val">#1122</span><br/>
+      <span class="t-time">[08:14:04]</span> <span class="t-key">RoutingAgent.assign()</span><br/>
+      &nbsp;&nbsp;<span class="t-line">officer_workload_query() →</span> <span class="t-val">Ravi K. (load: 3)</span><br/>
+      &nbsp;&nbsp;<span class="t-line">BBMP Sec 4.2.1: Critical road defects near schools = same-day ACK</span><br/>
+      <span class="t-time">[08:14:05]</span> <span class="t-key">EscalationAgent.sla_start()</span><br/>
+      &nbsp;&nbsp;<span class="t-line">timer: </span><span class="t-val">24h</span> · FCM queued: <span class="t-val">Ravi K., Supervisor</span>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-ar" role="dialog" aria-modal="true" aria-label="CivicLens AR Demo">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-ar')" aria-label="Close">✕</button>
+    <h3>📱 CivicLens AR Overlay</h3>
+    <div class="ar-view">
+      <canvas id="ar-canvas" aria-label="AR street view simulation"></canvas>
+      <div class="ar-gps">GPS: 12.9716°N, 77.5946°E · 🧭 142°</div>
+      <div class="ar-hud">
+        <div class="ar-pin-card">
+          <div class="ar-pin-title">📍 Pothole — Ward 14 · HIGH SEVERITY</div>
+          <div class="ar-pin-grid">
+            <div><span style="color:var(--text-3)">Officer</span><br/><strong>Ravi K.</strong></div>
+            <div><span style="color:var(--text-3)">ETA</span><br/><strong style="color:var(--orange)">3 days</strong></div>
+            <div><span style="color:var(--text-3)">Risk Score</span><br/><strong style="color:var(--red)">82%</strong></div>
+            <div><span style="color:var(--text-3)">Reports</span><br/><strong>27 citizens</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:0.88rem;color:var(--text-2);line-height:1.65;margin-top:20px;">
+      <strong>Tech:</strong> Browser <code style="background:var(--bg-2);padding:2px 6px;border-radius:4px;">MediaDevices API</code> for camera, <code style="background:var(--bg-2);padding:2px 6px;border-radius:4px;">DeviceOrientation API</code> for gyroscope, Google Maps for geocoding, optional Gemini Vision scan on tap.
+    </p>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-voice" role="dialog" aria-modal="true" aria-label="Voice Agent Demo">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-voice')" aria-label="Close">✕</button>
+    <div class="voice-wrap">
+      <div class="voice-emoji" id="v-emoji">🎙️</div>
+      <div class="voice-lang">Listening in Kannada…</div>
+      <div class="voice-transcript">"ನಮ್ಮ ರಸ್ತೆಯಲ್ಲಿ ದೊಡ್ಡ ಹಳ್ಳ ಇದೆ"</div>
+      <div class="voice-translation">"There is a large pothole in our road"</div>
+      <div class="voice-pipeline" id="v-pipeline">
+        <div class="voice-step vs-1">✓ Reporter Agent — Category: Pothole / Severity: HIGH</div>
+        <div class="voice-step vs-2">✓ Verification Agent — No duplicates within 50m</div>
+        <div class="voice-step vs-3">✓ Routing Agent — Assigned: Ravi K. | SLA: 24h | Ward 14</div>
+        <div class="vs-final">🎙️ AI reading back: "ನಿಮ್ಮ ದೂರು ದಾಖಲಾಗಿದೆ. Ticket #CP-1247 — Ravi K. ತನಿಖೆ ಮಾಡುತ್ತಾರೆ."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-root" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+gsap.registerPlugin(ScrollTrigger);
+
+// ── AGENTS DATA ──────────────────────────────────────────────
+const AGENTS = [
+  { id:1, name:'Reporter Agent', tech:'Gemini 2.0 Flash · Multimodal', color:'#3b82f6', status:'⚡ LIVE',
+    caps:['Accepts photo, voice, or text in any of 12 Indic languages','Gemini Vision classifies: category, severity, urgency','Asks one clarifying question if confidence < 0.7','Stores gemini_raw_response + agent_trace in BigQuery'],
+    trace:[
+      {t:'08:14:02', key:'ReporterAgent.classify()', lines:[
+        {l:'gemini_vision_classify()', v:'pothole / critical'},
+        {l:'confidence', v:'0.94'}, {l:'ward_id', v:'14'}, {l:'elapsed', v:'0.8s'}
+      ]}
+    ]
+  },
+  { id:2, name:'Verification Agent', tech:'Gemini Vision · pHash · PostGIS', color:'#8b5cf6', status:'⚡ LIVE',
+    caps:['pHash similarity ≥ 0.7 within 50m GPS radius → duplicate','Detects coordinated false reporting via rate-limit patterns','5 upvotes = auto-verified, auto-escalated','Trust score appended to agent_trace log'],
+    trace:[
+      {t:'08:14:03', key:'VerificationAgent.dedup()', lines:[
+        {l:'PostGIS_proximity(50m)', v:'13 nearby matches'},
+        {l:'pHash similarity', v:'0.23 → NEW issue'}, {l:'trust_score', v:'0.92'}
+      ]}
+    ]
+  },
+  { id:3, name:'Routing Agent', tech:'Gemini 2.0 Flash · PostGIS · Officer DB', color:'#10b981', status:'⚡ LIVE',
+    caps:['GPS → ward → department → officer via PostGIS boundary query','Selects officer with lowest current_load + ward match','Drafts assignment message citing BBMP guidelines','Logs routing rationale for Explainability panel'],
+    trace:[
+      {t:'08:14:04', key:'RoutingAgent.assign()', lines:[
+        {l:'ward_boundary_lookup()', v:'Ward 14, Roads & Infra'},
+        {l:'officer_workload_query()', v:'Ravi K. (load: 3)'},{l:'SLA tier', v:'CRITICAL 24h ACK'}
+      ]}
+    ]
+  },
+  { id:4, name:'Escalation Agent', tech:'Cloud Tasks · Firebase FCM', color:'#f59e0b', status:'⏱ ASYNC',
+    caps:['Monitors SLA timer. Sends reminders at 24h, 36h via FCM','Auto-escalates to senior officer if no ACK','Suggests safety measures to citizens via SMS','SLA breach patterns feed Corruption Detection'],
+    trace:[
+      {t:'T+24:00', key:'EscalationAgent.sla_monitor()', lines:[
+        {l:'NO_ACK from Ravi K.', v:'after 24h'},
+        {l:'FCM push', v:'Officer + Ward Supervisor'},{l:'Next', v:'T+36h: Deputy Commissioner'}
+      ]}
+    ]
+  },
+  { id:5, name:'Prediction Agent', tech:'BigQuery ML · Cloud Scheduler', color:'#ef4444', status:'🔄 ASYNC',
+    caps:['BigQuery ML logistic regression on 3-year Bengaluru seed data','CREATE MODEL query — < 5 min training, shown in demo','Ward-level risk scores refreshed weekly via Cloud Scheduler','Feeds Civic Digital Twin heatmap in real time'],
+    trace:[
+      {t:'Weekly', key:'PredictionAgent.bqml_run()', lines:[
+        {l:'CREATE MODEL civicpulse.ward_risk_v2', v:'LOGISTIC_REG'},
+        {l:'Ward 14 risk_score', v:'0.82 (waterlogging ~T+10d)'},{l:'Digital Twin', v:'updated'}
+      ]}
+    ]
+  }
+];
+
+const TECH = [
+  {layer:'Vision + Classification', tech:'Gemini 2.0 Flash (multimodal)', why:'Image + voice in one API call, native JSON mode'},
+  {layer:'Voice / STT', tech:'Gemini Live API', why:'Streaming STT, same model, 12 Indic languages, no extra API'},
+  {layer:'Agent Framework', tech:'Google ADK', why:'Purpose-built multi-agent orchestration with tool calling'},
+  {layer:'LLM — Civic Mayor', tech:'Gemini 2.0 Pro (2M context)', why:'Entire BBMP guidebook in system prompt — no vector DB needed'},
+  {layer:'Backend Hosting', tech:'Cloud Run (min-instances=1)', why:'Zero cold starts, Google-native SLA, auto-scale'},
+  {layer:'Database', tech:'Cloud SQL PG16 + PostGIS', why:'Managed, spatial indexes for geo-queries, Google SLA'},
+  {layer:'ML / Predictions', tech:'BigQuery ML (BQML)', why:'CREATE MODEL in SQL — < 5min training, zero setup risk'},
+  {layer:'Async Tasks', tech:'Cloud Tasks + Cloud Scheduler', why:'Escalation & Prediction agents fire reliably, no polling'},
+  {layer:'Auth + Notifications', tech:'Firebase Auth + FCM', why:'Phone OTP, JWT, 100k msgs/day free tier'},
+];
+
+// ── LOADER ───────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const bar = document.getElementById('loader-bar');
+  gsap.to(bar, {
+    width: '100%', duration: 1.2, ease: 'power2.out',
+    onComplete: () => {
+      gsap.to('#loader', {
+        opacity: 0, duration: 0.5, delay: 0.2,
+        onComplete: () => { document.getElementById('loader').style.display = 'none'; initAll(); }
+      });
+    }
+  });
+});
+
+// ── LENIS SMOOTH SCROLL ──────────────────────────────────────
+let lenis;
+function initLenis() {
+  lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10*t)) });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+
+// ── GSAP REVEAL ANIMATIONS ───────────────────────────────────
+function initAnimations() {
+  gsap.utils.toArray('.reveal').forEach(el => {
+    gsap.fromTo(el,
+      { y: 48, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+      }
+    );
+  });
+}
+
+// ── NAVBAR ───────────────────────────────────────────────────
+function initNavbar() {
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  document.getElementById('hamburger').addEventListener('click', function() {
+    const links = document.getElementById('nav-links');
+    const open = links.style.display === 'flex';
+    links.style.cssText = open ? '' : 'display:flex;flex-direction:column;position:absolute;top:80px;left:0;right:0;background:#000;padding:24px;border-bottom:1px solid var(--border);gap:8px;z-index:999;';
+    this.setAttribute('aria-expanded', !open);
+  });
+
+  // Close mobile menu on link click
+  document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => {
+    document.getElementById('nav-links').style.cssText = '';
+  }));
+
+  // Keyboard nav
+  document.querySelectorAll('[tabindex="0"]').forEach(el => {
+    el.addEventListener('keypress', e => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
+  });
+}
+
+// ── HERO PARTICLES ───────────────────────────────────────────
+function initParticles() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
+  resize(); window.addEventListener('resize', resize, { passive: true });
+  const pts = Array.from({ length: 50 }, () => ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15,
+    r: Math.random() * 1.5 + 0.5, a: Math.random() * 0.25 + 0.05
+  }));
+  (function draw() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(p => {
+      p.x += p.vx / W; p.y += p.vy / H;
+      if (p.x < 0) p.x = 1; if (p.x > 1) p.x = 0;
+      if (p.y < 0) p.y = 1; if (p.y > 1) p.y = 0;
+      ctx.globalAlpha = p.a;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(p.x * W, p.y * H, p.r, 0, Math.PI * 2); ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  })();
+}
+
+// ── HERO PARALLAX ────────────────────────────────────────────
+function initParallax() {
+  gsap.to('.hero-bg', {
+    yPercent: 40, ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+  });
+}
+
+// ── AGENT PIPELINE ───────────────────────────────────────────
+function selectAgent(id) {
+  document.querySelectorAll('.pipe-node').forEach(n => n.classList.toggle('active', +n.dataset.agent === id));
+  const a = AGENTS.find(x => x.id === id);
+  if (!a) return;
+
+  const badge = document.getElementById('a-badge');
+  badge.textContent = a.status;
+  badge.style.cssText = `background:${a.color}1a;border:1px solid ${a.color}33;color:${a.color}`;
+
+  document.getElementById('a-name').textContent = a.name;
+  document.getElementById('a-name').style.color = a.color;
+  document.getElementById('a-tech').textContent = a.tech;
+  document.getElementById('a-caps').innerHTML = a.caps.map(c => `
+    <li class="agent-cap"><span class="agent-cap-dot" style="color:${a.color};background:${a.color};"></span>${c}</li>
+  `).join('');
+
+  const trace = document.getElementById('a-trace');
+  trace.innerHTML = a.trace.map(t => `
+    <span class="t-time">[${t.t}]</span> <span class="t-key">${t.key}</span><br/>
+    ${t.lines.map(l => `&nbsp;&nbsp;<span class="t-line">${l.l}:</span> <span class="t-val">${l.v}</span>`).join('<br/>')}
+  `).join('<br/><br/>');
+
+  gsap.fromTo(trace, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' });
+}
+
+function initPipeline() {
+  selectAgent(1);
+  let i = 1;
+  setInterval(() => {
+    if (!document.querySelector('.pipe-node:hover')) { i = i % 5 + 1; selectAgent(i); }
+  }, 4000);
+}
+
+// ── TECH TABLE ───────────────────────────────────────────────
+function initTechTable() {
+  document.getElementById('tech-tbody').innerHTML = TECH.map(t => `
+    <tr>
+      <td>${t.layer}</td>
+      <td><span class="tech-badge">☁️ ${t.tech}</span></td>
+      <td>${t.why}</td>
+    </tr>
+  `).join('');
+}
+
+// ── DIGITAL TWIN MAP ─────────────────────────────────────────
+function initTwinMap() {
+  const canvas = document.getElementById('twin-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const wards = [
+    {x:.15,y:.3,r:18,c:'#10b981'}, {x:.4,y:.2,r:26,c:'#f59e0b'},
+    {x:.7,y:.15,r:14,c:'#ef4444'}, {x:.25,y:.65,r:20,c:'#10b981'},
+    {x:.55,y:.55,r:22,c:'#f59e0b'},{x:.8,y:.6,r:16,c:'#10b981'},
+    {x:.45,y:.8,r:18,c:'#ef4444'}
+  ];
+  let t = 0;
+  const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
+  resize(); window.addEventListener('resize', resize, { passive: true });
+  (function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    t += 0.04;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    wards.forEach(w => {
+      const px = w.x * W, py = w.y * H, pulse = Math.sin(t + px) * 4;
+      const g = ctx.createRadialGradient(px,py,0,px,py,w.r*3+pulse);
+      g.addColorStop(0, w.c+'55'); g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px,py,w.r*3+pulse,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = w.c+'30'; ctx.strokeStyle = w.c; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(px,py,w.r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    });
+    requestAnimationFrame(draw);
+  })();
+}
+
+// ── IMPACT COUNTERS ──────────────────────────────────────────
+function initCounters() {
+  const targets = [{id:'c1',val:'8.4'},{id:'c2',val:'2.1'},{id:'c3',val:'1.8'}];
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const t = targets.find(x => x.id === e.target.id);
+      if (!t) return;
+      let n = 0, end = parseFloat(t.val), dur = 2000, start = null;
+      const step = ts => {
+        if (!start) start = ts;
+        const p = Math.min((ts - start) / dur, 1);
+        n = end * (1 - Math.pow(1 - p, 3));
+        e.target.textContent = `₹${n.toFixed(1)} Cr`;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.5 });
+  targets.forEach(t => { const el = document.getElementById(t.id); if (el) obs.observe(el); });
+}
+
+// ── MODALS ───────────────────────────────────────────────────
+window.openModal = id => {
+  const m = document.getElementById(id);
+  m.classList.add('open');
+  if (lenis) lenis.stop();
+  if (id === 'modal-ar') initARCanvas();
+};
+window.closeModal = id => {
+  document.getElementById(id).classList.remove('open');
+  if (lenis) lenis.start();
+};
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-bg.open').forEach(m => {
+    m.classList.remove('open'); if (lenis) lenis.start();
+  });
+});
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => {
+  if (e.target === m) { m.classList.remove('open'); if (lenis) lenis.start(); }
+}));
+
+// ── AR CANVAS ────────────────────────────────────────────────
+function initARCanvas() {
+  const canvas = document.getElementById('ar-canvas');
+  if (!canvas || canvas._init) return;
+  canvas._init = true;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth || 560; canvas.height = canvas.offsetHeight || 280;
+  const W = canvas.width, H = canvas.height;
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#0a0a18'); grad.addColorStop(1, '#0a0f1e');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+  // Ground
+  ctx.fillStyle = '#141c2e'; ctx.fillRect(0, H * 0.6, W, H);
+  // Road markings
+  ctx.strokeStyle = '#f59e0b40'; ctx.lineWidth = 3;
+  ctx.setLineDash([30, 20]);
+  ctx.beginPath(); ctx.moveTo(W/2, H*0.6); ctx.lineTo(W/2, H); ctx.stroke();
+  // Buildings
+  [[0.08,0.45,60],[0.2,0.38,80],[0.7,0.42,70],[0.85,0.35,65]].forEach(([x,h,w]) => {
+    ctx.fillStyle = '#0d1629'; ctx.fillRect(x*W, H*(1-h)-H*0.4, w, H*h);
+    ctx.fillStyle = 'rgba(255,240,100,0.3)';
+    for (let wy=4; wy<h*H*0.7; wy+=16) for (let wx=4; wx<w-8; wx+=14)
+      if (Math.random()>0.4) ctx.fillRect(x*W+wx, H*(1-h)-H*0.4+wy, 8, 8);
+  });
+}
+
+// ── VOICE SIMULATION ─────────────────────────────────────────
+window.simulateVoice = function() {
+  openModal('modal-voice');
+  document.getElementById('v-pipeline').style.display = 'none';
+  document.getElementById('v-emoji').textContent = '🎙️';
+  gsap.to('#v-emoji', { scale: 1.15, yoyo: true, repeat: -1, duration: 0.6, ease: 'power1.inOut' });
+  setTimeout(() => {
+    gsap.killTweensOf('#v-emoji');
+    document.getElementById('v-emoji').textContent = '✅';
+    gsap.set('#v-emoji', { scale: 1 });
+    const p = document.getElementById('v-pipeline');
+    p.style.display = 'block';
+    gsap.fromTo(p, { opacity:0, y:20 }, { opacity:1, y:0, duration:0.5, ease:'power3.out' });
+    toast('success', '✓ Kannada voice complaint processed in 1.5s');
+  }, 2000);
+};
+
+// ── DISASTER SIMULATION ──────────────────────────────────────
+window.simulateDisaster = function() {
+  const btn = document.getElementById('btn-disaster');
+  const res = document.getElementById('disaster-result');
+  btn.textContent = '⏳ Seeding 25 reports…';
+  btn.disabled = true;
+  let n = 0;
+  const iv = setInterval(() => {
+    btn.textContent = `🌊 ${++n}/25 reports…`;
+    if (n >= 25) {
+      clearInterval(iv);
+      res.style.display = 'block';
+      gsap.fromTo(res, { opacity:0, y:16 }, { opacity:1, y:0, duration:0.5, ease:'power3.out' });
+      btn.textContent = '🚨 Disaster Mode Active'; btn.disabled = false;
+      toast('error', '🌊 Disaster Mode — NDRF alerted, evacuation routes generated');
+    }
+  }, 80);
+};
+
+// ── CORRUPTION SIMULATION ────────────────────────────────────
+window.simulateCorruption = function() {
+  const btn = document.getElementById('btn-corruption');
+  const res = document.getElementById('corruption-result');
+  btn.textContent = '🔍 Running Gemini Vision diff…'; btn.disabled = true;
+  setTimeout(() => {
+    res.style.display = 'block';
+    gsap.fromTo(res, { opacity:0, y:16 }, { opacity:1, y:0, duration:0.5, ease:'power3.out' });
+    btn.textContent = '⚠️ Corruption Flagged'; btn.disabled = false;
+    toast('error', '🚨 Officer #147 flagged — Integrity Risk HIGH');
+  }, 1800);
+};
+
+// ── AI MAYOR ─────────────────────────────────────────────────
+const mayorResponses = [
+  'Rainfall +32%, Budget −18%, Traffic +22%. BBMP Sec 7.3.2 recommends ₹1.8 Cr emergency allocation for Zones 4–5. BQML model projects 40% pothole reduction within 60 days of intervention.',
+  'Koramangala (Ward 14B) flood risk: 82%. Drainage capacity −23%, rainfall forecast +41%. Recommend: ₹45L drain desilting per SWM guidelines Sec 3.1. Predicted waterlogging in ~10 days.',
+  'Current dedup rate: 60% via pHash + 50m PostGIS clustering. Recommend: reduce radius to 30m in high-density wards, add 4h timestamp window. Estimated improvement: 72% dedup rate.'
+];
+let mayorIdx = 0;
+window.askAIMayor = function() {
+  const btn = document.getElementById('btn-mayor');
+  const resp = document.getElementById('mayor-response');
+  btn.textContent = '⌛ Thinking…'; btn.disabled = true;
+  resp.textContent = '';
+  const msg = mayorResponses[mayorIdx++ % mayorResponses.length];
+  setTimeout(() => {
+    let i = 0;
+    const iv = setInterval(() => {
+      resp.textContent += msg[i++];
+      if (i >= msg.length) { clearInterval(iv); btn.textContent = '🏛️ Ask Again'; btn.disabled = false; }
+    }, 18);
+  }, 600);
+};
+
+// ── TOAST ────────────────────────────────────────────────────
+function toast(type, msg) {
+  const root = document.getElementById('toast-root');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  root.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 4000);
+}
+window.showToast = toast;
+
+// ── MAIN INIT ────────────────────────────────────────────────
+function initAll() {
+  initLenis();
+  initAnimations();
+  initNavbar();
+  initParticles();
+  initParallax();
+  initPipeline();
+  initTechTable();
+  initTwinMap();
+  initCounters();
+  setTimeout(() => toast('info', '🏙️ CivicPulse AI — Click "Launch Working App" to try the live demo!'), 1200);
+}
+</script>
+</body>
+</html>

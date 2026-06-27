@@ -1,0 +1,82 @@
+CIVICPULSE AI - POST BUILD SUBMISSION CHECKLIST
+
+Problem Statement: Community Hero - Hyperlocal Problem Solver
+
+1.  VERIFY THE APPLICATION
+
+-   Test all features end-to-end
+-   Verify the 5-agent workflow
+-   Test voice reporting
+-   Test issue reporting and tracking
+-   Test officer dashboard
+-   Test AI explainability panel
+-   Verify all Google Cloud services
+
+2.  DEPLOY THE APPLICATION
+
+-   Deploy frontend on Firebase Hosting/Google Cloud
+-   Deploy backend on Cloud Run
+-   Ensure the application URL is public
+-   Verify the deployed link remains active
+
+3.  PREPARE THE GITHUB REPOSITORY
+
+-   Push all source code
+-   Create a professional README
+-   Add installation instructions
+-   Add architecture diagrams
+-   Add screenshots
+-   Add API documentation
+-   Add database schema
+
+4.  CREATE THE GOOGLE DOC SUBMISSION Include:
+
+-   Selected Problem Statement
+-   Problem Description
+-   Solution Overview
+-   Key Features
+-   Agent Architecture
+-   Technologies Used
+-   Google Technologies Used
+-   Impact and Innovation
+-   Future Scope
+
+5.  PREPARE DEMO MATERIALS
+
+-   Record a 2–3 minute demo video
+-   Capture screenshots of all modules
+-   Prepare backup screenshots
+-   Prepare backup demo video
+
+6.  DOCUMENT THE SYSTEM
+
+-   System architecture diagram
+-   Agent workflow diagram
+-   Database schema diagram
+-   Google Cloud architecture diagram
+-   User flow diagram
+
+7.  VERIFY EVALUATION CRITERIA
+
+-   Problem Solving & Impact
+-   Agentic Depth
+-   Innovation & Creativity
+-   Google Technologies Usage
+-   Product Experience
+-   Technical Implementation
+-   Completeness & Usability
+
+8.  FINAL SUBMISSION CHECKLIST [ ] Public Google Cloud deployed link [ ]
+    GitHub repository link [ ] Public Google Doc link [ ] Demo video [ ]
+    Architecture diagrams [ ] Screenshots [ ] README completed [ ]
+    Tested application [ ] Backup demo prepared [ ] Final presentation
+    script prepared
+
+9.  BEFORE CLICKING FINAL SUBMIT
+
+-   Verify all links are accessible
+-   Verify Google Doc sharing is set to ‘Anyone with the link’
+-   Test the deployed application again
+-   Check GitHub repository visibility
+-   Rehearse the final demo presentation
+-   Confirm all mandatory requirements are satisfied

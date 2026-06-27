@@ -1,0 +1,392 @@
+{
+  "_meta": {
+    "purpose": "CivicPulse AI Knowledge Graph — READ THIS FIRST before the PDF",
+    "instruction": "Any AI model working on this project MUST read this JSON graph before doing any work. This encodes the full 20-page CivicPulse_AI_v5_FINAL.pdf in structured form. Do NOT re-parse the PDF unless you need raw quote text.",
+    "source_pdf": "CivicPulse_AI_v5_FINAL.pdf",
+    "version": "v5.2",
+    "last_updated": "2026-06-27",
+    "ui_pages": ["index.html (marketing/pitch site)", "demo.html (interactive working app with 5-agent simulation)"],
+    "graph_sections": ["project_summary", "agents", "features", "tech_stack", "frontend_stack", "database_schema", "backend_apis_needed", "metrics_kpis", "sdg_alignment", "submission_checklist", "demo_script", "architecture", "competitive_analysis", "cost_analysis", "security", "scalability", "roadmap"]
+  },
+  "project_summary": {
+    "name": "CivicPulse AI",
+    "tagline": "AI Operating System for Cities",
+    "hackathon": "Google for Developers Hackathon 2026",
+    "theme": "Community Hero — Hyperlocal Problem Solver",
+    "stack": "Gemini + Google Cloud · Premium Frontend (GSAP/Lenis/LoadingScreen) · demo.html working app · 24h Build",
+    "problem_statement": "Broken civic complaint systems — reports lost, no tracking, zero accountability",
+    "solution": "5-agent autonomous AI pipeline on Google Cloud transforming citizen reports into government action, presented via an award-winning UI/UX.",
+    "users": ["Citizens (any device, any language)", "Municipal officers", "Senior administrators"],
+    "key_stats": {
+      "agent_pipeline_time": "<2 seconds end-to-end",
+      "num_agents": 5,
+      "classification_accuracy": "~85-90% on 200-image sample Bengaluru dataset (prototype eval)",
+      "languages": 12,
+      "google_services": "12+",
+      "faster_resolution": "3x (modelled estimate)",
+      "citizens_target": "50M+",
+      "cost_per_report": "<₹0.10",
+      "monthly_cost": "~₹4,400/month for 50,000 reports"
+    },
+    "differentiators": ["CivicLens AR overlay", "Corruption Detection AI", "Civic Digital Twin", "Offline PWA", "5-agent Google ADK orchestration", "Premium Apple/Linear aesthetic UI"]
+  },
+  "problems_solved": [
+    {"id": "P1", "title": "Fragmented Reporting", "description": "Citizens use WhatsApp, calls, or Twitter — no unified channel. Most issues never officially logged."},
+    {"id": "P2", "title": "Zero Accountability", "description": "Once filed (if ever), no tracking. Citizens have no visibility into resolution status."},
+    {"id": "P3", "title": "Duplicate Complaints", "description": "Same pothole may be reported 50+ times, wasting authority triage resources."},
+    {"id": "P4", "title": "No Predictive Action", "description": "Authorities react only after failure. Data-driven preventive maintenance is non-existent."},
+    {"id": "P5", "title": "Digital Divide", "description": "Existing e-governance apps require smartphones, English literacy, tech confidence — excluding 60% of citizens."},
+    {"id": "P6", "title": "Corruption & Impunity", "description": "Officers delay resolutions, file fake closures, misuse budgets with zero data-driven detection."}
+  ],
+  "solutions": [
+    {"solves": "P1", "title": "One Unified Platform", "description": "Photo, voice (Gemini Live), or text — any device, any language. Single source of truth."},
+    {"solves": "P2", "title": "5-Agent Lifecycle Pipeline", "description": "Reporter → Verification → Routing → Escalation → Prediction agents handle every report end-to-end, autonomously."},
+    {"solves": "P3", "title": "AI Deduplication Engine", "description": "Gemini vision similarity + GPS proximity clustering (50m radius) merges duplicates automatically."},
+    {"solves": "P4", "title": "Civic Digital Twin + Heatmaps", "description": "Live city map: Green/Amber/Red zones. BigQuery ML predicts failure before citizens notice."},
+    {"solves": "P5", "title": "Voice + Multilingual Agent", "description": "Gemini Live converts Kannada/Hindi/Tamil/Telugu to structured complaint in <1.5s."},
+    {"solves": "P6", "title": "Corruption Detection AI", "description": "Flags officers with SLA breach patterns, fake closures, visual diff anomalies. Per-officer Integrity Risk Score."}
+  ],
+  "agents": [
+    {
+      "id": 1,
+      "name": "Reporter Agent",
+      "status": "LIVE IN DEMO",
+      "tech": "Gemini 2.0 Flash — multimodal",
+      "capabilities": [
+        "Accepts photo + voice/text in any Indic language via Gemini Live",
+        "Extracts: category, severity, exact location, urgency",
+        "Asks one clarifying question if image confidence <0.7",
+        "Stores full gemini_raw_response + agent_trace in DB",
+        "Outputs structured JSON complaint ticket in <2s"
+      ],
+      "tool_called": "gemini_vision_classify()",
+      "time": "0.8s",
+      "output": "pothole / Critical / Ward 14",
+      "color": "#4f46e5"
+    },
+    {
+      "id": 2,
+      "name": "Verification Agent",
+      "status": "LIVE IN DEMO",
+      "tech": "Gemini Vision + pHash + PostGIS",
+      "capabilities": [
+        "Detects duplicates: image pHash similarity >= 0.7 within 50m GPS radius",
+        "Identifies coordinated false reporting via rate-limit pattern analysis",
+        "Requests nearby citizen upvotes (5 = auto-verified, auto-escalated)",
+        "Assigns community trust score. Appends to agent_trace log."
+      ],
+      "tools_called": ["PostGIS_proximity(50m)", "pHash_compare()"],
+      "time": "0.4s",
+      "output": "Merged → issue #1122 (13 reports)",
+      "color": "#7c3aed"
+    },
+    {
+      "id": 3,
+      "name": "Routing Agent",
+      "status": "LIVE IN DEMO",
+      "tech": "Gemini 2.0 Flash + PostGIS + Officer DB",
+      "capabilities": [
+        "PostGIS geo-query: GPS coords → ward → department → officer",
+        "Selects officer by lowest current_load + ward match",
+        "Drafts contextual assignment message using BBMP guidelines in system context",
+        "Logs routing rationale to agent_trace for Explain Decision panel"
+      ],
+      "tools_called": ["officer_workload_query()", "ward_boundary_lookup()"],
+      "time": "0.3s",
+      "output": "Assigned: Ravi K. | SLA: 24h",
+      "color": "#059669"
+    },
+    {
+      "id": 4,
+      "name": "Escalation Agent",
+      "status": "ASYNC — Cloud Tasks",
+      "tech": "Cloud Tasks + Firebase Cloud Messaging",
+      "capabilities": [
+        "Monitors SLA timer. Sends reminders at 24h, 36h via FCM.",
+        "Auto-escalates to senior officer if no ACK within SLA window",
+        "Suggests temporary safety measures to citizens via SMS",
+        "Detects SLA breach patterns per officer → feeds Corruption Detection"
+      ],
+      "tools_called": ["Cloud Tasks → sla_monitor()"],
+      "time": "T+24h",
+      "output": "Reminder SMS queued",
+      "color": "#d97706"
+    },
+    {
+      "id": 5,
+      "name": "Prediction Agent",
+      "status": "ASYNC — Cloud Scheduler",
+      "tech": "BigQuery ML (BQML) + Cloud Scheduler",
+      "capabilities": [
+        "BigQuery ML trains logistic regression on seeded 3-year Bengaluru data",
+        "Uses CREATE MODEL query (shown in demo) — no AutoML wait time",
+        "Outputs ward-level risk scores refreshed weekly via Cloud Scheduler",
+        "Feeds Civic Digital Twin heatmap layer in real time"
+      ],
+      "tools_called": ["BigQuery ML → twin_refresh()"],
+      "time": "Weekly",
+      "output": "Ward 14 risk: 82% (updated)",
+      "color": "#dc2626"
+    }
+  ],
+  "features": [
+    {
+      "id": "F1",
+      "name": "Civic Digital Twin",
+      "status": "LIVE",
+      "description": "BigQuery ML + Cloud Scheduler live city health map. Green/Amber/Red zones updated hourly. BQML logistic regression trained on seeded Bengaluru data.",
+      "wow_factor": "Immediately separates CivicPulse from complaint apps",
+      "demo": "Show Bengaluru map: Koramangala amber → Risk: 82%, waterlogging likely in ~10 days (BQML)"
+    },
+    {
+      "id": "F2",
+      "name": "Civic AI Mayor",
+      "status": "LIVE",
+      "description": "Gemini 2.0 Pro with BBMP multi-hundred-page urban governance guidelines pre-loaded in 2M-token context window.",
+      "example_query": "Why are potholes increasing in Whitefield?",
+      "example_response": "Rainfall +32%, Budget −18%, Traffic +22%. Recommend: ₹1.8 Cr, Zones 4–5. (Cites BBMP Sec 7.3.2)",
+      "model": "gemini-2.0-pro"
+    },
+    {
+      "id": "F3",
+      "name": "Voice Agent — 12 Indic Languages",
+      "status": "LIVE",
+      "description": "Gemini Live streaming STT. Citizen speaks in Kannada — system detects language, creates complaint, assigns priority, reads status back in Kannada. IVR fallback for 2G feature phones.",
+      "languages": ["Kannada", "Hindi", "Tamil", "Telugu", "Malayalam", "Bengali", "Marathi", "Gujarati", "Punjabi", "Odia", "Assamese", "Urdu"]
+    },
+    {
+      "id": "F4",
+      "name": "CivicLens AR Overlay",
+      "status": "LIVE (Beta)",
+      "description": "Point camera at street → AR pins appear on live view showing issue severity, report count, officer ETA, risk score.",
+      "tech": "browser MediaDevices API + DeviceOrientation API + Google Maps geocoding + Gemini Vision",
+      "pin_data": {"severity": "HIGH", "reports": 27, "officer": "Ravi K.", "eta": "3 days", "risk_score": "82%"}
+    },
+    {
+      "id": "F5",
+      "name": "Disaster Mode",
+      "status": "MOCK BUTTON",
+      "description": "Hidden Simulate Flood button seeds 25 mock waterlogging reports. UI auto-shifts to Disaster Mode dashboard: flood depth estimate, AI evacuation routes, shelter locations, BBMP + NDRF auto-alert.",
+      "trigger": "Simulate Flood button"
+    },
+    {
+      "id": "F6",
+      "name": "Corruption Detection",
+      "status": "MOCK BUTTON",
+      "description": "Simulate Fake Closure button runs Gemini Vision diff on before/after photos, detects mismatch, spikes officer Integrity Risk Score to HIGH.",
+      "example_output": "Officer 147: Integrity Risk → HIGH. 12 SLA breaches flagged. 7 suspicious closures. 5 fake images."
+    },
+    {
+      "id": "F7",
+      "name": "AI Explainability Panel",
+      "status": "LIVE",
+      "description": "Every AI decision is human-readable. Priority Score breakdown, full agent_trace log, and routing rationale shown in 'View AI Thinking' modal.",
+      "priority_score_example": {
+        "score": 91,
+        "breakdown": [
+          {"factor": "Severity = Critical", "points": "+30"},
+          {"factor": "School within 100m", "points": "+15"},
+          {"factor": "13 citizen reports", "points": "+26"},
+          {"factor": "Monsoon forecast 72h", "points": "+12"},
+          {"factor": "Prior accidents on record", "points": "+8"}
+        ],
+        "auto_escalated": "score > 85"
+      }
+    }
+  ],
+  "tech_stack": [
+    {"layer": "Vision + Classification", "google_tech": "Gemini 2.0 Flash (multimodal)", "replaces": "Claude Vision", "justification": "Image+voice in one API call, native JSON mode"},
+    {"layer": "Voice / STT", "google_tech": "Gemini Live API", "replaces": "OpenAI Whisper", "justification": "Streaming, same model — no extra API, 12 Indic languages"},
+    {"layer": "Agent Framework", "google_tech": "Google ADK", "replaces": "Custom code pipeline", "justification": "Purpose-built multi-agent orchestration with tool calling"},
+    {"layer": "LLM — Civic Mayor", "google_tech": "Gemini 2.0 Pro (2M context)", "replaces": "Manual RAG", "justification": "Entire BBMP guidebook in system prompt — no vector DB needed"},
+    {"layer": "Backend Hosting", "google_tech": "Cloud Run (min-instances=1)", "replaces": "Railway.app", "justification": "Google-native, zero cold-starts, auto-scale, production SLA"},
+    {"layer": "Frontend Hosting", "google_tech": "Firebase Hosting", "replaces": "Vercel", "justification": "Native Google, CDN, integrates with Firebase Auth"},
+    {"layer": "Database", "google_tech": "Cloud SQL PG16 + PostGIS", "replaces": "Self-hosted PG", "justification": "Managed, Google SLA, spatial indexes for geo queries"},
+    {"layer": "Cache / Dedup", "google_tech": "Memorystore (Redis)", "replaces": "Redis self-hosted", "justification": "Managed, sub-ms lookup, same Redis API"},
+    {"layer": "ML / Predictions", "google_tech": "BigQuery ML (BQML)", "replaces": "Vertex AI AutoML", "justification": "CREATE MODEL in SQL, <5min training, zero setup risk"},
+    {"layer": "Analytics + Twin", "google_tech": "BigQuery", "replaces": "PostgreSQL OLAP", "justification": "Real-time streaming inserts for Digital Twin layer"},
+    {"layer": "Notifications", "google_tech": "Firebase Cloud Messaging", "replaces": "Twilio", "justification": "Google-native, 100k msgs/day free tier"},
+    {"layer": "Auth", "google_tech": "Firebase Auth (OTP)", "replaces": "—", "justification": "Already Google-native, phone OTP, JWT"},
+    {"layer": "Media Storage", "google_tech": "Cloud Storage", "replaces": "Cloudinary", "justification": "Direct Gemini Vision integration, Google CDN"},
+    {"layer": "Geo / Maps / AR", "google_tech": "Google Maps Platform", "replaces": "Leaflet.js", "justification": "Superior Indic geocoding, CivicLens AR anchor, Routes API"},
+    {"layer": "Async Tasks", "google_tech": "Cloud Tasks + Cloud Scheduler", "replaces": "Cron jobs", "justification": "Escalation + Prediction agents fire reliably, no polling"}
+  ],
+  "frontend_stack": [
+    {"technology": "HTML5", "usage": "Semantic document structure"},
+    {"technology": "CSS3 / Custom Properties", "usage": "Apple/Linear-style premium design system, glassmorphism, responsive grid"},
+    {"technology": "JavaScript (ES6+)", "usage": "Core application logic, agent simulations, interactive components"},
+    {"technology": "GSAP", "usage": "Smooth, high-performance animations across the site"},
+    {"technology": "GSAP ScrollTrigger", "usage": "Scroll-based staggered reveals and parallax effects"},
+    {"technology": "Lenis", "usage": "Buttery-smooth scrolling via requestAnimationFrame"}
+  ],
+  "database_schema": {
+    "issues": "id UUID PK · created_at/updated_at · category ENUM · subcategory TEXT · severity ENUM · status ENUM(6 stages) · location GEOGRAPHY POINT · ward_id FK · media_urls TEXT[] · reporter_id FK · assigned_officer_id FK · gemini_confidence FLOAT · gemini_raw_response JSONB · agent_trace JSONB · priority_score INT · vote_count INT · duplicate_of UUID FK · resolved_at · resolution_photo_url · reporter_rating 1–5 · integrity_flag BOOL · ar_metadata JSONB",
+    "users": "id UUID PK · phone/email · preferred_language · civic_points INT · community_contribution_score FLOAT · area_improvement_score FLOAT · badge_ids INT[] · is_volunteer BOOL · ward_id FK",
+    "officers": "id UUID PK · name/department FK · ward_ids INT[] · is_available BOOL · current_load INT · sla_score FLOAT · integrity_risk_score FLOAT · fake_closure_count INT · push_token/phone/email",
+    "digital_twin": "id UUID PK · ward_id FK · health_status ENUM(green/amber/red) · last_updated TIMESTAMP · active_issues INT · risk_score FLOAT · bqml_prediction JSONB · layer_data JSONB",
+    "disaster_events": "id UUID PK · event_type · triggered_at · affected_wards INT[] · evacuation_routes JSONB · shelters JSONB · authority_notified_at"
+  },
+  "backend_apis_needed": [
+    {
+      "id": "A1",
+      "name": "Gemini API Key",
+      "service": "Google AI Studio / Vertex AI",
+      "used_for": ["Reporter Agent (gemini-2.0-flash)", "Verification Agent (Gemini Vision)", "Routing Agent (gemini-2.0-flash)", "Civic AI Mayor (gemini-2.0-pro)", "Corruption Detection (Gemini Vision diff)"],
+      "free_tier": "Google AI Studio — 15 RPM, 1M TPM, 1500 RPD (gemini-1.5-flash / gemini-2.0-flash)",
+      "env_var": "GEMINI_API_KEY",
+      "get_at": "https://aistudio.google.com/app/apikey"
+    },
+    {
+      "id": "A2",
+      "name": "Google Maps Platform API Key",
+      "service": "Google Maps Platform",
+      "used_for": ["Civic Digital Twin map", "CivicLens AR geocoding", "Evacuation routes (Routes API)", "Issue location display"],
+      "free_tier": "$200/month free credit — Maps JavaScript API, Geocoding API",
+      "env_var": "GOOGLE_MAPS_API_KEY",
+      "get_at": "https://console.cloud.google.com/google/maps-apis"
+    },
+    {
+      "id": "A3",
+      "name": "Firebase Project Config",
+      "service": "Firebase (Google)",
+      "used_for": ["Firebase Auth (OTP phone login)", "Firebase Cloud Messaging (notifications)", "Firebase Hosting (frontend deploy)"],
+      "free_tier": "Spark plan (free) — generous limits for Auth, FCM, Hosting",
+      "env_vars": ["FIREBASE_API_KEY", "FIREBASE_AUTH_DOMAIN", "FIREBASE_PROJECT_ID", "FIREBASE_STORAGE_BUCKET", "FIREBASE_MESSAGING_SENDER_ID", "FIREBASE_APP_ID"],
+      "get_at": "https://console.firebase.google.com"
+    },
+    {
+      "id": "A4",
+      "name": "Google Cloud Project ID",
+      "service": "Google Cloud Platform",
+      "used_for": ["Cloud Run (backend API)", "Cloud SQL PG16 + PostGIS", "BigQuery + BigQuery ML", "Cloud Tasks (Escalation)", "Cloud Scheduler (Prediction)", "Memorystore Redis", "Cloud Storage", "Cloud Armor WAF"],
+      "free_tier": "$300 free trial credit for new accounts; Cloud Run 2M requests/month free",
+      "env_var": "GCP_PROJECT_ID",
+      "get_at": "https://console.cloud.google.com"
+    },
+    {
+      "id": "A5",
+      "name": "BigQuery Project ID",
+      "service": "Google BigQuery",
+      "used_for": ["BQML logistic regression model (CREATE MODEL)", "Ward risk score heatmap", "Analytics + Digital Twin data", "Streaming inserts from agent pipeline"],
+      "free_tier": "10GB storage + 1TB queries/month free",
+      "env_var": "BIGQUERY_PROJECT_ID",
+      "get_at": "https://console.cloud.google.com/bigquery"
+    }
+  ],
+  "metrics_kpis": [
+    {"kpi": "Average Issue Resolution Time", "target": "<48h Critical, <7 days Standard", "source": "issues.resolved_at − issues.created_at"},
+    {"kpi": "Duplicate Complaint Reduction", "target": ">60% vs baseline", "source": "Verification Agent duplicate_of FK count"},
+    {"kpi": "Citizen Satisfaction Score", "target": ">4.0/5.0", "source": "reporter_rating post-resolution"},
+    {"kpi": "SLA Compliance Rate", "target": ">85% Critical ACK within 24h", "source": "Escalation Agent SLA timer"},
+    {"kpi": "Corruption Detection Precision", "target": "<5% false positive rate", "source": "Human-reviewed flagged closures"},
+    {"kpi": "BQML Prediction Confidence", "target": ">70% per ward", "source": "BigQuery ML output confidence"},
+    {"kpi": "Monthly Active Citizens", "target": ">500 MACs in pilot ward within 3 months", "source": "users table activity"},
+    {"kpi": "Government Cost Savings", "target": "₹8.4 Cr over 12 months (3 wards, modelled)", "source": "BBMP expenditure delta"}
+  ],
+  "impact_numbers": {
+    "prevented_road_damage": "₹8.4 Cr (modelled, 12 months, 3 priority wards)",
+    "flood_prevention_savings": "₹2.1 Cr (early warning vs reactive repair cost delta)",
+    "maintenance_budget_optimised": "₹1.8 Cr (Civic AI Mayor recommendation, Whitefield pilot)",
+    "faster_resolution": "~40%",
+    "fewer_duplicate_reports": "~60%",
+    "engagement_increase": "~70%",
+    "note": "All projections are model estimates from BBMP 2023 data — labelled as projections in UI"
+  },
+  "sdg_alignment": [
+    {"sdg": "SDG 11 — Sustainable Cities", "alignment": "DIRECT", "contribution": "Core platform: inclusive, safe, resilient urban management"},
+    {"sdg": "SDG 16 — Strong Institutions", "alignment": "DIRECT", "contribution": "Corruption Detection AI + full transparency dashboards"},
+    {"sdg": "SDG 17 — Partnerships", "alignment": "DIRECT", "contribution": "NGO integration, CSR dashboard, open municipal API"},
+    {"sdg": "SDG 3 — Good Health", "alignment": "INDIRECT", "contribution": "Drainage + garbage reporting reduces disease vectors"},
+    {"sdg": "SDG 10 — Reduced Inequalities", "alignment": "DIRECT", "contribution": "Voice + multilingual AI = digital inclusion for all citizens"},
+    {"sdg": "SDG 13 — Climate Action", "alignment": "INDIRECT", "contribution": "Green issue tracking, flood data, illegal dumping monitoring"},
+    {"sdg": "India — Swachh Bharat", "alignment": "ALIGNED", "contribution": "Waste + sanitation reporting feeds national mission data"},
+    {"sdg": "India — Smart Cities Mission", "alignment": "ALIGNED", "contribution": "Open API integration pathway for 100 Smart City command centres"},
+    {"sdg": "India — DPDP Act 2023", "alignment": "COMPLIANT", "contribution": "No biometric data, OTP-only auth, data minimisation by design"},
+    {"sdg": "India — PM GatiShakti", "alignment": "ALIGNED", "contribution": "Infrastructure tracking + BQML predictive maintenance data layer"}
+  ],
+  "submission_checklist": [
+    {"item": "Deployed URL", "priority": "CRITICAL", "detail": "Google Cloud Run, live throughout judging window, min-instances=1", "status": "pending"},
+    {"item": "GitHub README", "priority": "CRITICAL", "detail": "Architecture diagram, agent flow, env setup, demo video GIF", "status": "pending"},
+    {"item": "Google Doc", "priority": "CRITICAL", "detail": "Problem → Solution → Features → Google Tech list → Impact metrics", "status": "pending"},
+    {"item": "Backup Video", "priority": "CRITICAL", "detail": "2-minute screen recording of full demo flow, recorded before submission", "status": "pending"},
+    {"item": "Backup Screenshots", "priority": "CRITICAL", "detail": "Every key screen, including Disaster Mode and Corruption Detection", "status": "pending"},
+    {"item": "Agent Trace Visible", "priority": "CRITICAL", "detail": "'View AI Thinking' modal working in live demo", "status": "pending"},
+    {"item": "BigQuery ML Query", "priority": "HIGH", "detail": "Live CREATE MODEL query shown in demo or README", "status": "pending"},
+    {"item": "Seeded Data", "priority": "HIGH", "detail": "50+ realistic Bengaluru issues, Koramangala focus", "status": "pending"},
+    {"item": "Offline PWA Demo", "priority": "HIGH", "detail": "Airplane mode → report → reconnect → report appears", "status": "pending"},
+    {"item": "Voice Kannada Clip", "priority": "HIGH", "detail": "Backup pre-recorded Gemini Live clip if STT is flaky on stage", "status": "pending"},
+    {"item": "This PDF", "priority": "MEDIUM", "detail": "Attached as technical documentation in Google Doc", "status": "complete"}
+  ],
+  "demo_script": [
+    {"step": 1, "action": "Speak in Kannada voice", "judges_see": "Gemini Live transcribes. Reporter Agent ✓ → Verification Agent ✓ → Routing Agent ✓", "fallback": "Pre-recorded 30s video clip"},
+    {"step": 2, "action": "Open Civic Digital Twin map", "judges_see": "Bengaluru map: green/amber/red zones. Koramangala amber. Risk: 82%, waterlogging likely in ~10 days (BQML)", "fallback": "Screenshot with zones pre-loaded"},
+    {"step": 3, "action": "Ask Civic AI Mayor: 'Why are potholes increasing in Whitefield?'", "judges_see": "AI: Rainfall +32%, Budget −18%, Traffic +22%. Recommend: ₹1.8 Cr, Zones 4–5. (Cites BBMP Sec 7.3.2)", "fallback": "Pre-canned response shown as typing animation"},
+    {"step": 4, "action": "Click 'Simulate Flood'", "judges_see": "25 waterlogging reports hit API. UI shifts to Disaster Mode. Evacuation routes appear on Google Maps. BBMP alert sent.", "fallback": "Static screenshot of Disaster Mode dashboard"},
+    {"step": 5, "action": "Click 'Simulate Fake Closure'", "judges_see": "Corruption Agent runs Gemini Vision diff. Officer 147: Integrity Risk → HIGH. 12 SLA breaches flagged.", "fallback": "Pre-run output shown as modal"},
+    {"step": 6, "action": "Tap any issue → 'View AI Thinking'", "judges_see": "Priority Score 91 breakdown + full agent_trace log rendered. Judges see real tool calls.", "fallback": "Static trace log screenshot"}
+  ],
+  "competitive_analysis": {
+    "competitors": ["BBMP App", "Swachhata", "MyGov"],
+    "features_comparison": [
+      {"feature": "Voice Reporting (Indic languages)", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "AI Agent Orchestration", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "Predictive AI (BigQuery ML)", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "Civic Digital Twin", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "Corruption Detection AI", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "AR Overlay (CivicLens)", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "Disaster Mode", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "AI Explainability Panel", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "12 Languages", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true},
+      {"feature": "Offline / PWA Support", "bbmp": false, "swachhata": false, "mygov": false, "civicpulse": true}
+    ]
+  },
+  "cost_analysis": {
+    "monthly_total": "~₹4,400/month",
+    "capacity": "50,000 reports/month",
+    "cost_per_report": "<₹0.10",
+    "breakeven": "~3,000 reports/month vs BBMP manual triage",
+    "breakdown": [
+      {"service": "Cloud Run (min-instances=1, asia-south1)", "cost": "₹500"},
+      {"service": "BigQuery (streaming inserts + BQML queries)", "cost": "₹700"},
+      {"service": "Gemini API (Flash + Pro usage, ~50k reports)", "cost": "₹1,500"},
+      {"service": "Firebase (Auth + FCM + Hosting)", "cost": "Free tier"},
+      {"service": "Google Maps Platform (Geocoding + Routes API)", "cost": "₹500"},
+      {"service": "Cloud SQL PG16 — db-f1-micro", "cost": "₹700"},
+      {"service": "Memorystore Redis — Basic tier", "cost": "₹300"},
+      {"service": "Cloud Storage (citizen media uploads)", "cost": "₹200"}
+    ]
+  },
+  "security": [
+    {"feature": "Firebase OTP Auth", "impl": "Phone-number only. No passwords. SMS OTP via Firebase Auth."},
+    {"feature": "JWT Authorization", "impl": "15-min access tokens. Refresh token rotation on every session."},
+    {"feature": "AES-256 Encryption", "impl": "All citizen photos encrypted at rest in Cloud Storage."},
+    {"feature": "No Biometric Data", "impl": "Faces, fingerprints, iris — zero collection. DPDP compliant by design."},
+    {"feature": "Data Minimisation", "impl": "Only GPS, category, and media stored. PII stripped from Gemini prompts."},
+    {"feature": "Rate Limiting", "impl": "Cloud Armor WAF + Redis: 10 reports/citizen/day hard cap."},
+    {"feature": "RBAC", "impl": "Citizens · Officers · Supervisors · Admins — distinct JWT scopes."},
+    {"feature": "Audit Logging", "impl": "Every agent action and officer update logged to BigQuery permanently."},
+    {"feature": "GDPR / DPDP", "impl": "Right to erasure API. Data residency: asia-south1 (Mumbai)."},
+    {"feature": "Integrity Risk Score", "impl": "Corruption Detection flags officers — human review required before action."}
+  ],
+  "scalability_phases": [
+    {"phase": "Phase 0", "milestone": "Hackathon Pilot", "scope": "3 wards · 50 seeded issues · 1 officer dashboard", "timeline": "NOW"},
+    {"phase": "Phase 1", "milestone": "Bengaluru Ward Pilot", "scope": "100 wards · 10,000 citizens · Live BBMP integration", "timeline": "Q3 2026"},
+    {"phase": "Phase 2", "milestone": "Multi-City Rollout", "scope": "500 wards · 5 cities · API gateway · Drone roadmap", "timeline": "Q1 2027"},
+    {"phase": "Phase 3", "milestone": "Smart Cities Mission", "scope": "100 cities · 50M+ citizens · Satellite AI layer", "timeline": "2028"},
+    {"phase": "Phase 4", "milestone": "AI City OS", "scope": "National platform · 1B API calls/year · Export-ready SaaS", "timeline": "2030"}
+  ],
+  "honest_numbers": {
+    "safe_claims": [
+      {"claim": "~85–90% classification accuracy", "say": "~85–90% on 200-image sample Bengaluru dataset (prototype eval)"},
+      {"claim": "<2s agent pipeline", "say": "Under 2 seconds end-to-end on our test hardware"},
+      {"claim": "₹8.4 Cr savings", "say": "Modelled estimate — methodology in Impact Dashboard"},
+      {"claim": "~10-day ahead prediction", "say": "BQML model estimates, confidence shown per-ward"}
+    ],
+    "avoid_claims": [
+      "94% accuracy (old claim) — too specific for prototype",
+      "87% prediction accuracy — replace with 'BQML model outputs per-ward confidence scores'",
+      "₹2 Cr savings (bare number) — always label as 'modelled estimate'",
+      "3-year historical data — say 'seeded with representative Bengaluru patterns'"
+    ]
+  }
+}

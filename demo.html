@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CivicPulse AI — Live Dashboard</title>
+<meta name="description" content="CivicPulse AI interactive working dashboard. Submit civic reports and watch the 5-agent Google ADK pipeline process them live."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ============================================================
+   CIVICPULSE AI — LIVE DASHBOARD (Self-Contained)
+   ============================================================ */
+:root{
+  --bg:#000;--bg1:#090909;--bg2:#111;--bg3:#1a1a1a;
+  --glass:rgba(255,255,255,0.04);--glass2:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#f0f0f0;--t2:#a0a0a0;--t3:#555;
+  --blue:#3b82f6;--purple:#8b5cf6;--green:#10b981;
+  --red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;
+  --font:'Inter',-apple-system,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --r:20px;--r2:14px;--r3:10px;--pill:999px;
+  --sidebar:220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+ul{list-style:none}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg1)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+
+/* ─── LOADER ─────────────────────────────────────────── */
+#loader{position:fixed;inset:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.ld-icon{font-size:2.5rem}
+.ld-name{font-size:0.85rem;font-weight:700;letter-spacing:0.12em;color:var(--t2)}
+.ld-bar-w{width:160px;height:2px;background:rgba(255,255,255,0.08);border-radius:var(--pill);overflow:hidden}
+.ld-bar{height:100%;width:0;background:#fff;border-radius:var(--pill);transition:width 0.1s linear}
+
+/* ─── SIDEBAR ─────────────────────────────────────────── */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--bg1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:100;
+}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:22px 18px 18px;border-bottom:1px solid var(--border);font-weight:800;font-size:0.95rem;letter-spacing:-0.02em}
+.sb-logo-icon{font-size:1.4rem}
+.sb-back{margin-left:auto;font-size:0.7rem;color:var(--t3);padding:4px 8px;border-radius:6px;border:1px solid var(--border);transition:all 0.2s}
+.sb-back:hover{color:var(--text);border-color:var(--border2)}
+.sb-section{padding:18px 14px 6px;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--t3)}
+.sb-nav{display:flex;flex-direction:column;gap:2px;padding:0 10px}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--r3);font-size:0.85rem;font-weight:500;color:var(--t2);cursor:pointer;transition:all 0.2s;border:1px solid transparent;position:relative}
+.sb-item:hover{color:var(--text);background:var(--glass)}
+.sb-item.active{color:var(--text);background:var(--glass2);border-color:var(--border)}
+.sb-item.active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:2px;border-radius:2px;background:#fff}
+.sb-icon{font-size:1rem;width:18px;text-align:center}
+.sb-footer{margin-top:auto;padding:16px 18px 18px;border-top:1px solid var(--border)}
+.sb-status{display:flex;align-items:center;gap:8px;font-size:0.75rem;color:var(--t3)}
+.status-pulse{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse-g 2s infinite}
+.sb-user{display:flex;align-items:center;gap:8px;padding:10px 18px;border-top:1px solid var(--border)}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700}
+.sb-uname{font-size:0.78rem;font-weight:600}
+.sb-urole{font-size:0.65rem;color:var(--t3)}
+
+/* ─── MAIN ────────────────────────────────────────────── */
+.main{flex:1;margin-left:var(--sidebar);display:flex;flex-direction:column;min-height:100vh}
+
+/* ─── TOPBAR ──────────────────────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(0,0,0,0.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:12px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.tb-left{display:flex;align-items:center;gap:14px}
+.tb-title{font-size:0.95rem;font-weight:700;letter-spacing:-0.02em}
+.tb-breadcrumb{font-size:0.75rem;color:var(--t3)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-badge{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--pill);background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);font-size:0.72rem;font-weight:700;color:var(--green)}
+.tb-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-g 2s infinite}
+.tb-stat{padding:5px 12px;border-radius:var(--pill);border:1px solid var(--border);font-size:0.72rem;color:var(--t2);font-family:var(--mono)}
+
+/* ─── BODY ────────────────────────────────────────────── */
+.body{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+
+/* ─── SECTION HEADER ──────────────────────────────────── */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.sec-title{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3)}
+
+/* ─── TWO PANEL ROW ───────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+
+/* ─── GLASS CARD ──────────────────────────────────────── */
+.card{
+  background:linear-gradient(150deg,var(--glass) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid var(--border);border-radius:var(--r);overflow:hidden;
+  transition:border-color 0.3s;
+}
+.card:hover{border-color:var(--border2)}
+.card-head{padding:16px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:0.9rem;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:8px}
+.card-tag{font-size:0.65rem;font-weight:700;padding:3px 8px;border-radius:var(--pill);background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--blue)}
+.card-body{padding:20px}
+
+/* ─── FORM ────────────────────────────────────────────── */
+.flabel{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:8px;display:block}
+.fgroup{margin-bottom:18px}
+
+/* Pills */
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{
+  padding:7px 13px;border-radius:var(--pill);font-size:0.78rem;font-weight:600;
+  border:1px solid var(--border);color:var(--t2);background:transparent;
+  cursor:pointer;transition:all 0.2s;user-select:none;
+}
+.pill:hover{color:var(--text);border-color:var(--border2);background:var(--glass)}
+.pill.on{color:var(--text);border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.09)}
+.pill.on[data-sev=low]     {border-color:rgba(16,185,129,0.5);color:var(--green);background:rgba(16,185,129,0.09)}
+.pill.on[data-sev=medium]  {border-color:rgba(245,158,11,0.5);color:var(--orange);background:rgba(245,158,11,0.09)}
+.pill.on[data-sev=high]    {border-color:rgba(239,120,68,0.5);color:#ef7844;background:rgba(239,120,68,0.09)}
+.pill.on[data-sev=critical]{border-color:rgba(239,68,68,0.5);color:var(--red);background:rgba(239,68,68,0.09)}
+
+/* Textarea */
+.ftex{
+  width:100%;min-height:82px;resize:vertical;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
+  padding:12px 14px;color:var(--text);font-size:0.87rem;line-height:1.55;outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.ftex:focus{border-color:rgba(59,130,246,0.45);box-shadow:0 0 0 3px rgba(59,130,246,0.07)}
+.ftex::placeholder{color:var(--t3)}
+
+/* Select */
+.fsel{
+  width:100%;padding:11px 14px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r2);color:var(--text);font-size:0.87rem;outline:none;
+  cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.fsel:focus{border-color:rgba(59,130,246,0.45)}
+.fsel option{background:#111}
+
+/* Upload zone */
+.upload{
+  border:1.5px dashed var(--border2);border-radius:var(--r2);padding:22px;
+  text-align:center;cursor:pointer;transition:all 0.25s;background:var(--bg2);
+}
+.upload:hover{border-color:rgba(59,130,246,0.4);background:rgba(59,130,246,0.04)}
+.upload.has-file{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.04)}
+.upload-ico{font-size:1.8rem;margin-bottom:8px}
+.upload-txt{font-size:0.82rem;color:var(--t2)}
+.upload-sub{font-size:0.72rem;color:var(--t3);margin-top:3px}
+.upload-name{font-size:0.78rem;color:var(--green);margin-top:6px;font-family:var(--mono);font-weight:600;display:none}
+
+/* Location */
+.floc{
+  display:flex;align-items:center;gap:10px;padding:11px 14px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
+  font-size:0.85rem;color:var(--t2);
+}
+.floc-pin{color:var(--red)}
+
+/* Submit */
+.btn-submit{
+  width:100%;padding:15px;border-radius:var(--r2);
+  background:#fff;color:#000;font-size:0.95rem;font-weight:800;letter-spacing:-0.01em;
+  cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;border:none;
+  margin-top:4px;
+}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,255,255,0.14)}
+.btn-submit:active{transform:translateY(0)}
+.btn-submit:disabled{opacity:0.45;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* ─── PIPELINE STEPS ──────────────────────────────────── */
+.steps{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);gap:0}
+.step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative}
+.step-circle{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--bg3);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:0.95rem;
+  transition:all 0.4s var(--ease);
+}
+.step-lbl{font-size:0.6rem;font-weight:600;color:var(--t3);text-align:center;white-space:nowrap;transition:color 0.3s;letter-spacing:0.04em}
+.step-line{flex:1;height:1.5px;background:var(--border);margin-bottom:24px;overflow:hidden;position:relative}
+.step-line::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);transform:translateX(-200%)}
+.step.active .step-circle{border-color:var(--sc,#fff);box-shadow:0 0 18px var(--sc,#fff);background:rgba(0,0,0,0.7)}
+.step.active .step-lbl{color:var(--sc,#fff)}
+.step.done  .step-circle{background:var(--sc,#fff);border-color:var(--sc,#fff);font-size:0.7rem;font-weight:800}
+.step.done  .step-lbl{color:var(--sc,#fff)}
+.step.done + .step-line{background:rgba(16,185,129,0.35)}
+.step.done + .step-line::after{animation:shimmer 0.9s ease forwards}
+
+/* ─── TERMINAL ────────────────────────────────────────── */
+.term{
+  background:#000;font-family:var(--mono);font-size:0.78rem;
+  padding:14px 18px;min-height:260px;max-height:280px;overflow-y:auto;
+  line-height:1.9;color:var(--t2);
+}
+.t-t{color:var(--t3)} .t-k{color:var(--blue)} .t-v{color:var(--green)}
+.t-w{color:var(--orange)} .t-e{color:var(--red)} .t-sys{color:#888}
+.cursor{display:inline-block;width:7px;height:13px;background:var(--blue);animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px}
+
+/* ─── TICKET ──────────────────────────────────────────── */
+.ticket{
+  display:none;margin:0 20px 18px;
+  background:linear-gradient(135deg,rgba(16,185,129,0.07),rgba(16,185,129,0.02));
+  border:1px solid rgba(16,185,129,0.25);border-radius:var(--r2);padding:18px 20px;
+}
+.ticket-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ticket-id{font-family:var(--mono);font-size:0.9rem;font-weight:700;color:var(--green)}
+.ticket-badge{font-size:0.65rem;font-weight:700;padding:3px 9px;border-radius:var(--pill);background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--green)}
+.ticket-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tfield{background:rgba(0,0,0,0.35);border-radius:7px;padding:9px 12px}
+.tf-lbl{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--t3);margin-bottom:3px}
+.tf-val{font-size:0.87rem;font-weight:600}
+.score-big{font-size:1.9rem;font-weight:900;color:var(--green);line-height:1}
+.ticket-msg{margin-top:12px;padding:10px 14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:7px;font-size:0.8rem;color:var(--green);font-family:var(--mono)}
+
+/* ─── BOTTOM 3 CARDS ──────────────────────────────────── */
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+
+/* Twin map */
+.twin-c{width:100%;height:160px;display:block;border-radius:0 0 var(--r) var(--r)}
+
+/* Officer table */
+.otbl{width:100%;font-size:0.82rem;border-collapse:collapse}
+.otbl th{padding:7px 10px;font-size:0.64rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--t3);text-align:left;border-bottom:1px solid var(--border)}
+.otbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+.otbl tr:last-child td{border-bottom:none}
+.otbl tr:hover td{background:rgba(255,255,255,0.02)}
+.o-rank{font-family:var(--mono);font-size:0.7rem;color:var(--t3);font-weight:600}
+.int-bar-w{width:64px;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.int-bar{height:100%;border-radius:2px;transition:width 1s var(--ease)}
+
+/* Issues feed */
+.feed{display:flex;flex-direction:column;gap:7px}
+.fi{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--r3);background:var(--bg2);border:1px solid var(--border);cursor:pointer;transition:border-color 0.2s}
+.fi:hover{border-color:var(--border2)}
+.fi-ico{font-size:1rem;flex-shrink:0}
+.fi-info{flex:1;min-width:0}
+.fi-title{font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fi-meta{font-size:0.68rem;color:var(--t3);margin-top:1px}
+.fi-sev{font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:var(--pill);flex-shrink:0}
+.sc{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.sh{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--orange)}
+.sm{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--blue)}
+.sg{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green)}
+
+/* ─── ANIMATIONS ─────────────────────────────────────── */
+@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes shimmer{100%{transform:translateX(200%)}}
+@keyframes fadeup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:1100px){.three-col{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+@media(max-width:720px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .body{padding:16px}
+  .three-col{grid-template-columns:1fr}
+  .steps{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-icon">🏙️</div>
+  <div class="ld-name">CIVICPULSE AI</div>
+  <div class="ld-bar-w"><div class="ld-bar" id="ld-bar"></div></div>
+  <div style="font-size:0.7rem;color:#333;font-family:var(--mono);letter-spacing:0.08em" id="ld-txt">Connecting to ADK pipeline…</div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <span class="sb-logo-icon">🏙️</span>
+    CivicPulse AI
+    <a href="index.html" class="sb-back" title="Back to main site">← Site</a>
+  </div>
+
+  <div class="sb-section">Main Menu</div>
+  <div class="sb-nav">
+    <div class="sb-item active" data-view="dashboard" onclick="switchView(this)"><span class="sb-icon">📊</span>Dashboard</div>
+    <div class="sb-item" data-view="report" onclick="switchView(this)"><span class="sb-icon">📝</span>Report Issue</div>
+    <div class="sb-item" data-view="myreports" onclick="switchView(this)"><span class="sb-icon">📋</span>My Reports</div>
+  </div>
+
+  <div class="sb-section">Analytics</div>
+  <div class="sb-nav">
+    <div class="sb-item" data-view="twin" onclick="switchView(this)"><span class="sb-icon">🗺️</span>Digital Twin</div>
+    <div class="sb-item" data-view="officers" onclick="switchView(this)"><span class="sb-icon">👮</span>Officers</div>
+    <div class="sb-item" data-view="analytics" onclick="switchView(this)"><span class="sb-icon">📈</span>Analytics</div>
+  </div>
+
+  <div class="sb-user">
+    <div class="sb-avatar">SK</div>
+    <div>
+      <div class="sb-uname">Suresh K.</div>
+      <div class="sb-urole">Citizen · Bengaluru</div>
+    </div>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-status"><span class="status-pulse"></span>ADK Pipeline: Live</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-title">Dashboard</div>
+      <div class="tb-breadcrumb">Bengaluru · Ward 14 · Koramangala</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-stat" id="tb-count">Reports Today: 0</div>
+      <div class="tb-badge"><span class="tb-dot"></span>Google ADK Live</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- VIEW: DASHBOARD (default) -->
+    <div id="view-dashboard">
+
+    <!-- KPI ROW -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px" id="kpi-row">
+      <div class="card" style="padding:0">
+        <div style="padding:18px 20px">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:8px">Open Issues</div>
+          <div style="font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1;color:var(--red)" id="kpi-open">23</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">Ward 14</div>
+        </div>
+      </div>
+      <div class="card" style="padding:0">
+        <div style="padding:18px 20px">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:8px">Resolved 30d</div>
+          <div style="font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1;color:var(--green)" id="kpi-res">147</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">↑ 23% vs last month</div>
+        </div>
+      </div>
+      <div class="card" style="padding:0">
+        <div style="padding:18px 20px">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:8px">Avg. Resolution</div>
+          <div style="font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1;color:var(--blue)">2.4d</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">SLA target: 5d</div>
+        </div>
+      </div>
+      <div class="card" style="padding:0">
+        <div style="padding:18px 20px">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:8px">Ward Risk Score</div>
+          <div style="font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1;color:var(--orange)">82%</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">BigQuery ML · Updated daily</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TWO PANELS -->
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:2px">Submit Report → Watch 5-Agent Pipeline Process It Live</div>
+    <div class="two-col">
+
+      <!-- LEFT: FORM -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📝 Submit a Civic Report <span class="card-tag">Gemini 2.0 Flash</span></div>
+        </div>
+        <div class="card-body">
+
+          <div class="fgroup">
+            <label class="flabel">Issue Category</label>
+            <div class="pills" id="cat-pills">
+              <div class="pill on" data-cat="Pothole" onclick="selectCat(this)">🕳️ Pothole</div>
+              <div class="pill" data-cat="Waterlogging" onclick="selectCat(this)">🌊 Waterlogging</div>
+              <div class="pill" data-cat="Garbage" onclick="selectCat(this)">🗑️ Garbage</div>
+              <div class="pill" data-cat="Street Light" onclick="selectCat(this)">💡 Street Light</div>
+              <div class="pill" data-cat="Open Drain" onclick="selectCat(this)">🚧 Open Drain</div>
+              <div class="pill" data-cat="Other" onclick="selectCat(this)">❓ Other</div>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <label class="flabel">Severity Level</label>
+            <div class="pills" id="sev-pills">
+              <div class="pill" data-sev="low" onclick="selectSev(this)">🟢 Low</div>
+              <div class="pill on" data-sev="medium" onclick="selectSev(this)">🟡 Medium</div>
+              <div class="pill" data-sev="high" onclick="selectSev(this)">🟠 High</div>
+              <div class="pill" data-sev="critical" onclick="selectSev(this)">🔴 Critical</div>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <label class="flabel">Report Language</label>
+            <select class="fsel" id="lang-sel">
+              <option value="en">🇮🇳 English</option>
+              <option value="kn">🇮🇳 Kannada (ಕನ್ನಡ)</option>
+              <option value="hi">🇮🇳 Hindi (हिंदी)</option>
+              <option value="ta">🇮🇳 Tamil (தமிழ்)</option>
+              <option value="te">🇮🇳 Telugu (తెలుగు)</option>
+              <option value="mr">🇮🇳 Marathi (मराठी)</option>
+              <option value="bn">🇮🇳 Bengali (বাংলা)</option>
+            </select>
+          </div>
+
+          <div class="fgroup">
+            <label class="flabel">Describe the Issue</label>
+            <textarea class="ftex" id="desc" placeholder="e.g. Large pothole on 5th Cross near the school gate. Been there for 2 weeks. Causing accidents."></textarea>
+          </div>
+
+          <div class="fgroup">
+            <label class="flabel">Photo Evidence</label>
+            <div class="upload" id="upload-zone" onclick="document.getElementById('file-input').click()">
+              <div class="upload-ico">📷</div>
+              <div class="upload-txt">Click to upload photo evidence</div>
+              <div class="upload-sub">JPG, PNG, HEIC · Max 10MB</div>
+              <div class="upload-name" id="upload-name"></div>
+            </div>
+            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(this)"/>
+          </div>
+
+          <div class="fgroup">
+            <label class="flabel">GPS Location</label>
+            <div class="floc"><span class="floc-pin">📍</span>Koramangala, Ward 14, Bengaluru — 12.9352°N, 77.6245°E</div>
+          </div>
+
+          <button class="btn-submit" id="btn-submit" onclick="runPipeline()">
+            🚀 &nbsp;Submit to AI Pipeline
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: PIPELINE TERMINAL -->
+      <div class="card" style="display:flex;flex-direction:column">
+        <div class="card-head">
+          <div class="card-title">⚡ Live 5-Agent Pipeline <span class="card-tag">Google ADK</span></div>
+          <div style="font-size:0.7rem;color:var(--t3);font-family:var(--mono)" id="pipeline-time">Waiting…</div>
+        </div>
+
+        <!-- Pipeline steps -->
+        <div class="steps" id="steps-row">
+          <div class="step" style="--sc:#3b82f6" id="step1">
+            <div class="step-circle">📸</div>
+            <div class="step-lbl">Reporter</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" style="--sc:#8b5cf6" id="step2">
+            <div class="step-circle">🔍</div>
+            <div class="step-lbl">Verify</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" style="--sc:#10b981" id="step3">
+            <div class="step-circle">🗺️</div>
+            <div class="step-lbl">Route</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" style="--sc:#f59e0b" id="step4">
+            <div class="step-circle">⚡</div>
+            <div class="step-lbl">Escalate</div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" style="--sc:#ef4444" id="step5">
+            <div class="step-circle">🔮</div>
+            <div class="step-lbl">Predict</div>
+          </div>
+        </div>
+
+        <!-- Terminal -->
+        <div class="term" id="terminal">
+          <span class="t-sys">// Submit a report to see the live agent pipeline trace</span><br/>
+          <span class="t-sys">// All 5 agents will process your complaint in real-time</span><br/>
+          <span class="cursor"></span>
+        </div>
+
+        <!-- Resolution Ticket -->
+        <div class="ticket" id="ticket">
+          <div class="ticket-head">
+            <div class="ticket-id" id="ticket-id">— —</div>
+            <div class="ticket-badge">✅ ACTIVE</div>
+          </div>
+          <div class="ticket-grid" id="ticket-grid"></div>
+          <div class="ticket-msg" id="ticket-msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM 3 CARDS -->
+    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:2px">Ward Intelligence</div>
+    <div class="three-col">
+
+      <!-- Digital Twin -->
+      <div class="card" style="overflow:hidden">
+        <div class="card-head">
+          <div class="card-title">🗺️ Digital Twin <span class="card-tag">BigQuery ML</span></div>
+          <div style="font-size:0.7rem;color:var(--t3)">Live risk scores</div>
+        </div>
+        <canvas class="twin-c" id="twin-c"></canvas>
+      </div>
+
+      <!-- Officer Leaderboard -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">👮 Officers <span class="card-tag">Ward 14</span></div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="otbl">
+            <thead><tr><th>#</th><th>Officer</th><th>Resolved</th><th>Integrity</th></tr></thead>
+            <tbody id="otbl-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Issues -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📡 Recent Reports <span class="card-tag">Live Feed</span></div>
+        </div>
+        <div class="card-body">
+          <div class="feed" id="feed"></div>
+        </div>
+      </div>
+    </div><!-- end three-col -->
+    </div><!-- end view-dashboard -->
+
+    <!-- VIEW: REPORT ISSUE -->
+    <div id="view-report" style="display:none">
+      <div style="margin-bottom:16px">
+        <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">📝 Submit a New Report</div>
+        <div style="font-size:0.82rem;color:var(--t3)">Fill in the details below. The AI pipeline will process it in under 2 seconds.</div>
+      </div>
+      <div style="max-width:600px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Report Details <span class="card-tag">Gemini 2.0 Flash</span></div></div>
+          <div class="card-body">
+            <div class="fgroup"><label class="flabel">Issue Category</label>
+              <div class="pills">
+                <div class="pill on" data-cat="Pothole" onclick="selectCat(this)">🕳️ Pothole</div>
+                <div class="pill" data-cat="Waterlogging" onclick="selectCat(this)">🌊 Waterlogging</div>
+                <div class="pill" data-cat="Garbage" onclick="selectCat(this)">🗑️ Garbage</div>
+                <div class="pill" data-cat="Street Light" onclick="selectCat(this)">💡 Street Light</div>
+                <div class="pill" data-cat="Open Drain" onclick="selectCat(this)">🚧 Open Drain</div>
+              </div>
+            </div>
+            <div class="fgroup"><label class="flabel">Severity Level</label>
+              <div class="pills">
+                <div class="pill" data-sev="low" onclick="selectSev(this)">🟢 Low</div>
+                <div class="pill on" data-sev="medium" onclick="selectSev(this)">🟡 Medium</div>
+                <div class="pill" data-sev="high" onclick="selectSev(this)">🟠 High</div>
+                <div class="pill" data-sev="critical" onclick="selectSev(this)">🔴 Critical</div>
+              </div>
+            </div>
+            <div class="fgroup"><label class="flabel">Description</label>
+              <textarea class="ftex" placeholder="Describe the issue in detail…"></textarea>
+            </div>
+            <div class="fgroup"><label class="flabel">Location</label>
+              <div class="floc"><span class="floc-pin">📍</span>Koramangala, Ward 14, Bengaluru</div>
+            </div>
+            <button class="btn-submit" onclick="switchView(document.querySelector('[data-view=dashboard]'));runPipeline()">🚀 &nbsp;Submit to AI Pipeline</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: MY REPORTS -->
+    <div id="view-myreports" style="display:none">
+      <div style="margin-bottom:20px">
+        <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">📋 My Reports</div>
+        <div style="font-size:0.82rem;color:var(--t3)">All complaints filed under your account</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px" id="my-reports-list">
+        <div class="card" style="padding:0"><div style="padding:16px 20px;display:flex;align-items:center;gap:14px">
+          <div style="font-size:1.4rem">🕳️</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:0.9rem">Pothole — 5th Cross, Koramangala</div><div style="font-size:0.75rem;color:var(--t3);margin-top:3px">Ticket: CP-1201 · 3 days ago · Officer: Ravi K.</div></div>
+          <div style="font-size:0.7rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green)">Resolved</div>
+        </div></div>
+        <div class="card" style="padding:0"><div style="padding:16px 20px;display:flex;align-items:center;gap:14px">
+          <div style="font-size:1.4rem">🌊</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:0.9rem">Waterlogging — Near Metro Station</div><div style="font-size:0.75rem;color:var(--t3);margin-top:3px">Ticket: CP-1198 · 5 days ago · Officer: Priya M.</div></div>
+          <div style="font-size:0.7rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--orange)">In Progress</div>
+        </div></div>
+        <div class="card" style="padding:0"><div style="padding:16px 20px;display:flex;align-items:center;gap:14px">
+          <div style="font-size:1.4rem">💡</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:0.9rem">Street Light Out — 80 Feet Road</div><div style="font-size:0.75rem;color:var(--t3);margin-top:3px">Ticket: CP-1187 · 8 days ago · Officer: Kavya S.</div></div>
+          <div style="font-size:0.7rem;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--blue)">Assigned</div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- VIEW: DIGITAL TWIN -->
+    <div id="view-twin" style="display:none">
+      <div style="margin-bottom:20px">
+        <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">🗺️ Digital Twin — Ward 14</div>
+        <div style="font-size:0.82rem;color:var(--t3)">Real-time risk heatmap powered by BigQuery ML. Each circle = a ward. Color = flood/pothole risk level.</div>
+      </div>
+      <div class="card" style="overflow:hidden">
+        <div class="card-head"><div class="card-title">Live Risk Map <span class="card-tag">BigQuery ML</span></div><div style="font-size:0.7rem;color:var(--t3)">Updated every 15 min</div></div>
+        <canvas id="twin-c-full" style="width:100%;height:380px;display:block"></canvas>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px">
+        <div class="card" style="padding:16px 20px">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:8px">Flood Risk</div>
+          <div style="font-size:2rem;font-weight:900;color:var(--red)">82%</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">Ward 14 · Monsoon season</div>
+        </div>
+        <div class="card" style="padding:16px 20px">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:8px">Pothole Count</div>
+          <div style="font-size:2rem;font-weight:900;color:var(--orange)">23</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">Open issues · This week</div>
+        </div>
+        <div class="card" style="padding:16px 20px">
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:8px">Risk Trend</div>
+          <div style="font-size:2rem;font-weight:900;color:var(--green)">↓ 12%</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">vs last month</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: OFFICERS -->
+    <div id="view-officers" style="display:none">
+      <div style="margin-bottom:20px">
+        <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">👮 Officer Leaderboard</div>
+        <div style="font-size:0.82rem;color:var(--t3)">Integrity scores auto-computed by Gemini Vision diff analysis of before/after photos</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">All Officers — Ward 14 <span class="card-tag">AI Integrity Score</span></div></div>
+        <div style="padding:0">
+          <table class="otbl" style="width:100%">
+            <thead><tr><th>#</th><th>Officer</th><th>Department</th><th>Resolved</th><th>SLA Breaches</th><th>Integrity</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="o-rank">#1</td><td><div style="font-weight:700">Ravi K.</div></td><td style="color:var(--t3);font-size:0.78rem">Roads</td><td style="font-family:var(--mono);color:var(--green)">47</td><td style="font-family:var(--mono);color:var(--t3)">0</td><td><div class="int-bar-w" style="width:80px"><div class="int-bar" style="width:94%;background:var(--green)"></div></div><span style="font-size:0.7rem;color:var(--green);margin-left:6px">94%</span></td><td><span style="font-size:0.68rem;padding:3px 8px;border-radius:999px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green)">Excellent</span></td></tr>
+              <tr><td class="o-rank">#2</td><td><div style="font-weight:700">Priya M.</div></td><td style="color:var(--t3);font-size:0.78rem">SWM</td><td style="font-family:var(--mono);color:var(--green)">38</td><td style="font-family:var(--mono);color:var(--t3)">1</td><td><div class="int-bar-w" style="width:80px"><div class="int-bar" style="width:88%;background:var(--green)"></div></div><span style="font-size:0.7rem;color:var(--green);margin-left:6px">88%</span></td><td><span style="font-size:0.68rem;padding:3px 8px;border-radius:999px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green)">Good</span></td></tr>
+              <tr><td class="o-rank">#3</td><td><div style="font-weight:700">Arjun T.</div></td><td style="color:var(--t3);font-size:0.78rem">Roads</td><td style="font-family:var(--mono);color:var(--orange)">31</td><td style="font-family:var(--mono);color:var(--orange)">4</td><td><div class="int-bar-w" style="width:80px"><div class="int-bar" style="width:76%;background:var(--orange)"></div></div><span style="font-size:0.7rem;color:var(--orange);margin-left:6px">76%</span></td><td><span style="font-size:0.68rem;padding:3px 8px;border-radius:999px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--orange)">Warning</span></td></tr>
+              <tr><td class="o-rank">#4</td><td><div style="font-weight:700">Kavya S.</div></td><td style="color:var(--t3);font-size:0.78rem">Lighting</td><td style="font-family:var(--mono);color:var(--orange)">26</td><td style="font-family:var(--mono);color:var(--orange)">6</td><td><div class="int-bar-w" style="width:80px"><div class="int-bar" style="width:65%;background:var(--orange)"></div></div><span style="font-size:0.7rem;color:var(--orange);margin-left:6px">65%</span></td><td><span style="font-size:0.68rem;padding:3px 8px;border-radius:999px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--orange)">Warning</span></td></tr>
+              <tr><td class="o-rank">#5</td><td><div style="font-weight:700">Officer #147</div></td><td style="color:var(--t3);font-size:0.78rem">Drainage</td><td style="font-family:var(--mono);color:var(--red)">12</td><td style="font-family:var(--mono);color:var(--red)">12</td><td><div class="int-bar-w" style="width:80px"><div class="int-bar" style="width:22%;background:var(--red)"></div></div><span style="font-size:0.7rem;color:var(--red);margin-left:6px">22%</span></td><td><span style="font-size:0.68rem;padding:3px 8px;border-radius:999px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)">🚨 Flagged</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:16px 20px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:14px;font-size:0.85rem;color:var(--red)">
+        ⚠️ Officer #147 auto-flagged by Gemini Vision diff analysis — 12 SLA breaches, 7 suspicious fake closures detected. Forwarded to anti-corruption cell.
+      </div>
+    </div>
+
+    <!-- VIEW: ANALYTICS -->
+    <div id="view-analytics" style="display:none">
+      <div style="margin-bottom:20px">
+        <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">📈 Analytics — Ward 14</div>
+        <div style="font-size:0.82rem;color:var(--t3)">30-day performance metrics powered by BigQuery ML</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px">
+        <div class="card" style="padding:20px">
+          <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:14px">Issues by Category</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🕳️ Pothole</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:72%;height:100%;background:var(--blue);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:32px;text-align:right">36%</div></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🌊 Waterlogging</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:44%;height:100%;background:var(--cyan);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:32px;text-align:right">22%</div></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🗑️ Garbage</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:38%;height:100%;background:var(--orange);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:32px;text-align:right">19%</div></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">💡 Lighting</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:24%;height:100%;background:var(--purple);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:32px;text-align:right">12%</div></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🚧 Drain</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:18%;height:100%;background:var(--red);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:32px;text-align:right">9%</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:14px">Resolution Time by Severity</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🔴 Critical</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:30%;height:100%;background:var(--green);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:40px;text-align:right">18h avg</div></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🟠 High</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:55%;height:100%;background:var(--orange);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:40px;text-align:right">2.1d avg</div></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🟡 Medium</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:80%;height:100%;background:var(--blue);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:40px;text-align:right">4.3d avg</div></div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;font-size:0.85rem">🟢 Low</div><div style="width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:100%;height:100%;background:var(--t3);border-radius:3px"></div></div><div style="font-size:0.78rem;color:var(--t2);width:40px;text-align:right">7.2d avg</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px">
+        <div class="card" style="padding:16px 20px"><div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--t3);margin-bottom:8px">AI Accuracy</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">94.2%</div><div style="font-size:0.7rem;color:var(--t3);margin-top:3px">Gemini Vision</div></div>
+        <div class="card" style="padding:16px 20px"><div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--t3);margin-bottom:8px">Dedup Rate</div><div style="font-size:1.8rem;font-weight:900;color:var(--blue)">31%</div><div style="font-size:0.7rem;color:var(--t3);margin-top:3px">Saved officer time</div></div>
+        <div class="card" style="padding:16px 20px"><div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--t3);margin-bottom:8px">Pipeline P99</div><div style="font-size:1.8rem;font-weight:900;color:var(--orange)">1.9s</div><div style="font-size:0.7rem;color:var(--t3);margin-top:3px">End-to-end latency</div></div>
+        <div class="card" style="padding:16px 20px"><div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--t3);margin-bottom:8px">Citizen Satisfaction</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">4.7★</div><div style="font-size:0.7rem;color:var(--t3);margin-top:3px">Out of 5</div></div>
+      </div>
+    </div>
+
+  </div><!-- end body -->
+</div><!-- end main -->
+
+<script>
+'use strict';
+gsap.registerPlugin();
+
+/* ── STATE ────────────────────────────────────── */
+let selectedCat = 'Pothole', selectedSev = 'medium', reportCount = 0;
+
+/* ── LOADER ────────────────────────────────────── */
+const msgs = ['Connecting to ADK pipeline…','Loading Gemini 2.0 Flash…','PostGIS spatial index ready…','BigQuery ML model refreshed…','All systems live ✓'];
+let pct = 0, msgI = 0;
+const ldrBar = document.getElementById('ld-bar');
+const ldrTxt = document.getElementById('ld-txt');
+const ldrInt = setInterval(() => {
+  pct = Math.min(pct + (Math.random() * 18 + 6), 100);
+  ldrBar.style.width = pct + '%';
+  if (msgI < msgs.length - 1 && pct > msgI * 20) ldrTxt.textContent = msgs[++msgI];
+  if (pct >= 100) {
+    clearInterval(ldrInt);
+    setTimeout(() => {
+      gsap.to('#loader', { opacity: 0, duration: 0.5, onComplete: () => {
+        document.getElementById('loader').style.display = 'none';
+        initAll();
+      }});
+    }, 300);
+  }
+}, 80);
+
+/* ── FORM LOGIC ────────────────────────────────── */
+function selectCat(el) {
+  document.querySelectorAll('#cat-pills .pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  selectedCat = el.dataset.cat;
+}
+function selectSev(el) {
+  document.querySelectorAll('#sev-pills .pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  selectedSev = el.dataset.sev;
+}
+function handleFile(input) {
+  if (!input.files[0]) return;
+  const z = document.getElementById('upload-zone');
+  const n = document.getElementById('upload-name');
+  z.classList.add('has-file');
+  n.style.display = 'block';
+  n.textContent = '✓ ' + input.files[0].name;
+}
+function switchView(el) {
+  /* Update sidebar active state */
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  /* Get view name from data-view attribute */
+  const viewName = el.dataset.view;
+  /* Hide all views */
+  document.querySelectorAll('[id^="view-"]').forEach(v => { v.style.display = 'none'; v.style.opacity = 0; });
+  /* Show target view */
+  const target = document.getElementById('view-' + viewName);
+  if (target) {
+    target.style.display = '';
+    target.style.opacity = 0;
+    gsap.to(target, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+    gsap.from(target, { y: 16, duration: 0.35, ease: 'power2.out' });
+  }
+  /* Update topbar title */
+  const titles = { dashboard:'Dashboard', report:'Report Issue', myreports:'My Reports', twin:'Digital Twin', officers:'Officers', analytics:'Analytics' };
+  const tb = document.getElementById && document.getElementById('topbar-title');
+  if (tb) tb.textContent = titles[viewName] || 'Dashboard';
+  /* If switching to Digital Twin, init twin canvas if not yet done */
+  if (viewName === 'twin') {
+    const fc = document.getElementById('twin-c-full');
+    if (fc && !fc._inited) { fc._inited = true; initTwinCanvas(fc); }
+  }
+}
+/* Legacy alias */
+function setNav(el) { switchView(el); }
+
+/* ── PIPELINE RUNNER ───────────────────────────── */
+let isRunning = false;
+function runPipeline() {
+  if (isRunning) return;
+  isRunning = true;
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = '⏳  Processing…';
+  document.getElementById('ticket').style.display = 'none';
+  resetSteps();
+  const term = document.getElementById('terminal');
+  term.innerHTML = '';
+  const ticketId = 'CP-' + (1200 + ++reportCount);
+  const cat = selectedCat, sev = selectedSev.toUpperCase();
+  const lang = document.getElementById('lang-sel').options[document.getElementById('lang-sel').selectedIndex].text;
+  document.getElementById('tb-count').textContent = 'Reports Today: ' + reportCount;
+  document.getElementById('pipeline-time').textContent = new Date().toLocaleTimeString('en-IN');
+
+  const seq = [
+    { step:'step1', delay:0, lines:[
+      { t:'08:14:02', k:'ReporterAgent.classify()', plain:'' },
+      { t:'', k:'', plain:'  > gemini_vision_classify()  →  <v>' + cat + '/critical</v>' },
+      { t:'', k:'', plain:'  > confidence: <v>0.94</v>  |  ward_id: <v>14</v>' },
+      { t:'', k:'', plain:'  > language: <v>' + lang.split(' ')[0] + '</v>  |  elapsed: <v>0.8s</v>' },
+    ]},
+    { step:'step2', delay:1000, lines:[
+      { t:'08:14:03', k:'VerificationAgent.dedup()', plain:'' },
+      { t:'', k:'', plain:'  > PostGIS_proximity(radius=50m)  →  <v>3 nearby</v>' },
+      { t:'', k:'', plain:'  > pHash similarity: <v>0.23</v>  <w>below threshold</w>  →  <v>NEW issue</v>' },
+      { t:'', k:'', plain:'  > trust_score: <v>0.92</v>  |  dedup: <v>PASS</v>' },
+    ]},
+    { step:'step3', delay:1900, lines:[
+      { t:'08:14:04', k:'RoutingAgent.assign()', plain:'' },
+      { t:'', k:'', plain:'  > ward_boundary_lookup()  →  <v>Ward 14, Roads & Infra</v>' },
+      { t:'', k:'', plain:'  > officer_workload_query()  →  <v>Ravi K. (load: 3)</v>' },
+      { t:'', k:'', plain:'  > SLA tier: <e>CRITICAL</e>  |  ACK required: <v>24h</v>' },
+    ]},
+    { step:'step4', delay:2700, lines:[
+      { t:'08:14:05', k:'EscalationAgent.sla_start()', plain:'' },
+      { t:'', k:'', plain:'  > timer: <v>24h</v>  |  FCM queued → <v>Ravi K., Supervisor</v>' },
+      { t:'', k:'', plain:'  > SMS queued → citizen (<v>BBMP ref: Sec 4.2.1</v>)' },
+    ]},
+    { step:'step5', delay:3400, lines:[
+      { t:'08:14:06', k:'PredictionAgent.risk_refresh()', plain:'' },
+      { t:'', k:'', plain:'  > Ward 14 waterlogging risk: <e>82%</e>' },
+      { t:'', k:'', plain:'  > BigQuery ML model: <v>updated</v>  |  Digital Twin: <v>synced</v>' },
+    ]},
+  ];
+
+  const tagToHtml = s => s.replace(/<v>(.*?)<\/v>/g,'<span class="t-v">$1</span>')
+                           .replace(/<k>(.*?)<\/k>/g,'<span class="t-k">$1</span>')
+                           .replace(/<w>(.*?)<\/w>/g,'<span class="t-w">$1</span>')
+                           .replace(/<e>(.*?)<\/e>/g,'<span class="t-e">$1</span>');
+
+  function appendLine(html, cb) {
+    const line = document.createElement('div');
+    line.innerHTML = html + '\n';
+    term.appendChild(line);
+    term.scrollTop = term.scrollHeight;
+    setTimeout(cb, 120);
+  }
+
+  function runStep(idx) {
+    if (idx >= seq.length) {
+      showTicket(ticketId, cat, sev, lang, term);
+      return;
+    }
+    const { step, delay, lines } = seq[idx];
+    setTimeout(() => {
+      setStepActive(step);
+      let li = 0;
+      function nextLine() {
+        if (li >= lines.length) { setStepDone(step); runStep(idx + 1); return; }
+        const l = lines[li++];
+        let html = '';
+        if (l.t) html = `<span class="t-t">[${l.t}]</span> <span class="t-k">${l.k}</span>`;
+        else html = tagToHtml(l.plain);
+        appendLine(html, nextLine);
+      }
+      nextLine();
+    }, delay);
+  }
+  runStep(0);
+}
+
+function resetSteps() {
+  for (let i = 1; i <= 5; i++) {
+    const s = document.getElementById('step' + i);
+    s.classList.remove('active', 'done');
+    const icons = ['📸','🔍','🗺️','⚡','🔮'];
+    s.querySelector('.step-circle').textContent = icons[i-1];
+  }
+  document.querySelectorAll('.step-line').forEach(l => l.style.background = '');
+}
+function setStepActive(id) {
+  document.getElementById(id).classList.add('active');
+}
+function setStepDone(id) {
+  const s = document.getElementById(id);
+  s.classList.remove('active');
+  s.classList.add('done');
+  s.querySelector('.step-circle').textContent = '✓';
+}
+
+function showTicket(id, cat, sev, lang, term) {
+  const sevColors = {low:['var(--green)','OK'],medium:['var(--orange)','MEDIUM'],high:['#ef7844','HIGH'],critical:['var(--red)','CRITICAL']};
+  const [sevColor, sevLabel] = sevColors[selectedSev] || ['var(--green)','OK'];
+  const fields = [
+    { l:'Ticket ID', v:'<span class="t-v" style="font-family:var(--mono)">' + id + '</span>' },
+    { l:'Category', v:cat },
+    { l:'Severity', v:'<span style="color:' + sevColor + ';font-weight:700">' + sevLabel + '</span>' },
+    { l:'Officer Assigned', v:'<span class="t-v">Ravi K.</span>' },
+    { l:'SLA Deadline', v:'24 hours (Critical)' },
+    { l:'Priority Score', v:'<span class="score-big">91</span>' },
+    { l:'Ward', v:'Ward 14 · Koramangala' },
+    { l:'Language', v:lang.split(' ')[0] },
+  ];
+  document.getElementById('ticket-id').innerHTML = '🎫 ' + id;
+  document.getElementById('ticket-grid').innerHTML = fields.map(f =>
+    `<div class="tfield"><div class="tf-lbl">${f.l}</div><div class="tf-val">${f.v}</div></div>`
+  ).join('');
+  document.getElementById('ticket-msg').textContent = '🎙️ AI: "Your complaint has been registered. Ravi K. will inspect within 24 hours." · ನಿಮ್ಮ ದೂರು ದಾಖಲಾಗಿದೆ.';
+
+  const ticket = document.getElementById('ticket');
+  ticket.style.display = 'block';
+  gsap.fromTo(ticket, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' });
+
+  // Re-enable button
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = false;
+  btn.textContent = '🚀  Submit Another Report';
+  isRunning = false;
+
+  // Update KPI
+  const open = document.getElementById('kpi-open');
+  open.textContent = parseInt(open.textContent) + 1;
+  document.getElementById('pipeline-time').textContent = '✓ Done in 2.1s';
+
+  // Append final log
+  term.innerHTML += `<br/><span class="t-sys">──────────────────────────────────</span><br/>`
+    + `<span class="t-v">✓ Pipeline complete · ${id} · Priority: 91 · Assigned: Ravi K.</span><br/>`
+    + `<span class="t-v">✓ All agents confirmed · Ticket active · SLA timer running</span><br/>`
+    + `<span class="cursor"></span>`;
+  term.scrollTop = term.scrollHeight;
+}
+
+/* ── DIGITAL TWIN CANVAS ────────────────────────── */
+function initTwin() {
+  const c = document.getElementById('twin-c');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const wards = [
+    {x:.12,y:.3,r:14,col:'#10b981'},{x:.38,y:.2,r:18,col:'#f59e0b'},
+    {x:.65,y:.25,r:12,col:'#ef4444'},{x:.22,y:.65,r:16,col:'#10b981'},
+    {x:.5, y:.6,r:17,col:'#f59e0b'},{x:.78,y:.55,r:11,col:'#10b981'},
+    {x:.42,y:.82,r:13,col:'#ef4444'}
+  ];
+  let t = 0, W, H;
+  function resize() { c.width = W = c.offsetWidth; c.height = H = c.offsetHeight; }
+  resize(); window.addEventListener('resize', resize, { passive: true });
+  (function draw() {
+    ctx.clearRect(0, 0, W, H); t += 0.04;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 36) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 36) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    wards.forEach(w => {
+      const x = w.x*W, y = w.y*H, p = Math.sin(t + x) * 3;
+      const g = ctx.createRadialGradient(x,y,0,x,y,w.r*2.8+p);
+      g.addColorStop(0, w.col + '55'); g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,w.r*2.8+p,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = w.col + '33'; ctx.strokeStyle = w.col; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x,y,w.r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    });
+    requestAnimationFrame(draw);
+  })();
+}
+
+function initTwinCanvas(c) {
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const wards = [
+    {x:.15,y:.35,r:22,col:'#10b981'},{x:.4,y:.25,r:28,col:'#f59e0b'},
+    {x:.68,y:.3,r:20,col:'#ef4444'},{x:.25,y:.7,r:25,col:'#10b981'},
+    {x:.55,y:.65,r:27,col:'#f59e0b'},{x:.8,y:.6,r:18,col:'#10b981'},
+    {x:.45,y:.85,r:22,col:'#ef4444'},{x:.1,y:.8,r:16,col:'#10b981'},
+    {x:.85,y:.25,r:14,col:'#f59e0b'},{x:.5,y:.4,r:20,col:'#10b981'}
+  ];
+  let t = 0, W, H;
+  function resize() { c.width = W = c.offsetWidth; c.height = H = c.offsetHeight; }
+  resize(); window.addEventListener('resize', resize, { passive: true });
+  (function draw() {
+    ctx.clearRect(0, 0, W, H); t += 0.04;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    wards.forEach(w => {
+      const x = w.x*W, y = w.y*H, p = Math.sin(t + x) * 4;
+      const g = ctx.createRadialGradient(x,y,0,x,y,w.r*2.8+p);
+      g.addColorStop(0, w.col + '55'); g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,w.r*2.8+p,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = w.col + '33'; ctx.strokeStyle = w.col; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(x,y,w.r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      
+      // Draw label
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = '10px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      ctx.fillText('WARD', x, y + w.r + 14);
+    });
+    requestAnimationFrame(draw);
+  })();
+}
+
+/* ── OFFICER TABLE ──────────────────────────────── */
+function initOfficers() {
+  const officers = [
+    { rank:1, name:'Ravi K.',    dept:'Roads',    resolved:47, integrity:94, icolor:'var(--green)' },
+    { rank:2, name:'Priya M.',   dept:'SWM',      resolved:38, integrity:88, icolor:'var(--green)' },
+    { rank:3, name:'Arjun T.',   dept:'Roads',    resolved:31, integrity:76, icolor:'var(--orange)' },
+    { rank:4, name:'Kavya S.',   dept:'Lighting', resolved:26, integrity:65, icolor:'var(--orange)' },
+    { rank:5, name:'Officer #147',dept:'Drainage',resolved:12, integrity:22, icolor:'var(--red)' },
+  ];
+  document.getElementById('otbl-body').innerHTML = officers.map(o => `
+    <tr>
+      <td class="o-rank">#${o.rank}</td>
+      <td><div style="font-size:0.82rem;font-weight:600">${o.name}</div><div style="font-size:0.66rem;color:var(--t3)">${o.dept}</div></td>
+      <td style="font-family:var(--mono);font-size:0.8rem;color:var(--green)">${o.resolved}</td>
+      <td>
+        <div class="int-bar-w">
+          <div class="int-bar" style="width:${o.integrity}%;background:${o.icolor}"></div>
+        </div>
+        <div style="font-size:0.65rem;color:var(--t3);margin-top:2px">${o.integrity}%</div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* ── ISSUES FEED ────────────────────────────────── */
+function initFeed() {
+  const items = [
+    { ico:'🕳️', title:'Pothole — 5th Cross', meta:'Ward 14 · 2h ago · Ravi K.', sev:'sc', label:'Critical' },
+    { ico:'🌊', title:'Waterlogging — MG Road', meta:'Ward 12 · 4h ago · Priya M.', sev:'sh', label:'High' },
+    { ico:'💡', title:'Street Light — Broken', meta:'Ward 14 · 6h ago · Kavya S.', sev:'sm', label:'Medium' },
+    { ico:'🗑️', title:'Garbage Pile — Market', meta:'Ward 9 · 8h ago · Arjun T.', sev:'sm', label:'Medium' },
+    { ico:'🚧', title:'Open Drain — Sarjapur', meta:'Ward 16 · 12h ago · Assigned', sev:'sh', label:'High' },
+  ];
+  document.getElementById('feed').innerHTML = items.map(i => `
+    <div class="fi">
+      <div class="fi-ico">${i.ico}</div>
+      <div class="fi-info">
+        <div class="fi-title">${i.title}</div>
+        <div class="fi-meta">${i.meta}</div>
+      </div>
+      <div class="fi-sev ${i.sev}">${i.label}</div>
+    </div>
+  `).join('');
+}
+
+/* ── GSAP INTRO ANIMATION ────────────────────────── */
+function initAnim() {
+  gsap.fromTo('#kpi-row > *',
+    { opacity:0, y:24 },
+    { opacity:1, y:0, stagger:0.1, duration:0.7, ease:'power3.out' }
+  );
+  gsap.fromTo('.two-col > *',
+    { opacity:0, y:28 },
+    { opacity:1, y:0, stagger:0.15, delay:0.3, duration:0.8, ease:'power3.out' }
+  );
+  gsap.fromTo('.three-col > *',
+    { opacity:0, y:20 },
+    { opacity:1, y:0, stagger:0.12, delay:0.5, duration:0.7, ease:'power3.out' }
+  );
+}
+
+/* ── INIT ───────────────────────────────────────── */
+function initAll() {
+  initTwin();
+  initOfficers();
+  initFeed();
+  initAnim();
+}
+</script>
+</body>
+</html>
