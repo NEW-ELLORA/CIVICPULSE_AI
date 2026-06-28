@@ -1,7 +1,7 @@
 # CivicPulse AI 🏙️
 **Next-Generation Civic Issue Management powered by Google Gemini 2.0 Flash**
 
-🔗 **Live Demo:** [https://your-url.run.app](https://your-url.run.app)
+🔗 **Live Demo:** [https://civicpulse-79eeb.web.app](https://civicpulse-79eeb.web.app)
 
 ![CivicPulse Live Demo Screenshot](./assets/demo_screenshot.png)
 
@@ -22,6 +22,7 @@ CivicPulse AI is an "AI Operating System for cities" that autonomously verifies,
 ## 🌟 Key Features
 
 - **🏆 Gamification (Civic Points Leaderboard)**: Citizens earn points and unlock digital civic badges for accurate reporting, driving community engagement and consistent app usage.
+- **🔐 Enterprise Security (AES-256)**: All citizen PII and GPS data is strictly encrypted at rest via AES-256. API routes are hardened with Helmet, Rate Limiting, and XSS sanitization.
 - **🛡️ RBAC**: Distinct login views for Citizens (reporting) and Admins (city-wide dashboard).
 - **🎤 Voice / Gemini Live**: Hands-free multilingual reporting using Web Speech API and Gemini transcription.
 - **👓 CivicLens AR**: Real-time browser-based computer vision overlay to visually identify infrastructure damage.
