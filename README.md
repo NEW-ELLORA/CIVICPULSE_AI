@@ -55,7 +55,7 @@ graph TD
 | **Voice / STT** | Web Speech API + Gemini Live |
 | **Backend** | Node.js + Express |
 | **Database** | Firebase Firestore |
-| **Hosting** | Google Cloud Run |
+| **Hosting** | Firebase Hosting + Railway |
 | **Maps** | Google Maps JS API |
 | **Auth** | Firebase OTP (simulated) |
 | **Notifications** | FCM / Browser API |
