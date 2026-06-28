@@ -3,3 +3,11 @@ node_modules/
 .env
 .env.local
 *.log
+uploads/
+civicpulse-79eeb-firebase-adminsdk-fbsvc-8fb7323db6.json
+database.sqlite
+*.pdf
+pdf_*.txt
+vibe2ship*.txt
+civicpulse-app/
+Upload Video Feed/

@@ -5,7 +5,7 @@
     "source_pdf": "CivicPulse_AI_v5_FINAL.pdf",
     "version": "v5.2",
     "last_updated": "2026-06-27",
-    "ui_pages": ["index.html (marketing/pitch site)", "demo.html (interactive working app with 5-agent simulation)"],
+    "ui_pages": ["index.html (marketing/pitch site)", "demo.html (interactive working app)", "civicpulse-app (React + TypeScript production version)"],
     "graph_sections": ["project_summary", "agents", "features", "tech_stack", "frontend_stack", "database_schema", "backend_apis_needed", "metrics_kpis", "sdg_alignment", "submission_checklist", "demo_script", "architecture", "competitive_analysis", "cost_analysis", "security", "scalability", "roadmap"]
   },
   "project_summary": {
@@ -13,7 +13,7 @@
     "tagline": "AI Operating System for Cities",
     "hackathon": "Google for Developers Hackathon 2026",
     "theme": "Community Hero — Hyperlocal Problem Solver",
-    "stack": "Gemini + Google Cloud · Premium Frontend (GSAP/Lenis/LoadingScreen) · demo.html working app · 24h Build",
+    "stack": "Gemini + Google Cloud · React + TypeScript · Firebase Hosting · Google Maps JS",
     "problem_statement": "Broken civic complaint systems — reports lost, no tracking, zero accountability",
     "solution": "5-agent autonomous AI pipeline on Google Cloud transforming citizen reports into government action, presented via an award-winning UI/UX.",
     "users": ["Citizens (any device, any language)", "Municipal officers", "Senior administrators"],
@@ -212,12 +212,13 @@
     {"layer": "Async Tasks", "google_tech": "Cloud Tasks + Cloud Scheduler", "replaces": "Cron jobs", "justification": "Escalation + Prediction agents fire reliably, no polling"}
   ],
   "frontend_stack": [
-    {"technology": "HTML5", "usage": "Semantic document structure"},
-    {"technology": "CSS3 / Custom Properties", "usage": "Apple/Linear-style premium design system, glassmorphism, responsive grid"},
-    {"technology": "JavaScript (ES6+)", "usage": "Core application logic, agent simulations, interactive components"},
-    {"technology": "GSAP", "usage": "Smooth, high-performance animations across the site"},
-    {"technology": "GSAP ScrollTrigger", "usage": "Scroll-based staggered reveals and parallax effects"},
-    {"technology": "Lenis", "usage": "Buttery-smooth scrolling via requestAnimationFrame"}
+    {"technology": "React 18 + TypeScript", "usage": "Component-based architecture, type safety, highly scalable frontend"},
+    {"technology": "Vite", "usage": "Lightning-fast build tool and dev server"},
+    {"technology": "Tailwind CSS", "usage": "Utility-first styling, Space Grotesk + Dark Canvas theme implementation"},
+    {"technology": "React Router v6", "usage": "Client-side routing across the 10 specified pages"},
+    {"technology": "Framer Motion / GSAP", "usage": "Smooth, high-performance animations, pipeline visualizers, and page transitions"},
+    {"technology": "Google Maps JS SDK", "usage": "Civic Digital Twin map rendering, custom AR/heatmap overlays"},
+    {"technology": "Firebase Hosting + PWA", "usage": "Offline support, Service Workers, Google-native CDN delivery"}
   ],
   "database_schema": {
     "issues": "id UUID PK · created_at/updated_at · category ENUM · subcategory TEXT · severity ENUM · status ENUM(6 stages) · location GEOGRAPHY POINT · ward_id FK · media_urls TEXT[] · reporter_id FK · assigned_officer_id FK · gemini_confidence FLOAT · gemini_raw_response JSONB · agent_trace JSONB · priority_score INT · vote_count INT · duplicate_of UUID FK · resolved_at · resolution_photo_url · reporter_rating 1–5 · integrity_flag BOOL · ar_metadata JSONB",
