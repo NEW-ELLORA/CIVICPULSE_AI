@@ -145,5 +145,4 @@ gcloud run deploy civicpulse \
 
 ## 👥 Team
 
-* **[Your Name]** — Lead AI Engineer & Full-Stack Developer
-* **[Teammate Name]** — Cloud Architect & UI/UX Designer
+* **Ayush C S** — Lead AI Engineer & Full-Stack Developer
