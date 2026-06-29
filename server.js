@@ -134,16 +134,46 @@ Output ONLY valid JSON: {"category": "...", "severity": "low/medium/high/critica
     }
 
     traceLog.push({ agent: 'ReporterAgent', tool: file ? 'gemini_vision_classify()' : 'gemini_text_classify()', result: `${aiOutput.category} / ${aiOutput.severity} (Score: ${aiOutput.priority_score})` });
-    traceLog.push({ agent: 'VerificationAgent', tool: 'firestore_proximity_query()', result: '0 duplicates found' });
+    // AGENT 2: Verification Agent
+    let verificationScore = 95;
+    try {
+      const verRes = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [`You are the Verification Agent. Analyze if this report sounds like a legitimate civic issue or spam.
+Category: ${aiOutput.category}, Description: "${description}".
+Output JSON only: {"valid": true, "confidence_score": 0-100, "reason": "..."}`],
+        config: { responseMimeType: 'application/json' }
+      });
+      const vData = JSON.parse(verRes.text);
+      verificationScore = vData.confidence_score || 95;
+      traceLog.push({ agent: 'VerificationAgent', tool: 'gemini_text_verify()', result: `Valid: ${vData.valid} (Conf: ${verificationScore}%) - ${vData.reason.substring(0,30)}...` });
+    } catch(e) {
+      traceLog.push({ agent: 'VerificationAgent', tool: 'gemini_text_verify()', result: `Valid: true (Conf: 95%) - Fallback` });
+    }
 
-    // AGENT 3: Routing — find least-busy officer in Firestore
+    // AGENT 3: Routing Agent
+    let department = 'General BBMP';
+    try {
+      const routRes = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [`You are the Routing Agent. Decide which Bengaluru municipal department handles this.
+Category: ${aiOutput.category}. Options: BWSSB (Water), BESCOM (Electricity), BBMP Road Infra, SWM (Solid Waste).
+Output JSON only: {"department": "..."}`],
+        config: { responseMimeType: 'application/json' }
+      });
+      const rData = JSON.parse(routRes.text);
+      department = rData.department || 'General BBMP';
+      traceLog.push({ agent: 'RoutingAgent', tool: 'gemini_route_dispatch()', result: `Routed to: ${department}` });
+    } catch(e) {
+      traceLog.push({ agent: 'RoutingAgent', tool: 'gemini_route_dispatch()', result: `Routed to: ${department} (Fallback)` });
+    }
+
+    // Find least-busy officer in Firestore
     let assignedOfficer = 'Ravi K.';
     let assignedOfficerId = null;
     try {
       const officerSnap = await db.collection('officers').get();
-
       if (!officerSnap.empty) {
-        // Sort by workload in JS to avoid composite index requirement
         const sorted = officerSnap.docs.sort((a, b) => a.data().workload - b.data().workload);
         const doc = sorted[0];
         assignedOfficer = doc.data().name;
@@ -152,9 +182,24 @@ Output ONLY valid JSON: {"category": "...", "severity": "low/medium/high/critica
       }
     } catch (e) { console.warn('Officer query error:', e.message); }
 
-    traceLog.push({ agent: 'RoutingAgent', tool: 'firestore_officer_query()', result: `Assigned: ${assignedOfficer}` });
-    traceLog.push({ agent: 'EscalationAgent', tool: 'Cloud Tasks SLA', result: 'SLA timer started' });
-    traceLog.push({ agent: 'PredictionAgent', tool: 'BigQuery ML', result: 'Risk models updated' });
+    // AGENT 4: Escalation Agent
+    let slaHours = 24;
+    let mayorAlert = false;
+    try {
+      const escRes = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [`You are the Escalation Agent. Calculate the SLA deadline in hours and if it needs Mayor alert.
+Severity: ${aiOutput.severity}, Priority Score: ${aiOutput.priority_score}.
+Output JSON only: {"sla_deadline_hours": number, "escalate_to_mayor": boolean}`],
+        config: { responseMimeType: 'application/json' }
+      });
+      const eData = JSON.parse(escRes.text);
+      slaHours = eData.sla_deadline_hours || 24;
+      mayorAlert = eData.escalate_to_mayor || false;
+      traceLog.push({ agent: 'EscalationAgent', tool: 'gemini_sla_calculator()', result: `SLA: ${slaHours}h (${mayorAlert ? '🚨 MAYOR ALERT' : 'Normal'})` });
+    } catch(e) {
+      traceLog.push({ agent: 'EscalationAgent', tool: 'gemini_sla_calculator()', result: `SLA: 24h (Normal) (Fallback)` });
+    }
 
     // AGENT 5: Qwen 3 32B Deep Reasoning (Groq)
     let reasoning = '';
@@ -175,7 +220,8 @@ Details:
 - Category: ${aiOutput.category}
 - Severity: ${aiOutput.severity} (Priority: ${aiOutput.priority_score}/100)
 - Description: "${description}"
-- Location: ${lat ? `${lat}°N, ${lng}°E` : 'Bengaluru'}
+- Department: ${department} (SLA: ${slaHours}h)
+- Location: ${lat ? lat+','+lng : 'Bengaluru'}
 - Assigned Officer: ${assignedOfficer}
 
 Be concise and actionable. Use clear numbered sections.
@@ -187,7 +233,7 @@ IMPORTANT: Output ONLY the final report. Do NOT include any internal thoughts, r
       reasoning = reasoningRes.choices[0]?.message?.content || '';
     } catch (e) {
       console.warn('Groq reasoning error:', e.message?.slice(0, 80));
-      reasoning = `Issue: ${aiOutput.category} at ${lat ? lat+','+lng : 'Bengaluru'}.\nSeverity: ${aiOutput.severity.toUpperCase()} — Priority ${aiOutput.priority_score}/100.\nAssigned to ${assignedOfficer} for inspection within 24 hours.\nRecommendation: Inspect site, document findings, initiate repair per SLA.`;
+      reasoning = `Issue: ${aiOutput.category} at ${lat ? lat+','+lng : 'Bengaluru'}.\nSeverity: ${aiOutput.severity.toUpperCase()} — Priority ${aiOutput.priority_score}/100.\nAssigned to ${assignedOfficer} (${department}) for inspection within ${slaHours} hours.\nRecommendation: Inspect site, document findings, initiate repair per SLA.`;
     }
 
     traceLog.push({ agent: 'ReasoningAgent', tool: 'qwen3_32b_reasoning()', result: 'Deep analysis complete' });
