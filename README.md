@@ -65,11 +65,10 @@ graph TD
 
 ## ⚠️ Hackathon Architecture Note (Simulated Cloud Infrastructure)
 
-To ensure a flawless, high-fidelity presentation during the 24-hour hackathon, we employed **"Wizard of Oz" prototyping** for our heavy cloud infrastructure. 
+To ensure a flawless, high-fidelity presentation during the 24-hour hackathon, we employed **"Wizard of Oz" prototyping** for some of our heavy cloud infrastructure. 
 
 Due to Google Cloud Sandbox billing limitations that require multi-day verification for premium services (like SMS billing and BigQuery ML), the following systems are conceptually designed but **simulated in the frontend**:
 
-* **Google Gen AI ADK**: The 5-Agent pipeline trace you see in the UI accurately represents our architectural design, but the backend currently uses standard `GoogleGenerativeAI` API calls rather than the full Google ADK framework. 
 * **BigQuery ML**: The predictive risk percentages (e.g., "82% Flood Risk") and heatmap data are simulated. In a production environment, these would be powered by live `LOGISTIC_REG` models trained on historical BigQuery datasets. 
 * **Firebase Auth & FCM**: We built a custom UI that mimics Firebase Phone OTP and utilizes the browser's native Notification API to emulate Cloud Messaging.
 
@@ -89,7 +88,7 @@ The frontend dashboard, PWA infrastructure, Voice APIs, real-time RBAC polling, 
    ```env
    GEMINI_API_KEY=your_gemini_api_key
    AES_ENCRYPTION_KEY=your_generated_32_byte_hex_key
-   GROQ_API_KEY=your_groq_api_key
+   GROQ_API_KEY=your_groq_api_key  # Powers the Qwen 32B Reasoning Agent
    ```
 3. Start the secure Node backend:
    ```bash
