@@ -192,6 +192,13 @@
         ],
         "auto_escalated": "score > 85"
       }
+    },
+    {
+      "id": "F8",
+      "name": "Gamification & Civic Rewards",
+      "status": "LIVE",
+      "description": "Citizens earn XP points and unlock digital badges (e.g. First Responder, Pothole Spotter) for submitting accurate, verified reports. Designed to drive community engagement and app retention.",
+      "badges": ["First Responder", "Pothole Spotter", "Verified Reporter"]
     }
   ],
   "tech_stack": [

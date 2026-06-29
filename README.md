@@ -21,7 +21,7 @@ CivicPulse AI is an "AI Operating System for cities" that autonomously verifies,
 
 ## 🌟 Key Features
 
-- **🏆 Gamification (Civic Points Leaderboard)**: Citizens earn points and unlock digital civic badges for accurate reporting, driving community engagement and consistent app usage.
+- **🏆 Gamification (Civic Points Leaderboard)**: Citizens earn XP points and unlock digital civic badges (like "First Responder") for accurate reporting, driving community engagement and consistent app usage. Fully implemented in the Citizen Dashboard view.
 - **🔐 Enterprise Security (AES-256)**: All citizen PII and GPS data is strictly encrypted at rest via AES-256. API routes are hardened with Helmet, Rate Limiting, and XSS sanitization.
 - **🛡️ RBAC**: Distinct login views for Citizens (reporting) and Admins (city-wide dashboard).
 - **👍 Community Upvoting & Auto-Escalation**: Citizens near a report can verify it. Once 3+ verifications are received, the system automatically escalates the priority to HIGH — powering true community collaboration.
@@ -29,7 +29,12 @@ CivicPulse AI is an "AI Operating System for cities" that autonomously verifies,
 - **🔑 Firebase Google Sign-In**: Real Firebase Authentication using Google OAuth — no mocks, no simulated OTP.
 - **🎤 Voice / Gemini Live**: Hands-free multilingual reporting using Web Speech API and Gemini transcription.
 - **👓 CivicLens AR**: Real-time browser-based computer vision overlay supporting both static images and **live video frames** for infrastructure damage detection — directly addressing the spec's video-based reporting requirement.
-- **🚨 Disaster Mode**: Instant flood simulation that overrides the Digital Twin to trigger NDRF alerts.
+- **🚨 AI-Triggered Disaster Mode**: When Gemini detects a cluster of `critical` severity flood/waterlogging reports in the same ward within a short time window, it **autonomously activates Disaster Mode** — no human click required. When triggered (manually or by AI):
+  - The **Digital Twin map switches to full red emergency mode**
+  - All **CCTV nodes flip to 🔴 ALERT status** city-wide
+  - A **city-wide NDRF emergency warning banner** fires across all admin dashboards
+  - The dashboard **overrides normal operations** to display a crisis command center
+  - An escalation log entry is written to Firestore with the triggering AI reasoning
 - **🏛️ Civic AI Mayor**: Core LLM explicitly prompted with BBMP SLAs to enforce strict municipal codes.
 - **✈️ Offline PWA**: Service Worker integration allows reporting even in low-connectivity zones.
 - **⚖️ Corruption / Integrity Score**: Algorithmic monitoring of officer task resolution to prevent false closures.
