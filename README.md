@@ -46,7 +46,7 @@ CivicPulse AI is a full-stack civic intelligence platform that:
 
 ---
 
-## 🌟 15 Core Features
+## 🌟 16 Core Features
 
 ### Phase 1 — Landing Page (`index.html`)
 
@@ -98,6 +98,9 @@ Real-time spatial map with color-coded GPS pins for every active issue in the li
 
 **15. Autonomous CCTV Nodes (Simulation)**
 Demonstrates how the system could hook into live traffic cameras to auto-detect issues without human reporting. Click "CCTV Nodes" in the left sidebar.
+
+**16. Dynamic Onboarding Tour & UI Gamification**
+A custom-built step-by-step tooltip tour that auto-starts for new users to guide them through the dashboard's AI features, coupled with City Health Score widgets that dynamically update.
 
 ---
 
