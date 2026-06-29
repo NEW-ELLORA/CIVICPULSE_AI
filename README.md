@@ -263,12 +263,9 @@ Displayed in Analytics dashboard with Chart.js
 
 ---
 
-## 👥 Team
+## 👤 Developer
 
-| Name | Role |
-|---|---|
-| [Your Name] | Full-stack + AI integration |
-| [Teammate] | Frontend + UX |
+Built with ❤️ by **AYUSH C S** (Solo Developer)
 
 ---
 
