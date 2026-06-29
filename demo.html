@@ -232,6 +232,15 @@ input,textarea,select{font-family:inherit}
 /* ─── BOTTOM 3 CARDS ──────────────────────────────────── */
 .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
 
+/* Modals */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-c{background:var(--bg2);border:1px solid rgba(255,255,255,0.1);border-radius:16px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.6);overflow:hidden;animation:mSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)}
+.mhead{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:1.05rem;letter-spacing:-0.01em;background:rgba(255,255,255,0.02)}
+.mbody{padding:0}
+.mclose{cursor:pointer;color:var(--t3);transition:color 0.2s;font-size:1.1rem;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.mclose:hover{color:var(--red);background:rgba(239,68,68,0.1)}
+@keyframes mSlideIn{from{opacity:0;transform:translateY(20px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
 /* Twin map */
 .twin-c{width:100%;height:220px;display:block;border-radius:0 0 var(--r) var(--r)}
 
@@ -1709,7 +1718,7 @@ async function loadMyReports(silent = false) {
       const photoHtml = imgSrc ? `
         <div style="margin-top:16px">
           <div style="font-size:0.65rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">📁 Photo Evidence</div>
-          <img src="${imgSrc}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.1);cursor:zoom-in" onclick="window.open(this.src,'_blank')" onerror="this.style.display='none'"/>
+          <img src="${imgSrc}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid rgba(255,255,255,0.1);cursor:zoom-in;background:#000" onclick="window.open(this.src,'_blank')" onerror="this.style.display='none'"/>
         </div>
       ` : '';
 
