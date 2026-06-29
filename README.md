@@ -260,13 +260,7 @@ Displayed in Analytics dashboard with Chart.js
 
 Built with ❤️ by **AYUSH C S** (Solo Developer)
 
----
 
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
----
 
 ## 🔗 Links
 
