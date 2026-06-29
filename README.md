@@ -32,42 +32,52 @@ Below is a meticulous breakdown of every single feature, menu item, and mechanis
 - **Where it is located:** **"All Reports"** (or **"My Reports"**) tab on the left sidebar.
 - **Why we built it:** To provide a central hub for tracking civic issues. Includes the **"Report Issue"** button where users upload photos for the Multimodal AI to verify.
 
-### 💬 4. Chat Session (Multilingual Voice Reporting)
+### 🏛️ 4. Civic AI Mayor (Interactive Chat)
+- **What it does:** A specialized AI agent loaded with city governance policies. You can ask it questions about infrastructure policy and it will answer based on municipal guidelines.
+- **Where it is located:** On the main landing page (`index.html`) under the **"Civic AI Mayor"** section, click the **"🏛️ Ask AI Mayor"** button.
+- **Why we built it:** To democratize information. Instead of digging through 100-page PDF government documents, citizens can just ask the AI Mayor why a certain road is taking so long to fix.
+
+### 💬 5. Chat Session (Multilingual Voice Reporting)
 - **What it does:** Allows a citizen to report an issue just by speaking into their device in their native language (e.g., Kannada, Hindi, English). The system instantly converts the speech to text.
-- **Where it is located:** The floating **💬 Chat Widget** in the bottom right corner of the screen. Inside the chat window, click the **🎙️ Mic Icon** next to the send button.
+- **Where it is located:** The floating **💬 Chat Widget** in the bottom right corner of the dashboard screen. Inside the chat window, click the **🎙️ Mic Icon** next to the send button.
 - **Why we built it:** To bridge the digital divide for elderly citizens or those who cannot type long descriptions on smartphones.
 
-### 📷 5. CCTV Nodes (Auto-Detection)
+### 📷 6. CCTV Nodes (Auto-Detection)
 - **What it does:** A simulated feed of city-wide CCTV cameras. It demonstrates how CivicPulse AI can hook into live traffic cameras to automatically detect potholes and garbage dumping without a human ever reporting it.
 - **Where it is located:** **"CCTV Nodes"** tab on the left sidebar.
 - **Why we built it:** To prove that our pipeline is capable of fully autonomous edge-detection in a smart-city ecosystem.
 
-### 📈 6. Analytics (Predictive AI Insights)
+### 📈 7. Analytics (Predictive AI Insights)
 - **What it does:** The AI analyzes the city's entire live database of tickets to calculate the workload of all departments (Roads, SWM, Water). It predicts which department will become overwhelmed next week.
 - **Where it is located:** Log in as **Admin**. Click the **"📈 Analytics"** tab on the left sidebar. Click the large purple **"🤖 Run AI Predictive Analysis"** button at the top right.
 - **Why we built it:** To transition city governance from *reactive* (fixing things after they break) to *proactive* (allocating resources before a crisis happens).
 
-### 👮 7. Officers Tab
+### 👮 8. Officers Tab
 - **What it does:** Displays a leaderboard of municipal officers, ranking them by their resolution speed, SLA compliance, and integrity score.
 - **Where it is located:** **"Officers"** tab on the left sidebar.
 - **Why we built it:** To inject accountability into the government workflow.
 
-### 🔍 8. AI Repair Blueprint
+### 🚔 9. Corruption Detection AI
+- **What it does:** An AI layer that detects anomalies in officer behavior. By using Gemini Vision to diff before/after resolution photos, it can automatically detect if an officer is faking a ticket closure. It calculates an Integrity Risk Score per officer.
+- **Where it is located:** On the main landing page (`index.html`) under the **"Corruption Detection AI"** section, click the **"🚔 Simulate Fake Closure"** button.
+- **Why we built it:** To combat systemic corruption where government workers mark jobs as 'resolved' without actually fixing the problem.
+
+### 🔍 10. AI Repair Blueprint
 - **What it does:** Generates a real-time, highly detailed civil engineering repair plan for a specific ticket. It outputs a Root Cause Analysis, an Estimated Cost (in INR ₹), Required Materials, and a Step-by-Step execution plan.
-- **Where it is located:** The purple **"🔍 Blueprint"** button on every single ticket.
+- **Where it is located:** The purple **"🔍 Blueprint"** button on every single ticket inside the Dashboard.
 - **Why we built it:** To transition the app from just being an "issue tracker" to an "actionable solution generator." It tells municipal workers exactly *how* to fix the problem and *what* it will cost.
 
-### 🧠 9. Agentic Trace (Immutable Audit Trail)
+### 🧠 11. Agentic Trace (Immutable Audit Trail)
 - **What it does:** Tracks the exact, unchangeable timeline of a ticket. It shows precisely when the citizen reported it, when the AI verified it, and exactly how long it has been sitting open.
 - **Where it is located:** The **"🤖 Agentic Trace"** (or Audit Trail) button located on the top right of every ticket card.
 - **Why we built it:** To enforce absolute transparency and combat municipal corruption.
 
-### 🌊 10. Simulate Flood (Disaster Mode)
+### 🌊 12. Simulate Flood (Disaster Mode)
 - **What it does:** A stress-test button that instantly floods the database with dozens of critical waterlogging tickets. This proves that our AI pipeline can handle mass-scale crisis events without crashing.
-- **Where it is located:** Found on the main marketing landing page (`index.html`) under the "Solutions" section.
+- **Where it is located:** Found on the main marketing landing page (`index.html`) under the "Disaster Mode" section, click the **"🌊 Simulate Flood Trigger"** button.
 - **Why we built it:** To prove system reliability during monsoons and disasters.
 
-### 🤖 11. The 5-Agent Pipeline
+### 🤖 13. The 5-Agent Pipeline
 - **What it does:** The core intelligence backbone of the app. It consists of 5 distinct AI personas working in tandem:
   1. **Intake Agent:** Parses the citizen's photo and text.
   2. **Triage Agent:** Determines severity (Low/Medium/High/Critical).
