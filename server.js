@@ -49,18 +49,22 @@ try {
 // Seed mock officers if not present
 async function seedOfficers() {
   if (!db) return;
-  const snapshot = await db.collection('officers').limit(1).get();
-  if (snapshot.empty) {
-    console.log('Seeding officers to Firestore...');
-    const officers = [
-      { name: 'Ravi K.',    ward: 'Ward 14', department: 'Roads',      workload: 3 },
-      { name: 'Priya M.',   ward: 'Ward 14', department: 'Water',      workload: 8 },
-      { name: 'Arjun S.',   ward: 'Ward 14', department: 'Sanitation', workload: 2 },
-      { name: 'Vikram D.',  ward: 'Ward 12', department: 'Roads',      workload: 1 },
-    ];
-    for (const o of officers) {
-      await db.collection('officers').add(o);
+  try {
+    const snapshot = await db.collection('officers').limit(1).get();
+    if (snapshot.empty) {
+      console.log('Seeding officers to Firestore...');
+      const officers = [
+        { name: 'Ravi K.',    ward: 'Ward 14', department: 'Roads',      workload: 3 },
+        { name: 'Priya M.',   ward: 'Ward 14', department: 'Water',      workload: 8 },
+        { name: 'Arjun S.',   ward: 'Ward 14', department: 'Sanitation', workload: 2 },
+        { name: 'Vikram D.',  ward: 'Ward 12', department: 'Roads',      workload: 1 },
+      ];
+      for (const o of officers) {
+        await db.collection('officers').add(o);
+      }
     }
+  } catch (err) {
+    console.error('Failed to seed officers (Firebase Auth Error):', err.message);
   }
 }
 seedOfficers();
