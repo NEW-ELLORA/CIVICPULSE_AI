@@ -675,71 +675,55 @@
     </div>
 
     <div class="solutions-grid">
-      <!-- Civic Digital Twin -->
+      <!-- AI Repair Blueprint -->
       <div class="sol-row full">
         <div class="sol-card sol-wide reveal">
           <div class="sol-card-text">
-            <div class="sol-tag" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--green);">Solves: No Predictive Action</div>
-            <h3>Civic Digital Twin</h3>
-            <p>BigQuery ML trains a logistic regression model on 3 years of Bengaluru infrastructure data. The result is a live city health map refreshed weekly via Cloud Scheduler — predicting failure 10 days ahead.</p>
+            <div class="sol-tag" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);color:var(--purple);">Solves: Blind Delegation</div>
+            <h3>AI Repair Blueprints</h3>
+            <p>Every ticket is deep-dived by the Gemini 2.0 Flash Civil Engineering Agent. In seconds, it generates Root Cause Analysis, precise Estimated Costs (INR), Required Materials, and a Step-by-Step execution plan for the workers.</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;">
-              <span style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--green);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Ward 5 — OK (22%)</span>
-              <span style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:var(--orange);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Koramangala — Risk 82%</span>
-              <span style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Ward 14 — Critical 91%</span>
+              <span style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:var(--purple);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Cost Estimation</span>
+              <span style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);color:var(--purple);padding:3px 10px;border-radius:99px;font-size:0.78rem;">Material Requirements</span>
             </div>
           </div>
-          <div class="twin-wrap">
-            <canvas id="twin-canvas" aria-label="Civic Digital Twin city health map"></canvas>
+          <div style="background:#000;border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;font-family:var(--mono);font-size:0.8rem;color:var(--t2);">
+            <div style="color:var(--t3);margin-bottom:8px">// Gemini AI Output</div>
+            <div style="color:var(--text);margin-bottom:12px">> Root Cause: Structural wear and tear.</div>
+            <div style="color:var(--green);font-size:1.4rem;font-weight:900;margin-bottom:12px">₹5,000 Estimated Cost</div>
+            <ul style="padding-left:14px;color:var(--t2)">
+              <li>Secure area with safety cones</li>
+              <li>Apply standard asphalt patch fix</li>
+            </ul>
           </div>
         </div>
       </div>
 
-      <!-- AI Mayor + Voice -->
+      <!-- Predictive Analytics + Audit Trail -->
       <div class="sol-row reveal">
         <div class="sol-card">
-          <div class="sol-tag" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);color:var(--purple);">Solves: Information Silos</div>
-          <h3>Civic AI Mayor</h3>
-          <p>Gemini 2.0 Pro with BBMP's governance guidelines pre-loaded in the 2M-token context window. Ask any question about city infrastructure policy.</p>
-          <div class="mayor-chat" id="mayor-chat" aria-live="polite">
-            <div class="chat-msg user">Why are potholes increasing in Whitefield?</div>
-            <div class="chat-msg ai" id="mayor-response">Click below to query the AI Mayor…</div>
-          </div>
-          <button class="btn-demo white" onclick="askAIMayor()" id="btn-mayor" aria-label="Ask the Civic AI Mayor">🏛️ Ask AI Mayor</button>
+          <div class="sol-tag" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--green);">Solves: Reactive Governance</div>
+          <h3>Predictive Department Analytics</h3>
+          <p>The system ingests the city's entire live ticket database, calculates department workloads, and predicts exactly which sector (Roads, SWM, Water) will break down next week so you can proactively reallocate officers.</p>
         </div>
         <div class="sol-card">
-          <div class="sol-tag" style="background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.2);color:var(--cyan);">Solves: Digital Divide</div>
-          <h3>12-Language Voice Agent</h3>
-          <p>Citizens speak in their native tongue. Gemini Live transcribes, classifies, and creates a structured ticket — no app, no English, no smartphone required.</p>
-          <div class="lang-pills">
-            <span class="lang-pill">ಕನ್ನಡ</span><span class="lang-pill">हिंदी</span>
-            <span class="lang-pill">தமிழ்</span><span class="lang-pill">తెలుగు</span>
-            <span class="lang-pill">मराठी</span><span class="lang-pill">+7 more</span>
-          </div>
-          <button class="btn-demo cyan" onclick="simulateVoice()" aria-label="Simulate Kannada voice report">🎙️ Simulate Kannada Voice</button>
+          <div class="sol-tag" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);">Solves: Bureaucratic Corruption</div>
+          <h3>Immutable Citizen Audit Trail</h3>
+          <p>Every single ticket has a transparent, timestamped ledger. Citizens can see precisely when they reported an issue, when the AI verified it, and exactly how long the government has ignored it.</p>
         </div>
       </div>
 
-      <!-- Disaster + Corruption -->
+      <!-- Gamification + Voice -->
       <div class="sol-row reveal">
         <div class="sol-card">
-          <div class="sol-tag" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);">Solves: Sluggish Emergency Response</div>
-          <h3>Disaster Mode</h3>
-          <p>25 waterlogging reports in under 10 minutes triggers autonomous Disaster Mode. Evacuation routes generated. BBMP + NDRF auto-alerted. No human needed.</p>
-          <div class="sim-result danger" id="disaster-result">
-            🚨 DISASTER MODE ACTIVE — FLOOD DETECTED
-            <span>25 waterlogging reports clustered in Koramangala. Evacuation routes dispatched. NDRF notified. Shelter locations mapped.</span>
-          </div>
-          <button class="btn-demo red" onclick="simulateDisaster()" id="btn-disaster" aria-label="Simulate flood disaster trigger">🌊 Simulate Flood Trigger</button>
+          <div class="sol-tag" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:var(--orange);">Solves: Civic Apathy</div>
+          <h3>Gamification & Auto-Escalation</h3>
+          <p>Citizens earn XP and badges for community reporting. If a single ticket receives 3 upvotes from the local community, the system automatically escalates it to CRITICAL status.</p>
         </div>
         <div class="sol-card">
-          <div class="sol-tag" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);color:var(--orange);">Solves: Corruption &amp; Impunity</div>
-          <h3>Corruption Detection AI</h3>
-          <p>Gemini Vision diffs before/after resolution photos. Detects fake closures, SLA breach patterns, and mismatches. Per-officer Integrity Risk Score is auto-computed.</p>
-          <div class="sim-result warning" id="corruption-result">
-            ⚠️ INTEGRITY RISK: HIGH — Officer #147
-            <span>12 SLA breaches. 7 suspicious closures. Gemini Vision diff mismatch: 0.91 confidence. Auto-flagged for human review.</span>
-          </div>
-          <button class="btn-demo orange" onclick="simulateCorruption()" id="btn-corruption" aria-label="Simulate fake closure detection">🚔 Simulate Fake Closure</button>
+          <div class="sol-tag" style="background:rgba(0,245,255,0.08);border:1px solid rgba(0,245,255,0.2);color:var(--cyan);">Solves: The Digital Divide</div>
+          <h3>Multilingual Voice Reporting</h3>
+          <p>Citizens can report issues just by speaking into the app in their native language (Kannada, Hindi, English). The Web Speech API instantly transcribes it and files the report.</p>
         </div>
       </div>
 
