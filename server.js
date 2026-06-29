@@ -247,7 +247,16 @@ Output ONLY the final report. Start directly with section 1. Use **bold** markdo
       reasoning = reasoningRes.text || '';
     } catch (e) {
       console.warn('Gemini reasoning error:', e.message?.slice(0, 80));
-      reasoning = `Issue: ${aiOutput.category} at ${lat ? lat+','+lng : 'Bengaluru'}.\nSeverity: ${aiOutput.severity.toUpperCase()} — Priority ${aiOutput.priority_score}/100.\nAssigned to ${assignedOfficer} (${department}) for inspection within ${slaHours} hours.\nRecommendation: Inspect site, document findings, initiate repair per SLA.`;
+      usedModel = 'groq/qwen3-32b (fallback)';
+      try {
+        const fallbackRes = await groq.chat.completions.create({
+          model: GROQ_REASONING_MODEL,
+          messages: [{ role: 'user', content: `You are the Civic AI Mayor for Bengaluru city... Provide a concise 2-sentence analysis for a ${aiOutput.severity} ${aiOutput.category} issue. Output just the analysis, use **bold** markdown.` }]
+        });
+        reasoning = fallbackRes.choices[0]?.message?.content || '';
+      } catch (groqErr) {
+        reasoning = `Issue: ${aiOutput.category} at ${lat ? lat+','+lng : 'Bengaluru'}.\nSeverity: ${aiOutput.severity.toUpperCase()} — Priority ${aiOutput.priority_score}/100.\nAssigned to ${assignedOfficer} (${department}) for inspection within ${slaHours} hours.\nRecommendation: Inspect site, document findings, initiate repair per SLA.`;
+      }
     }
 
     traceLog.push({ agent: 'CivicAIMayor', tool: 'gemini_deep_reasoning()', result: 'Deep analysis complete — 100% Google AI' });
@@ -291,10 +300,15 @@ Output ONLY the final report. Start directly with section 1. Use **bold** markdo
         const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
         const recentFloodSnap = await db.collection('issues')
           .where('severity', '==', 'critical')
-          .orderBy('timestamp', 'desc')
-          .limit(20)
           .get();
-        const recentFloodCount = recentFloodSnap.docs.filter(d => {
+        // Sort in memory to avoid Firestore composite index requirement
+        const sortedDocs = recentFloodSnap.docs.sort((a, b) => {
+          const ta = a.data().timestamp?._seconds || 0;
+          const tb = b.data().timestamp?._seconds || 0;
+          return tb - ta; // descending
+        }).slice(0, 20);
+
+        const recentFloodCount = sortedDocs.filter(d => {
           const cat = (d.data().category || '').toLowerCase();
           return floodCategories.some(k => cat.includes(k));
         }).length;
