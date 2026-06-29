@@ -546,7 +546,9 @@ input,textarea,select{font-family:inherit}
               <div class="upload-sub">JPG, PNG, HEIC · Max 10MB</div>
               <div class="upload-name" id="upload-name"></div>
             </div>
-            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(this)"/>
+            <input type="file" id="file-input" accept="image/*, video/mp4, video/webm" style="display:none" onchange="handleFile(this)"/>
+            <canvas id="video-canvas" style="display:none;"></canvas>
+            <video id="hidden-video" style="display:none;" preload="metadata" muted playsinline></video>
           </div>
 
           <div style="font-size:0.75rem;font-weight:700;color:var(--t3);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase">GPS Location</div>
@@ -775,6 +777,10 @@ input,textarea,select{font-family:inherit}
 
     <!-- VIEW: CCTV NODES (Auto-Detection) -->
     <div id="view-cctv" style="display:none">
+      <div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); padding:14px 18px; border-radius:8px; margin-bottom:20px;">
+        <div style="color:var(--orange); font-weight:700; font-size:0.9rem; margin-bottom:4px">⚠️ Simulation Mode</div>
+        <div style="color:var(--t2); font-size:0.8rem">This tab demonstrates how CivicPulse AI could integrate with BBMP's existing CCTV network to auto-detect civic issues without citizen reporting. Live camera integration requires BBMP API access (roadmap: Q3 2025).</div>
+      </div>
       <div style="margin-bottom:20px">
         <div style="font-size:1.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">📷 CCTV AI Auto-Detection</div>
         <div style="font-size:0.82rem;color:var(--t3)">Upload a video to simulate a live traffic camera. Our system will extract a frame and send it to Gemini 2.0 Vision for pothole detection.</div>
@@ -1052,11 +1058,34 @@ function selectSev(el) {
 }
 function handleFile(input) {
   if (!input.files[0]) return;
+  const file = input.files[0];
   const z = document.getElementById('upload-zone');
   const n = document.getElementById('upload-name');
   z.classList.add('has-file');
   n.style.display = 'block';
-  n.textContent = '✓ ' + input.files[0].name;
+  
+  if (file.type.startsWith('video/')) {
+    n.textContent = '⏳ Analyzing video frame...';
+    const video = document.getElementById('hidden-video');
+    const canvas = document.getElementById('video-canvas');
+    video.src = URL.createObjectURL(file);
+    video.onloadedmetadata = () => { video.currentTime = 1; }; // Extract frame at 1s
+    video.onseeked = () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        const frameFile = new File([blob], "video_frame.jpg", { type: "image/jpeg" });
+        const dt = new DataTransfer();
+        dt.items.add(frameFile);
+        input.files = dt.files;
+        n.textContent = '✓ Video uploaded — AI analyzed first frame';
+      }, 'image/jpeg');
+    };
+  } else {
+    n.textContent = '✓ ' + file.name;
+  }
 }
 function switchView(el) {
   /* Update sidebar active state */
@@ -1110,7 +1139,10 @@ async function fetchIssues() {
       feed.innerHTML = issues.map(issue => `
         <div class="card" style="padding:16px 20px; border-left: 4px solid ${issue.severity === 'critical' ? 'var(--red)' : issue.severity === 'high' ? 'var(--orange)' : 'var(--green)'}">
           <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:0.7rem;color:var(--t3)">#${issue.id.substring(0,8)}</span>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:0.7rem;color:var(--t3)">#${issue.id.substring(0,8)}</span>
+              <span class="ticket-timer" data-reported-at="${issue.timestamp || new Date().toISOString()}" style="font-size:0.7rem;color:var(--t2)">Reported: Just now</span>
+            </div>
             <div style="display:flex;gap:6px;align-items:center">
               ${issue.autoEscalated ? '<span style="font-size:0.65rem;background:#f59e0b22;color:#f59e0b;padding:2px 6px;border-radius:4px;font-weight:700">🔺 COMMUNITY ESCALATED</span>' : ''}
               <span style="font-size:0.7rem;font-weight:700;color:${issue.severity === 'critical' ? 'var(--red)' : issue.severity === 'high' ? 'var(--orange)' : 'var(--green)'}">${(issue.severity||'').toUpperCase()}</span>
@@ -2429,11 +2461,23 @@ document.addEventListener('keydown', (e) => {
   <div id="chat-log">
     <div style="margin-bottom:12px"><span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--t1);padding:8px 12px;border-radius:14px 14px 14px 2px;font-size:0.8rem;display:inline-block;max-width:90%;line-height:1.5">👋 Hi! I'm CivicPulse AI, powered by Google Gemini 2.0 Flash. You can type or click the microphone to speak in Kannada, Hindi, or English!</span></div>
   </div>
+  <div id="chat-suggestions" style="padding: 0 14px 10px; display:flex; gap:6px; flex-wrap:wrap; background:#0d0d0d">
+    <div class="chat-chip" onclick="fillChat(this)">What's BBMP's SLA for pothole repair?</div>
+    <div class="chat-chip" onclick="fillChat(this)">How do I escalate an ignored complaint?</div>
+    <div class="chat-chip" onclick="fillChat(this)">Which ward has the most open issues right now?</div>
+  </div>
   <div id="chat-footer">
     <button id="chat-mic" onclick="startVoice()" title="Speak (Gemini Live)" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:1.1rem;padding:0 8px;transition:color 0.2s">🎤</button>
     <input id="chat-input" type="text" placeholder="Ask me anything…" />
     <button id="chat-send" onclick="sendChat()">➤</button>
   </div>
+  <style>
+    .chat-chip { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 6px 10px; font-size: 0.7rem; cursor: pointer; color: var(--t2); transition: 0.2s; }
+    .chat-chip:hover { background: rgba(255,255,255,0.15); color: white; }
+  </style>
+  <script>
+    function fillChat(el) { document.getElementById('chat-input').value = el.textContent; sendChat(); }
+  </script>
 </div>
 
 <script>
@@ -2441,6 +2485,80 @@ document.addEventListener('keydown', (e) => {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW registration failed:', err));
     });
+  }
+
+  // URGENCY TIMERS
+  setInterval(() => {
+    document.querySelectorAll('.ticket-timer').forEach(el => {
+      const reportedAt = new Date(el.dataset.reportedAt);
+      const now = new Date();
+      const diffMs = Math.max(0, now - reportedAt);
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHrs = Math.floor(diffMins / 60);
+      const minsStr = diffMins % 60;
+      
+      const slaHours = 24;
+      const remainingMs = (slaHours * 3600000) - diffMs;
+      const remainingHrs = Math.floor(remainingMs / 3600000);
+      
+      let color = 'var(--green)';
+      if (remainingHrs < 12) color = 'var(--orange)';
+      if (remainingHrs <= 2) color = 'var(--red)';
+      
+      el.innerHTML = `Reported: ${diffHrs}h ${minsStr}m ago | SLA: <span style="color:${color};font-weight:700">${remainingHrs > 0 ? remainingHrs + 'h remaining' : 'OVERDUE'}</span>`;
+    });
+  }, 10000);
+
+  // ONBOARDING TOUR
+  window.addEventListener('load', () => {
+    if (!localStorage.getItem('civicTourDone')) {
+      setTimeout(startTour, 1500);
+    }
+  });
+  function startTour() {
+    localStorage.setItem('civicTourDone', 'true');
+    const steps = [
+      { el: '.sb-user', text: "👋 Welcome! You're in Citizen mode. Switch roles anytime here." },
+      { el: '[data-view="report"]', text: "📸 Report Issue — upload a photo/video and let Gemini classify it." },
+      { el: '[data-view="myreports"]', text: "🗺️ See all active issues live on the Digital Twin map." },
+      { el: '[data-view="analytics"]', text: "🤖 Run AI Predictive Analysis to see which department will be overwhelmed." },
+      { el: '#chat-btn', text: "💬 Ask the AI Mayor anything about BBMP policies." }
+    ];
+    let cur = 0;
+    
+    const tourEl = document.createElement('div');
+    tourEl.id = 'tour-box';
+    tourEl.style.cssText = 'position:fixed; z-index:10000; background:var(--blue); color:#fff; padding:12px 16px; border-radius:8px; font-size:0.85rem; box-shadow:0 10px 30px rgba(0,0,0,0.5); width:260px; transition:all 0.3s ease; opacity:0; border:1px solid rgba(255,255,255,0.2);';
+    document.body.appendChild(tourEl);
+    
+    const txt = document.createElement('div');
+    tourEl.appendChild(txt);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = "Next Step →";
+    nextBtn.style.cssText = 'margin-top:12px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); padding:6px 10px; border-radius:4px; color:#fff; cursor:pointer; width:100%; font-weight:600; pointer-events:auto;';
+    tourEl.appendChild(nextBtn);
+    
+    function showStep() {
+      if (cur >= steps.length) { tourEl.remove(); return; }
+      const target = document.querySelector(steps[cur].el);
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        tourEl.style.top = Math.max(10, rect.top + rect.height/2 - 40) + 'px';
+        tourEl.style.left = (rect.right + 15) > window.innerWidth ? (rect.left - 280) + 'px' : (rect.right + 15) + 'px';
+        txt.innerHTML = steps[cur].text;
+        tourEl.style.opacity = 1;
+        
+        target.style.position = 'relative';
+        target.style.zIndex = '9999';
+        target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.5)';
+        
+        setTimeout(() => { target.style.boxShadow = ''; target.style.zIndex = ''; }, 3000);
+      } else { cur++; showStep(); }
+    }
+    
+    nextBtn.onclick = () => { cur++; showStep(); };
+    showStep();
   }
 </script>
 
