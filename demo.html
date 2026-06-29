@@ -313,8 +313,8 @@ input,textarea,select{font-family:inherit}
   </div>
 </div>
 <script>
-  window.currentUserRole = 'citizen';
-  
+  window.currentUserRole = localStorage.getItem('civicpulse_role') || 'citizen';
+
   function setRole(role) {
     window.currentUserRole = role;
     document.getElementById('otp-step-0').style.display = 'none';
@@ -322,37 +322,48 @@ input,textarea,select{font-family:inherit}
   }
 
   function completeLogin() {
+    // Persist login to localStorage so refresh doesn't log out
+    localStorage.setItem('civicpulse_role', window.currentUserRole);
+    localStorage.setItem('civicpulse_loggedIn', 'true');
+    applyRBAC(window.currentUserRole);
     document.getElementById('otp-overlay').style.display = 'none';
-    
-    // Apply RBAC UI Changes
-    if (window.currentUserRole === 'citizen') {
+    requestFCM();
+  }
+
+  function applyRBAC(role) {
+    if (role === 'citizen') {
       document.getElementById('nav-cctv').style.display = 'none';
       document.getElementById('nav-sec-analytics').style.display = 'none';
       document.getElementById('nav-group-analytics').style.display = 'none';
-      
       document.getElementById('sb-avatar').textContent = 'SK';
       document.getElementById('sb-avatar').style.background = 'linear-gradient(135deg, #6366f1, #a855f7)';
       document.getElementById('sb-uname').textContent = 'Suresh K.';
       document.getElementById('sb-urole').textContent = 'Citizen · Bengaluru';
       document.getElementById('nav-myreports').innerHTML = '<span class="sb-icon">📋</span>My Reports';
-      
       document.getElementById('nav-dashboard').click();
     } else {
       document.getElementById('nav-cctv').style.display = 'flex';
       document.getElementById('nav-sec-analytics').style.display = 'block';
       document.getElementById('nav-group-analytics').style.display = 'block';
-      
       document.getElementById('sb-avatar').textContent = 'AD';
       document.getElementById('sb-avatar').style.background = 'linear-gradient(135deg, var(--red), var(--orange))';
       document.getElementById('sb-uname').textContent = 'BBMP Command';
       document.getElementById('sb-urole').textContent = 'Superadmin · Zone East';
       document.getElementById('nav-myreports').innerHTML = '<span class="sb-icon">📋</span>All Reports';
-      
       document.getElementById('nav-twin').click();
     }
-    
-    requestFCM();
   }
+
+  // Auto-restore session on page load — no more asking for OTP on refresh!
+  window.addEventListener('DOMContentLoaded', () => {
+    const loggedIn = localStorage.getItem('civicpulse_loggedIn');
+    const savedRole = localStorage.getItem('civicpulse_role') || 'citizen';
+    if (loggedIn === 'true') {
+      window.currentUserRole = savedRole;
+      document.getElementById('otp-overlay').style.display = 'none';
+      applyRBAC(savedRole);
+    }
+  });
 
   function requestFCM() {
     if ("Notification" in window) {
