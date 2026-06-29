@@ -423,7 +423,8 @@ input,textarea,select{font-family:inherit}
   </div>
 
   <div class="sb-footer">
-    <div class="sb-status"><span class="status-pulse"></span>ADK Pipeline: Live</div>
+    <div class="sb-status" style="margin-bottom:12px"><span class="status-pulse"></span>ADK Pipeline: Live</div>
+    <button onclick="localStorage.removeItem('civicpulse_loggedIn'); window.location.reload();" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--t2);padding:8px;border-radius:6px;font-size:0.75rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.color='var(--t2)';this.style.background='rgba(255,255,255,0.05)'">🔄 Switch Role / Logout</button>
   </div>
 </div>
 
