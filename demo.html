@@ -1027,7 +1027,7 @@ function setNav(el) { switchView(el); }
 /* ── ISSUES FEED ──────────────────────────────── */
 async function fetchIssues() {
   try {
-    const res = await fetch('http://localhost:3000/api/issues');
+    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues');
     const issues = await res.json();
     const feed = document.getElementById('feed-items');
     if (feed) {
@@ -1100,7 +1100,7 @@ async function runPipeline() {
 
   let aiData = null;
   try {
-    const res = await fetch('http://localhost:3000/api/report', { method: 'POST', body: formData });
+    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/report', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.error || res.status === 429) throw new Error(data.error || 'Rate Limit Exceeded');
     aiData = {
@@ -1515,7 +1515,7 @@ async function loadMyReports(silent = false) {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/api/issues');
+    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues');
     let issues = await res.json();
     
     // RBAC FILTERING
@@ -1608,7 +1608,7 @@ async function loadMyReports(silent = false) {
         <!-- Photo Evidence -->
         <div style="padding:14px 20px">
           <div style="font-size:0.65rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">📸 Photo Evidence</div>
-          <img src="http://localhost:3000/uploads/${imgFile}" 
+          <img src="https://civicpulseai-production-e608.up.railway.app/uploads/${imgFile}" 
                onerror="this.style.display='none'" 
                style="max-width:100%;max-height:200px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.08)" />
         </div>` : ''}
@@ -1697,7 +1697,7 @@ async function showOfficerTasks(officerName) {
   list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--t3)">Fetching from Firestore...</div>';
 
   try {
-    const res = await fetch('http://localhost:3000/api/issues');
+    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues');
     let issues = await res.json();
     issues = issues.filter(i => (i.officerName || i.officer_name) === officerName);
 
@@ -1801,7 +1801,7 @@ async function triggerCCTV() {
     fd.append('image', blob, 'cctv_frame.jpg');
 
     try {
-      const analyzeRes = await fetch('http://localhost:3000/api/cctv-analyze', { method: 'POST', body: fd });
+      const analyzeRes = await fetch('https://civicpulseai-production-e608.up.railway.app/api/cctv-analyze', { method: 'POST', body: fd });
       const aiData = await analyzeRes.json();
       
       if (!aiData.anomaly_detected) {
@@ -1859,7 +1859,7 @@ async function triggerCCTV() {
         reportFd.append('lng', '77.6245');
         reportFd.append('image', boxedBlob, 'boxed_evidence.jpg');
 
-        const res = await fetch('http://localhost:3000/api/report', { method: 'POST', body: reportFd });
+        const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/report', { method: 'POST', body: reportFd });
         const data = await res.json();
         
         overlay.style.color = '#10b981';
@@ -1889,7 +1889,7 @@ async function triggerCCTV() {
 async function deleteIssue(issueId) {
   if (!confirm('Are you sure you want to permanently delete this ticket?')) return;
   try {
-    const res = await fetch('http://localhost:3000/api/issues/' + issueId, { method: 'DELETE' });
+    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues/' + issueId, { method: 'DELETE' });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     loadMyReports(); // reload list
@@ -1915,7 +1915,7 @@ async function resolveIssue(issueId) {
     fd.append('image', file);
 
     try {
-      const res = await fetch('http://localhost:3000/api/verify', { method: 'POST', body: fd });
+      const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/verify', { method: 'POST', body: fd });
       const data = await res.json();
       
       if (data.error) throw new Error(data.error);
@@ -2070,7 +2070,7 @@ async function sendChat() {
   setTimeout(() => { log.scrollTop = log.scrollHeight; }, 50);
 
   try {
-    const res = await fetch('http://localhost:3000/api/chat', {
+    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg, history: chatHistory })
