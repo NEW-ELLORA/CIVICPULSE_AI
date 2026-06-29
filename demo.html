@@ -1685,7 +1685,12 @@ async function loadMyReports(silent = false) {
         if (issue.imagePath.startsWith('data:image')) imgSrc = issue.imagePath;
         else imgSrc = `https://civicpulse-ai-cqro.onrender.com/uploads/${issue.imagePath.replace(/\\/g, '/').split('/').pop()}`;
       }
-      const hasImage = !!imgFile && imgFile !== 'null' && imgFile !== 'undefined';
+      const photoHtml = imgSrc ? `
+        <div style="margin-top:16px">
+          <div style="font-size:0.65rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">📁 Photo Evidence</div>
+          <img src="${imgSrc}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,0.1);cursor:zoom-in" onclick="window.open(this.src,'_blank')" onerror="this.style.display='none'"/>
+        </div>
+      ` : '';
 
       return `
       <div class="card" style="padding:0;overflow:hidden">
