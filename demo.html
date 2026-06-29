@@ -1173,15 +1173,18 @@ async function runPipeline() {
   const lang = langSel.options[langSel.selectedIndex].text;
   formData.append('language', lang);
   
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => { formData.append('lat', position.coords.latitude); formData.append('lng', position.coords.longitude); },
-      () => { formData.append('lat', '12.9716'); formData.append('lng', '77.5946'); },
-      { timeout: 5000 }
-    );
-  } else {
-    formData.append('lat', '12.9716'); formData.append('lng', '77.5946');
-  }
+  await new Promise((resolve) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => { formData.append('lat', position.coords.latitude); formData.append('lng', position.coords.longitude); resolve(); },
+        () => { formData.append('lat', '12.9716'); formData.append('lng', '77.5946'); resolve(); },
+        { timeout: 5000 }
+      );
+    } else {
+      formData.append('lat', '12.9716'); formData.append('lng', '77.5946');
+      resolve();
+    }
+  });
 
   const fileInput = document.getElementById('file-input');
   if (fileInput && fileInput.files[0]) formData.append('image', fileInput.files[0]);
