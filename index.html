@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CivicPulse AI — AI Operating System for Cities</title>
+  <title>CivicPulse AI | The AI Mayor for Bengaluru</title>
   <meta name="description" content="5-agent autonomous AI platform on Google Cloud. Transforms citizen reports into government action in under 2 seconds. Gemini 2.0 · Google ADK · BigQuery ML." />
+  <meta name="keywords" content="AI, Civic Tech, BBMP, Bengaluru, Gemini 2.0, Firebase, Smart City, Governance">
+  <meta property="og:title" content="CivicPulse AI | Vibe2Ship Hackathon 2025">
+  <meta property="og:description" content="An autonomous AI Mayor built on Google Cloud and Gemini 2.0 Flash to solve urban governance issues.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -864,9 +867,51 @@
       <div style="width:1px;height:36px;background:var(--border)"></div>
       <div style="text-align:center"><div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em">100%</div><div style="font-size:0.78rem;color:var(--t2);margin-top:3px">Google Cloud Native</div></div>
     </div>
+</section>
+
+<!-- CITIZEN JOURNEY -->
+<section class="section" id="journey" aria-label="Citizen Journey Flow">
+  <div class="container">
+    <div class="reveal" style="text-align:center;margin-bottom:60px">
+      <div class="section-label">Citizen Journey</div>
+      <h2 class="section-h">From Pothole to Paved.</h2>
+    </div>
+    <div class="reveal" style="display:flex; justify-content:space-between; align-items:flex-start; position:relative; max-width:850px; margin:0 auto; flex-wrap:wrap; gap:20px">
+      <div style="position:absolute; top:28px; left:10%; right:10%; height:2px; background:linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent); z-index:0" class="journey-line"></div>
+      <div style="flex:1; min-width:140px; text-align:center; position:relative; z-index:1">
+        <div style="width:56px; height:56px; background:var(--blue); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 20px; box-shadow:0 0 24px rgba(59,130,246,0.5)">📸</div>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--t1); margin-bottom:6px">1. Snap Photo</div>
+        <div style="font-size:0.8rem; color:var(--t3); line-height:1.4">Citizen uploads a geo-tagged issue photo.</div>
+      </div>
+      <div style="flex:1; min-width:140px; text-align:center; position:relative; z-index:1">
+        <div style="width:56px; height:56px; background:var(--purple); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 20px; box-shadow:0 0 24px rgba(139,92,246,0.5)">🤖</div>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--t1); margin-bottom:6px">2. AI Triages</div>
+        <div style="font-size:0.8rem; color:var(--t3); line-height:1.4">Gemini Vision classifies, prioritizes &amp; routes.</div>
+      </div>
+      <div style="flex:1; min-width:140px; text-align:center; position:relative; z-index:1">
+        <div style="width:56px; height:56px; background:var(--orange); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 20px; box-shadow:0 0 24px rgba(245,158,11,0.5)">👷</div>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--t1); margin-bottom:6px">3. Dispatch</div>
+        <div style="font-size:0.8rem; color:var(--t3); line-height:1.4">AI Repair Blueprint pre-generated for crew.</div>
+      </div>
+      <div style="flex:1; min-width:140px; text-align:center; position:relative; z-index:1">
+        <div style="width:56px; height:56px; background:var(--green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.6rem; margin:0 auto 20px; box-shadow:0 0 24px rgba(16,185,129,0.5)">✨</div>
+        <div style="font-size:1.05rem; font-weight:700; color:var(--t1); margin-bottom:6px">4. Resolved</div>
+        <div style="font-size:0.8rem; color:var(--t3); line-height:1.4">Image diffing verifies fix. Ticket closed.</div>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- LOCAL CONTEXT -->
+<section class="section section-alt" id="context" aria-label="Local Context">
+  <div class="container">
+    <div class="reveal" style="text-align:center; max-width:800px; margin:0 auto;">
+      <div class="section-label">Hyperlocal First</div>
+      <h2 class="section-h">Why Bengaluru?</h2>
+      <p class="section-sub">CivicPulse AI isn't a generic template. It is designed explicitly for the BBMP jurisdiction. The AI naturally understands Kannada voice reports, routes tickets mapped exactly to Bengaluru's 8 zones and 243 wards, and strictly evaluates SLA compliance against official Karnataka Municipal directives.</p>
+    </div>
+  </div>
+</section>
 
 <section class="section" id="impact" aria-label="Impact metrics">
   <div class="container">
@@ -914,12 +959,7 @@
       <p class="section-sub">A pragmatic mix of Google Gemini AI, Firebase, and Open-Source tools to build a working MVP in 24 hours.</p>
     </div>
     <div class="tech-wrapper reveal">
-      <table class="tech-table" aria-label="Technology stack comparison">
-        <thead>
-          <tr><th>Layer</th><th>Google Technology</th><th>Why Over Alternatives</th></tr>
-        </thead>
-        <tbody id="tech-tbody"></tbody>
-      </table>
+      <div id="tech-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:40px;"></div>
     </div>
   </div>
 </section>
@@ -951,9 +991,9 @@
       <div class="footer-col">
         <h5>Resources</h5>
         <ul>
-          <li><a href="civicpulse_graph.json" target="_blank">Knowledge Graph</a></li>
-          <li><a href="CivicPulse_AI_v5_FINAL.pdf" target="_blank">Technical PDF</a></li>
-          <li><a href="demo.html" target="_blank">Try the App</a></li>
+          <li><a href="https://vibe2ship.com" target="_blank">Vibe2Ship Hackathon</a></li>
+          <li><a href="https://github.com/your-repo" target="_blank">GitHub Repo</a></li>
+          <li><a href="demo.html" target="_blank">Try the Dashboard</a></li>
         </ul>
       </div>
     </div>
@@ -1256,14 +1296,16 @@ function initPipeline() {
   }, 4000);
 }
 
-// ── TECH TABLE ───────────────────────────────────────────────
+// ── TECH GRID ───────────────────────────────────────────────
 function initTechTable() {
-  document.getElementById('tech-tbody').innerHTML = TECH.map(t => `
-    <tr>
-      <td>${t.layer}</td>
-      <td><span class="tech-badge">☁️ ${t.tech}</span></td>
-      <td>${t.why}</td>
-    </tr>
+  const grid = document.getElementById('tech-grid');
+  if (!grid) return;
+  grid.innerHTML = TECH.map(t => `
+    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px; transition:transform 0.3s; cursor:default;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='rgba(255,255,255,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='rgba(255,255,255,0.08)'">
+      <div style="font-size:0.75rem; color:var(--t3); text-transform:uppercase; font-weight:700; margin-bottom:12px; letter-spacing:0.05em">${t.layer}</div>
+      <div style="font-size:1.15rem; font-weight:700; color:var(--text); margin-bottom:12px; display:flex; align-items:center; gap:8px"><span style="color:var(--blue)">☁️</span> ${t.tech}</div>
+      <div style="font-size:0.85rem; color:var(--t2); line-height:1.6">${t.why}</div>
+    </div>
   `).join('');
 }
 
