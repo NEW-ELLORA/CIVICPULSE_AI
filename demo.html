@@ -741,7 +741,7 @@ input,textarea,select{font-family:inherit}
         </div>
         
         <div style="position:relative;height:350px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden">
-          <video id="cctv-video" crossorigin="anonymous" src="cctv_sample.mp4" style="width:100%;height:100%;object-fit:contain;display:block" controls autoplay loop muted></video>
+          <video id="cctv-video" crossorigin="anonymous" src="create_a_cctv_camera_footage_o.mp4" style="width:100%;height:100%;object-fit:contain;display:block" controls autoplay loop muted></video>
           <div id="cctv-placeholder" style="font-size:3rem;opacity:0.2;text-align:center;cursor:pointer;display:none" title="Click to upload mock video feed">🛣️ 🚗 🚙 🚌<br/><span style="font-size:1rem;display:block;margin-top:10px">No Feed Active (Click to connect)</span></div>
           <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--purple);box-shadow:0 0 15px var(--purple);animation:scan 3s linear infinite"></div>
           <div style="position:absolute;bottom:16px;left:16px;background:rgba(0,0,0,0.6);padding:6px 12px;border-radius:6px;font-family:var(--mono);font-size:0.7rem;color:#10b981" id="cctv-overlay-txt">
@@ -1038,7 +1038,7 @@ function setNav(el) { switchView(el); }
 /* ── ISSUES FEED ──────────────────────────────── */
 async function fetchIssues() {
   try {
-    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues');
+    const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/issues');
     const issues = await res.json();
     const feed = document.getElementById('feed-items');
     if (feed) {
@@ -1087,7 +1087,7 @@ async function upvoteIssue(issueId, btn) {
   btn.disabled = true;
   btn.style.opacity = '0.5';
   try {
-    const res = await fetch(`https://civicpulseai-production-e608.up.railway.app/api/upvote/${issueId}`, { method: 'POST' });
+    const res = await fetch(`https://civicpulse-ai-cqro.onrender.com/api/upvote/${issueId}`, { method: 'POST' });
     const data = await res.json();
     if (data.error) {
       btn.style.opacity = '1';
@@ -1129,7 +1129,7 @@ async function showTimeline(issueId) {
   document.body.appendChild(overlay);
 
   try {
-    const res = await fetch(`https://civicpulseai-production-e608.up.railway.app/api/timeline/${issueId}`);
+    const res = await fetch(`https://civicpulse-ai-cqro.onrender.com/api/timeline/${issueId}`);
     const data = await res.json();
     const tl = data.timeline || [];
     const content = document.getElementById('timeline-content');
@@ -1194,7 +1194,7 @@ async function runPipeline() {
 
   let aiData = null;
   try {
-    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/report', { method: 'POST', body: formData });
+    const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/report', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.error || res.status === 429) throw new Error(data.error || 'Rate Limit Exceeded');
     aiData = {
@@ -1609,7 +1609,7 @@ async function loadMyReports(silent = false) {
   }
 
   try {
-    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues');
+    const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/issues');
     let issues = await res.json();
     
     // RBAC FILTERING
@@ -1702,7 +1702,7 @@ async function loadMyReports(silent = false) {
         <!-- Photo Evidence -->
         <div style="padding:14px 20px">
           <div style="font-size:0.65rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">📸 Photo Evidence</div>
-          <img src="https://civicpulseai-production-e608.up.railway.app/uploads/${imgFile}" 
+          <img src="https://civicpulse-ai-cqro.onrender.com/uploads/${imgFile}" 
                onerror="this.style.display='none'" 
                style="max-width:100%;max-height:200px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.08)" />
         </div>` : ''}
@@ -1791,7 +1791,7 @@ async function showOfficerTasks(officerName) {
   list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--t3)">Fetching from Firestore...</div>';
 
   try {
-    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues');
+    const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/issues');
     let issues = await res.json();
     issues = issues.filter(i => (i.officerName || i.officer_name) === officerName);
 
@@ -1895,7 +1895,7 @@ async function triggerCCTV() {
     fd.append('image', blob, 'cctv_frame.jpg');
 
     try {
-      const analyzeRes = await fetch('https://civicpulseai-production-e608.up.railway.app/api/cctv-analyze', { method: 'POST', body: fd });
+      const analyzeRes = await fetch('https://civicpulse-ai-cqro.onrender.com/api/cctv-analyze', { method: 'POST', body: fd });
       const aiData = await analyzeRes.json();
       
       if (!aiData.anomaly_detected) {
@@ -1953,7 +1953,7 @@ async function triggerCCTV() {
         reportFd.append('lng', '77.6245');
         reportFd.append('image', boxedBlob, 'boxed_evidence.jpg');
 
-        const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/report', { method: 'POST', body: reportFd });
+        const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/report', { method: 'POST', body: reportFd });
         const data = await res.json();
         
         overlay.style.color = '#10b981';
@@ -1983,7 +1983,7 @@ async function triggerCCTV() {
 async function deleteIssue(issueId) {
   if (!confirm('Are you sure you want to permanently delete this ticket?')) return;
   try {
-    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/issues/' + issueId, { method: 'DELETE' });
+    const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/issues/' + issueId, { method: 'DELETE' });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     loadMyReports(); // reload list
@@ -2009,7 +2009,7 @@ async function resolveIssue(issueId) {
     fd.append('image', file);
 
     try {
-      const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/verify', { method: 'POST', body: fd });
+      const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/verify', { method: 'POST', body: fd });
       const data = await res.json();
       
       if (data.error) throw new Error(data.error);
@@ -2164,7 +2164,7 @@ async function sendChat() {
   setTimeout(() => { log.scrollTop = log.scrollHeight; }, 50);
 
   try {
-    const res = await fetch('https://civicpulseai-production-e608.up.railway.app/api/chat', {
+    const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: msg, history: chatHistory })
