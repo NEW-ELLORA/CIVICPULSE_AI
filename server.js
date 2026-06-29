@@ -13,12 +13,14 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 
 const app = express();
+app.set('trust proxy', 1); // Crucial for Render/Railway load balancers
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: "Too many requests from this IP." });
-app.use(limiter);
+// Disable rate limiter for the hackathon demo so it doesn't crash during presentation
+// const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: "Too many requests from this IP." });
+// app.use(limiter);
 app.use('/uploads', express.static('uploads')); // Serve uploaded images
 
 // ── Firebase Firestore Init ───────────────────────────────────
