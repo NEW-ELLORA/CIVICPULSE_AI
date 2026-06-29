@@ -24,20 +24,31 @@ app.use(limiter);
 app.use('/uploads', express.static('uploads')); // Serve uploaded images
 
 // ── Firebase Firestore Init ───────────────────────────────────
-let serviceAccount;
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-} else {
-  // Hackathon Fallback: Base64 obfuscated credentials to bypass GitHub Push Protection while keeping Railway alive!
-  const b64 = "ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAiY2l2aWNwdWxzZS03OWVlYiIsCiAgInByaXZhdGVfa2V5X2lkIjogIjhmYjczMjNkYjZiMzk5OWY4MGI0YTNhOWU4YzBkMGU4N2RhYjhhMmUiLAogICJwcml2YXRlX2tleSI6ICItLS0tLUJFR0lOIFBSSVZBVEUgS0VZLS0tLS1cbk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRQzBJZ29kb1BWQVViTHpcbkZpeERuUlJ2YUFva1BOU0VNbmZ2MXQ4Y2lYZndSU3grb0x6ai9VMDhFWnoveXdxT3UxUnZLVWlGRU5laFlsdHpcbnRCRGs1UXNvVk9YLzlhUnFDMmYyUXlabzQydXg4QzZjbmdZcEpOempUQ0ExM3BBd2xIU0xMVXRJbGR4Q3lBZDdcbmZkczdWcmZ1enpQZWhPWDVaaFozVjc5NytYZWloU1VLRjcyYXI1ZTBYZHUydlVkb21aV2pNeFBYNTkxZkkyOUZcbmFncFFnU25uWVNPY2tuK1p5MkhpN05uMkdkQXpIRnk3K3ZNd2ptdzJPWUxWRmZQZkhqdVV2YWtnbUExRHJNTzhcbmc5M0JBTzgreWt0d2FCd2ZMbUpFeVlBRmZpNXlMWTcyN0RIbGxmSTVzTXdWbDhSV1FWMTArWWRsaEJkbFVRWkFcbnpSV1dZOGhKQWdNQkFBRUNnZ0VBQ3ZBTk1WdzFGWFVsMnFKVVNPZTl3UCt1Sy9kTFI5cXJxSWgyenVGZkF4dk9cbjFrS0syRm9vdEN3Zjg4ZnFWSEtMV2pPYXg4VUJ5WXdkZGFLdnF1MFRJWEs1bU56d3krVktQYXhqK3V4TTZBYW5cbmx6MTJMaU00VEE5SU03L1hxQWQvcGNyTk05NEdVWmR2OHQrWWJnWTNrQnlNbWxIelhUMHdiSW5ndCtyL2lNS1dcbi8yWUgxR05rK3loT3RtMWxMNU9xMVJ4R1pITXpxdTg2akF0by9CZU01SnVpR3ZvdVZQMXE4d3hUTnFmeGRlMnVcbmpsbUsxdVZlQXJ4SmZneEJjUjNLZDgyUVpaWG1yYW9QWnpuS3dwOVY0cjBIOUsvTDF5MEdoVkRyVzNvNnJkME1cbnBZUzZ1ci9MVlBYQVBjdmRZa2dPTGE5RU82bGQxL2IwOW9uM1d1OHBYUUtCZ1FEYzhseTJ6UWdlaDZOME8vRWJcblExeGNOU09PaUFFSW5uaVF6QTZTL2hDZHdjWVYrbFBsdTN4c2N5Z0pIMlQzY2FvZnZmdk5PNENESkZwblpcbmNhY21kdWhrZFFLQmdENXpVcmxvb283ZWo5amV5SHVJUXFiZGJqdHZQYnVONzA0ZUgxQjA5NFZmcS9teVU5eHZcbmJlL0piTnVIUUNhZ3ZnNU56OEtqM1VjcU83QUJFVnMwVlByK2dqNHV6TXg5SGFsN3RSb0hzc1ZOSXRMUFhyQUxcbmhVclE1ditwdjR0NWVRaC81OUpMN3VwQTA1eVB2QzBPRFhTaDYzUm9pTzBIVmRQcTVTL3JPcmx4QW9HQkFLN1hcbnN6aTVxTlVORzNGYldBZnZsNGZ4anNiYUVJN2NnSUJCMTVhZVFkSVl2OTU3UDF2MUhWZ1puUGtZRGFkYm11VVJcbkd1UzNyNlQ3UVJVaVhybHYvSWNOL3ZEZ3lPSXNjWjBXWFJGU2w2NGo5UTl6SFplekJUQWNyMFZ6a1FYYXNzdDZcbmdKdjVXeEVUREZHbFdOa1hwYVUyM3JFM0JZQXdGTmFhWllMTm5rVjVBb0dCQUlsSk95emw4NFloS2Vsc0lZRUxcbi9tUzhiNWQ1SHVQVVNCUHlTc3lPWjZhbFhLNnNnMW1udWFUMlVoTkhmaWdtcktCTU9vMHQrTXZqd3JFczdLNDhcbnZTOUxEdXo1K0dHQ2c2aXg3cHFwUUtoa0JOMVA4aXlJSVpQaDRNdFJyR1luV2U0TXZORDBjajJ0SldJWGcxNVpcbk4wZUFscm1qc0swaXFPQkcyR0xoV3Rtd1xuLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLVxuIiwKICAiY2xpZW50X2VtYWlsIjogImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGNpdmljcHVsc2UtNzllZWIuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLAogICJjbGllbnRfaWQiOiAiMTE3NjMzNjcyMzk5MDk4MjQwMDI4IiwKICAiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLAogICJ0b2tlbl91cmkiOiAiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLAogICJhdXRoX3Byb3ZpZGVyX3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YxL2NlcnRzIiwKICAiY2xpZW50X3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vcm9ib3QvdjEvbWV0YWRhdGEveDUwOS9maXJlYmFzZS1hZG1pbnNkay1mYnN2YyU0MGNpdmljcHVsc2UtNzllZWIuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLAogICJ1bml2ZXJzZV9kb21haW4iOiAiZ29vZ2xlYXBpcy5jb20iCn0=";
-  serviceAccount = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+let serviceAccount = null;
+let db = null;
+
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } else {
+    // If running locally, try to require the file
+    serviceAccount = require('./civicpulse-79eeb-firebase-adminsdk-fbsvc-8fb7323db6.json');
+  }
+  
+  if (serviceAccount) {
+    initializeApp({ credential: cert(serviceAccount) });
+    db = getFirestore();
+    console.log('✅ Connected to Firebase Firestore');
+    seedOfficers();
+  }
+} catch (err) {
+  console.error('❌ FATAL: Firebase Initialization Failed.', err.message);
+  console.error('If you are on Railway, ensure FIREBASE_SERVICE_ACCOUNT is perfectly valid JSON.');
 }
-initializeApp({ credential: cert(serviceAccount) });
-const db = getFirestore();
-console.log('✅ Connected to Firebase Firestore');
 
 // Seed mock officers if not present
 async function seedOfficers() {
+  if (!db) return;
   const snapshot = await db.collection('officers').limit(1).get();
   if (snapshot.empty) {
     console.log('Seeding officers to Firestore...');
