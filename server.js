@@ -262,13 +262,56 @@ Output ONLY the final report. Start directly with section 1. Use **bold** markdo
 
     console.log(`✅ Issue saved to Firestore: ${issueRef.id}`);
 
+    // ── AI DISASTER MODE AUTO-TRIGGER ────────────────────────────
+    // If 3+ critical flood/waterlogging reports in last 30 min → Gemini fires disaster mode
+    let disasterTriggered = false;
+    try {
+      const floodCategories = ['waterlogging', 'flood', 'drainage', 'water'];
+      const isFloodReport = floodCategories.some(k => (aiOutput.category || '').toLowerCase().includes(k));
+      if (isFloodReport && aiOutput.severity === 'critical') {
+        const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+        const recentFloodSnap = await db.collection('issues')
+          .where('severity', '==', 'critical')
+          .orderBy('timestamp', 'desc')
+          .limit(20)
+          .get();
+        const recentFloodCount = recentFloodSnap.docs.filter(d => {
+          const cat = (d.data().category || '').toLowerCase();
+          return floodCategories.some(k => cat.includes(k));
+        }).length;
+
+        if (recentFloodCount >= 3) {
+          // Gemini confirms disaster threshold
+          const disasterRes = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: [`You are the CivicPulse Disaster Response AI. ${recentFloodCount} critical flood/waterlogging reports have been detected in Bengaluru in the last 30 minutes. Should a city-wide disaster alert be issued to NDRF? Output ONLY JSON: {"activate_disaster": boolean, "reason": "..."}`],
+            config: { responseMimeType: 'application/json' }
+          });
+          const dData = JSON.parse(disasterRes.text);
+          if (dData.activate_disaster) {
+            await db.collection('disaster_events').add({
+              type: 'FLOOD',
+              triggeredBy: 'Gemini AI Auto-Detection',
+              reason: dData.reason,
+              reportCount: recentFloodCount,
+              timestamp: FieldValue.serverTimestamp()
+            });
+            disasterTriggered = true;
+            traceLog.push({ agent: 'DisasterAgent', tool: 'gemini_disaster_trigger()', result: `🚨 DISASTER MODE ACTIVATED: ${dData.reason.substring(0,60)}...` });
+            console.log('🚨 AI DISASTER MODE TRIGGERED:', dData.reason);
+          }
+        }
+      }
+    } catch(e) { console.warn('Disaster check error:', e.message?.slice(0,60)); }
+
     res.json({
       issue_id: issueRef.id,
       analysis: aiOutput,
       assigned_officer: assignedOfficer,
       model: usedModel,
       reasoning,
-      trace: traceLog
+      trace: traceLog,
+      disaster_triggered: disasterTriggered
     });
 
   } catch (error) {
