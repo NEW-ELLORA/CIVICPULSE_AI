@@ -886,9 +886,9 @@
 <section class="section section-alt" id="tech-stack" aria-label="Technology Stack">
   <div class="container">
     <div class="reveal">
-      <div class="section-label">100% Google Native</div>
-      <h2 class="section-h">Every Layer on<br/>Google Cloud.</h2>
-      <p class="section-sub">Zero third-party LLMs. Zero self-hosted infra. Maximum Google tech score.</p>
+      <div class="section-label">Real-World Hackathon Stack</div>
+      <h2 class="section-h">Built for Speed<br/>and Scale.</h2>
+      <p class="section-sub">A pragmatic mix of Google Gemini AI, Firebase, and Open-Source tools to build a working MVP in 24 hours.</p>
     </div>
     <div class="tech-wrapper reveal">
       <table class="tech-table" aria-label="Technology stack comparison">
@@ -937,11 +937,11 @@
     <div class="footer-bottom">
       <p>© 2026 CivicPulse AI · Google for Developers Hackathon · Community Hero</p>
       <div class="footer-tech-badges">
-        <span class="f-badge">Gemini 2.0</span>
-        <span class="f-badge">Google ADK</span>
-        <span class="f-badge">BigQuery ML</span>
-        <span class="f-badge">Firebase</span>
-        <span class="f-badge">Cloud Run</span>
+        <span class="f-badge">Gemini 2.0 Flash</span>
+        <span class="f-badge">Firebase Firestore</span>
+        <span class="f-badge">Node.js + Express</span>
+        <span class="f-badge">Leaflet + OSM</span>
+        <span class="f-badge">Render Hosting</span>
       </div>
     </div>
   </div>
@@ -1079,15 +1079,15 @@ const AGENTS = [
 ];
 
 const TECH = [
-  {layer:'Vision + Classification', tech:'Gemini 2.0 Flash (multimodal)', why:'Image + voice in one API call, native JSON mode'},
-  {layer:'Voice / STT', tech:'Gemini Live API', why:'Streaming STT, same model, 12 Indic languages, no extra API'},
-  {layer:'Agent Framework', tech:'Google ADK', why:'Purpose-built multi-agent orchestration with tool calling'},
-  {layer:'LLM — Civic Mayor', tech:'Gemini 2.0 Pro (2M context)', why:'Entire BBMP guidebook in system prompt — no vector DB needed'},
-  {layer:'Backend Hosting', tech:'Cloud Run (min-instances=1)', why:'Zero cold starts, Google-native SLA, auto-scale'},
-  {layer:'Database', tech:'Cloud SQL PG16 + PostGIS', why:'Managed, spatial indexes for geo-queries, Google SLA'},
-  {layer:'ML / Predictions', tech:'BigQuery ML (BQML)', why:'CREATE MODEL in SQL — < 5min training, zero setup risk'},
-  {layer:'Async Tasks', tech:'Cloud Tasks + Cloud Scheduler', why:'Escalation & Prediction agents fire reliably, no polling'},
-  {layer:'Auth + Notifications', tech:'Firebase Auth + FCM', why:'Phone OTP, JWT, 100k msgs/day free tier'},
+  {layer:'Vision + Classification', tech:'Gemini 2.0 Flash (multimodal)', why:'Image + text processing in one API call via @google/genai SDK'},
+  {layer:'Voice / STT', tech:'Web Speech API', why:'Browser-native streaming STT, zero cost, supports local languages instantly'},
+  {layer:'Agent Framework', tech:'Node.js + Express', why:'Custom 5-agent orchestration pipeline without heavy abstractions'},
+  {layer:'LLM — Civic Mayor', tech:'Gemini 2.0 Flash', why:'Fast, reliable policy answers pre-loaded in the prompt'},
+  {layer:'Backend Hosting', tech:'Render', why:'Seamless Node.js API hosting with automatic Git deployments'},
+  {layer:'Database', tech:'Firebase Firestore', why:'Real-time NoSQL syncing for live dashboard updates without polling'},
+  {layer:'Frontend Hosting', tech:'Firebase Hosting', why:'Blazing fast global CDN for the static HTML/CSS/JS frontend'},
+  {layer:'Map / GIS', tech:'Leaflet.js + OSM', why:'Open-source mapping fallback (avoids Google Maps API billing hurdles)'},
+  {layer:'ML / Predictions', tech:'JS Aggregate Logic', why:'Rapid hackathon MVP simulation based on live Firestore document counts'},
 ];
 
 // ── LOADER ───────────────────────────────────────────────────
