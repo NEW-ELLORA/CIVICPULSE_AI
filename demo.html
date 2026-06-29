@@ -277,12 +277,7 @@ input,textarea,select{font-family:inherit}
   .steps{overflow-x:auto}
 }
 </style>
-<script>
-  (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
-    key: "AIzaSyA7Cso76SjMiThJzEn0CrriUpEzpc3YzhI",
-    v: "weekly",
-  });
-</script>
+<!-- Google Maps API removed due to invalid key; falling back to Leaflet -->
 <!-- Leaflet (backup map) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1684,7 +1679,12 @@ async function loadMyReports(silent = false) {
       const icon = catIcon[issue.department] || catIcon[issue.category] || '📋';
       const date = issue.timestamp ? new Date(issue.timestamp).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Just now';
       const ticketId = 'CP-' + String(1200 + idx + 1).padStart(4, '0');
-      const imgFile = issue.imagePath ? issue.imagePath.replace(/\\/g, '/').split('/').pop() : null;
+      let imgFile = null;
+      let imgSrc = null;
+      if (issue.imagePath) {
+        if (issue.imagePath.startsWith('data:image')) imgSrc = issue.imagePath;
+        else imgSrc = `https://civicpulse-ai-cqro.onrender.com/uploads/${issue.imagePath.replace(/\\/g, '/').split('/').pop()}`;
+      }
       const hasImage = !!imgFile && imgFile !== 'null' && imgFile !== 'undefined';
 
       return `
@@ -1741,14 +1741,8 @@ async function loadMyReports(silent = false) {
           <div style="font-family:var(--mono);font-size:0.75rem;color:var(--t2);white-space:pre-wrap;line-height:1.6;margin:0;max-height:180px;overflow-y:auto">${(issue.reasoning || '').replace(/\*\*(.*?)\*\*/g, '<strong style="color:#fff;font-weight:900">$1</strong>')}</div>
         </div>` : ''}
 
-        ${hasImage ? `
-        <!-- Photo Evidence -->
-        <div style="padding:14px 20px">
-          <div style="font-size:0.65rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">📸 Photo Evidence</div>
-          <img src="https://civicpulse-ai-cqro.onrender.com/uploads/${imgFile}" 
-               onerror="this.style.display='none'" 
-               style="max-width:100%;max-height:200px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,0.08)" />
-        </div>` : ''}
+        ${photoHtml}
+
         ${issue.status === 'OPEN' ? `
         <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(16,185,129,0.03);display:flex;align-items:center;justify-content:space-between">
           <div style="font-size:0.75rem;color:var(--t2)">Has the officer fixed this? Verify the repair with AI.</div>

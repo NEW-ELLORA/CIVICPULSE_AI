@@ -268,7 +268,7 @@ Output ONLY the final report. Start directly with section 1. Use **bold** markdo
       upvoterIPs: [],
       lat: lat ? parseFloat(lat) : null,
       lng: lng ? parseFloat(lng) : null,
-      imagePath: file ? file.path : null,
+      imagePath: file ? 'data:' + file.mimetype + ';base64,' + getBase64(file) : null,
       reasoning,
       model: usedModel,
       timeline: [
