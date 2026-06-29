@@ -2,6 +2,7 @@
 
 > **Vibe2Ship Hackathon — Community Hero: Hyperlocal Problem Solver**
 > Built with Google Gemini 2.0 Flash · Firebase Firestore · Firebase Hosting
+> **Submitted: June 2025**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Dashboard-blue?style=for-the-badge)](https://civicpulse-79eeb.web.app/)
 [![Problem Statement](https://img.shields.io/badge/Track-Community%20Hero-orange?style=for-the-badge)]()
@@ -33,7 +34,7 @@ CivicPulse AI is a full-stack civic intelligence platform that:
 
 | Hackathon Requirement | CivicPulse Feature | Status |
 |---|---|---|
-| Image & video-based issue reporting | CivicLens — Gemini Vision multimodal intake | ✅ |
+| Image & video-based issue reporting | CivicLens — Gemini Vision multimodal intake | ✅ (HTML5 Video Frame Extraction implemented) |
 | AI-powered issue categorization | Auto-classify by type, severity, and department | ✅ |
 | Geo-location and mapping | Live Digital Twin map (Leaflet + GPS pins) | ✅ |
 | Community verification | Upvote system with auto-escalation at 3 votes | ✅ |
@@ -54,7 +55,7 @@ CivicPulse AI is a full-stack civic intelligence platform that:
 Animated cards that map each civic problem to its AI-powered solution. Located in the "See Every Problem Get Solved" section.
 
 **2. "See It Work Live" Interactive Modules**
-Clickable demo buttons (Simulate Flood, Ask AI Mayor, Simulate Kannada Voice) let judges experience the product vision without leaving the landing page.
+Clickable demo buttons to test specific AI agents directly (Civic AI Mayor, 12-Language Voice Agent, Disaster Mode, Corruption Detection AI, CivicLens AR Overlay, AI Repair Blueprints).
 
 **3. Economic Impact Calculator**
 Dynamic projection of financial savings from proactive AI intervention — e.g. "₹8.4 Cr Prevented Road Damage". Located in the "Economic Impact" section.
@@ -125,11 +126,9 @@ A custom-built step-by-step tooltip tour that auto-starts for new users to guide
 - A Google Gemini API key
 - A Firebase project with Firestore enabled
 
-### 1. Clone & Install
+### 1. Install Dependencies
 
 ```bash
-git clone https://github.com/your-username/civicpulse-ai.git
-cd civicpulse-ai
 npm install
 ```
 
@@ -181,18 +180,12 @@ firebase deploy --only hosting
 civicpulse-ai/
 ├── index.html          # Landing page
 ├── demo.html           # Main working dashboard
+├── index.css           # Landing page styles
+├── demo.css            # Dashboard styles
 ├── server.js           # Node.js/Express backend
-├── package.json
+├── package.json        # Dependencies
 ├── .env                # Environment variables (never commit this)
 ├── firebase.json       # Firebase config
-├── public/
-│   ├── css/
-│   │   └── styles.css
-│   └── js/
-│       ├── app.js      # Dashboard logic
-│       ├── map.js      # Digital Twin (Leaflet)
-│       ├── analytics.js
-│       └── chatbot.js
 └── README.md
 ```
 
