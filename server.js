@@ -57,7 +57,7 @@ seedOfficers();
 // ── Config ────────────────────────────────────────────────────
 const upload = multer({ dest: 'uploads/' });
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'dummy_key' });
 const GROQ_REASONING_MODEL = 'qwen/qwen3-32b';
 const GROQ_FALLBACK_MODEL  = 'meta-llama/llama-4-scout-17b-16e-instruct';
 
