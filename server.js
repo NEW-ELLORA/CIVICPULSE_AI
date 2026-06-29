@@ -245,11 +245,18 @@ Output ONLY the final report. Start directly with section 1. Use **bold** markdo
       priorityScore: aiOutput.priority_score,
       department: aiOutput.department,
       status: 'OPEN',
+      upvoteCount: 0,
+      upvoterIPs: [],
       lat: lat ? parseFloat(lat) : null,
       lng: lng ? parseFloat(lng) : null,
       imagePath: file ? file.path : null,
       reasoning,
       model: usedModel,
+      timeline: [
+        { actor: req.body.reporterName || 'Citizen', action: 'Issue Reported', timestamp: new Date().toISOString() },
+        { actor: 'AI Pipeline (Gemini)', action: `Classified: ${aiOutput.category} — Priority ${aiOutput.priority_score}/100`, timestamp: new Date().toISOString() },
+        { actor: 'Auto-Assign (AI)', action: `Assigned to Officer ${assignedOfficer} (${department}) — SLA: ${slaHours}h`, timestamp: new Date().toISOString() }
+      ],
       timestamp: FieldValue.serverTimestamp()
     });
 
@@ -286,6 +293,8 @@ app.get('/api/issues', async (req, res) => {
         description: decryptData(data.description),
         ward: decryptData(data.ward),
         reporterName: decryptData(data.reporterName),
+        upvoteCount: data.upvoteCount || 0,
+        autoEscalated: data.autoEscalated || false,
         timestamp: data.timestamp?.toDate?.()?.toISOString() || new Date().toISOString()
       };
     });
@@ -293,6 +302,71 @@ app.get('/api/issues', async (req, res) => {
     res.json(issues);
   } catch (err) {
     console.error('Issues fetch error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/upvote/:id — Community Verification ────────────
+app.post('/api/upvote/:id', async (req, res) => {
+  try {
+    const issueId = req.params.id;
+    const voterIP = (req.headers['x-forwarded-for'] || req.ip || 'unknown').split(',')[0].trim();
+    const docRef = db.collection('issues').doc(issueId);
+    const doc = await docRef.get();
+    if (!doc.exists) return res.status(404).json({ error: 'Issue not found' });
+
+    const data = doc.data();
+    const upvoterIPs = data.upvoterIPs || [];
+    if (upvoterIPs.includes(voterIP)) {
+      return res.status(429).json({ error: 'You have already verified this report.' });
+    }
+
+    const newCount = (data.upvoteCount || 0) + 1;
+    const updates = {
+      upvoteCount: newCount,
+      upvoterIPs: FieldValue.arrayUnion(voterIP)
+    };
+
+    if (newCount >= 3 && (data.priorityScore || 0) < 80) {
+      updates.priorityScore = 88;
+      updates.severity = 'high';
+      updates.autoEscalated = true;
+      updates.timeline = FieldValue.arrayUnion({
+        actor: 'Community (3+ Votes)',
+        action: '🔺 Auto-Escalated to HIGH priority by community verification',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      updates.timeline = FieldValue.arrayUnion({
+        actor: 'Community Member',
+        action: `Report verified by citizen (${newCount} total verification${newCount > 1 ? 's' : ''})`,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    await docRef.update(updates);
+    res.json({ success: true, upvoteCount: newCount, autoEscalated: newCount >= 3 });
+  } catch (err) {
+    console.error('Upvote error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/timeline/:id — Citizen Audit Trail ───────────────
+app.get('/api/timeline/:id', async (req, res) => {
+  try {
+    const doc = await db.collection('issues').doc(req.params.id).get();
+    if (!doc.exists) return res.status(404).json({ error: 'Issue not found' });
+    const data = doc.data();
+    res.json({
+      issueId: req.params.id,
+      category: data.category,
+      status: data.status,
+      upvoteCount: data.upvoteCount || 0,
+      autoEscalated: data.autoEscalated || false,
+      timeline: data.timeline || []
+    });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -425,7 +499,12 @@ Respond with ONLY a JSON object: {"resolved": boolean, "reasoning": "brief expla
         status: 'CLOSED',
         resolvedAt: FieldValue.serverTimestamp(),
         repairImagePath: file.path,
-        verificationReasoning: reasoning
+        verificationReasoning: reasoning,
+        timeline: FieldValue.arrayUnion({
+          actor: 'Officer (Gemini AI-Verified)',
+          action: `✅ Issue resolved & closed — ${reasoning.substring(0, 100)}`,
+          timestamp: new Date().toISOString()
+        })
       });
     }
 

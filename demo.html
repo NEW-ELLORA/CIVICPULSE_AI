@@ -1034,11 +1034,25 @@ async function fetchIssues() {
       feed.innerHTML = issues.map(issue => `
         <div class="card" style="padding:16px 20px; border-left: 4px solid ${issue.severity === 'critical' ? 'var(--red)' : issue.severity === 'high' ? 'var(--orange)' : 'var(--green)'}">
           <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-            <span style="font-size:0.7rem;color:var(--t3)">#${issue.id}</span>
-            <span style="font-size:0.7rem;font-weight:700;color:${issue.severity === 'critical' ? 'var(--red)' : issue.severity === 'high' ? 'var(--orange)' : 'var(--green)'}">${issue.severity.toUpperCase()}</span>
+            <span style="font-size:0.7rem;color:var(--t3)">#${issue.id.substring(0,8)}</span>
+            <div style="display:flex;gap:6px;align-items:center">
+              ${issue.autoEscalated ? '<span style="font-size:0.65rem;background:#f59e0b22;color:#f59e0b;padding:2px 6px;border-radius:4px;font-weight:700">🔺 COMMUNITY ESCALATED</span>' : ''}
+              <span style="font-size:0.7rem;font-weight:700;color:${issue.severity === 'critical' ? 'var(--red)' : issue.severity === 'high' ? 'var(--orange)' : 'var(--green)'}">${(issue.severity||'').toUpperCase()}</span>
+            </div>
           </div>
-          <div style="font-weight:700">${issue.category}</div>
-          <div style="font-size:0.8rem;color:var(--t3)">${issue.ward || 'Ward 14'}</div>
+          <div style="font-weight:700;margin-bottom:4px">${issue.category}</div>
+          <div style="font-size:0.8rem;color:var(--t3);margin-bottom:10px">${issue.ward || 'Ward 14'} · ${issue.officerName || 'Unassigned'}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button onclick="upvoteIssue('${issue.id}', this)" 
+              style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#818cf8;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;display:flex;align-items:center;gap:5px;transition:all 0.2s">
+              👍 Verify Report <span style="background:#6366f1;color:white;border-radius:4px;padding:1px 6px;font-weight:700">${issue.upvoteCount || 0}</span>
+            </button>
+            <button onclick="showTimeline('${issue.id}')"
+              style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;transition:all 0.2s">
+              📋 Audit Trail
+            </button>
+            <span style="font-size:0.7rem;color:var(--t3);margin-left:auto">${issue.status === 'CLOSED' ? '✅ Resolved' : '🔴 Open'}</span>
+          </div>
         </div>
       `).join('');
     }
@@ -1056,6 +1070,75 @@ async function fetchIssues() {
   } catch (err) { console.error(err); }
 }
 document.addEventListener('DOMContentLoaded', fetchIssues);
+
+/* ── COMMUNITY UPVOTE ───────────────────────────── */
+async function upvoteIssue(issueId, btn) {
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  try {
+    const res = await fetch(`https://civicpulseai-production-e608.up.railway.app/api/upvote/${issueId}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) {
+      btn.style.opacity = '1';
+      btn.disabled = false;
+      return alert(data.error);
+    }
+    // Update badge count
+    const badge = btn.querySelector('span');
+    if (badge) badge.textContent = data.upvoteCount;
+    btn.style.background = 'rgba(99,102,241,0.35)';
+    btn.innerHTML = `✅ Verified <span style="background:#6366f1;color:white;border-radius:4px;padding:1px 6px;font-weight:700">${data.upvoteCount}</span>`;
+    if (data.autoEscalated) {
+      const card = btn.closest('.card');
+      if (card) {
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size:0.65rem;background:#f59e0b22;color:#f59e0b;padding:2px 8px;border-radius:4px;font-weight:700;display:block;margin-top:6px';
+        badge.textContent = '🔺 AUTO-ESCALATED TO HIGH PRIORITY BY COMMUNITY!';
+        card.appendChild(badge);
+      }
+    }
+  } catch(e) {
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    alert('Could not submit verification. Try again.');
+  }
+}
+
+/* ── AUDIT TRAIL MODAL ──────────────────────────── */
+async function showTimeline(issueId) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  overlay.innerHTML = `<div style="background:var(--card);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="margin:0;font-size:1.1rem">📋 Audit Trail</h3>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:1.2rem">✕</button>
+    </div>
+    <div id="timeline-content" style="text-align:center;padding:20px;color:var(--t3)">Loading...</div>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  try {
+    const res = await fetch(`https://civicpulseai-production-e608.up.railway.app/api/timeline/${issueId}`);
+    const data = await res.json();
+    const tl = data.timeline || [];
+    const content = document.getElementById('timeline-content');
+    content.innerHTML = `
+      <div style="font-size:0.8rem;color:var(--t3);margin-bottom:16px">Issue: <strong>${data.category}</strong> · <span style="color:${data.status==='CLOSED'?'#10b981':'#f87171'}">${data.status}</span>${data.upvoteCount > 0 ? ` · 👍 ${data.upvoteCount} community verification${data.upvoteCount>1?'s':''}` : ''}</div>
+      <div style="position:relative;padding-left:20px">
+        ${tl.length === 0 ? '<div style="color:var(--t3)">No timeline events yet.</div>' : tl.map((e, i) => `
+          <div style="position:relative;padding-bottom:16px">
+            <div style="position:absolute;left:-20px;top:4px;width:10px;height:10px;border-radius:50%;background:${i===tl.length-1?'#10b981':'#6366f1'}"></div>
+            ${i < tl.length-1 ? '<div style="position:absolute;left:-16px;top:14px;bottom:0;width:2px;background:rgba(99,102,241,0.2)"></div>' : ''}
+            <div style="font-size:0.75rem;font-weight:700;color:var(--t1)">${e.actor}</div>
+            <div style="font-size:0.78rem;color:var(--t2);margin:2px 0">${e.action}</div>
+            <div style="font-size:0.68rem;color:var(--t3)">${new Date(e.timestamp).toLocaleString('en-IN')}</div>
+          </div>
+        `).join('')}
+      </div>`;
+  } catch(e) {
+    document.getElementById('timeline-content').innerHTML = '<div style="color:var(--red)">Could not load timeline.</div>';
+  }
+}
 
 /* ── PIPELINE RUNNER ───────────────────────────── */
 let isRunning = false;
