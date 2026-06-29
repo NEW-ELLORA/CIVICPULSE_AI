@@ -14,7 +14,9 @@ const crypto = require('crypto');
 
 const app = express();
 app.set('trust proxy', 1); // Crucial for Render/Railway load balancers
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors());
 app.use(express.json());
 
