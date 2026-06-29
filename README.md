@@ -28,7 +28,7 @@ CivicPulse AI is an "AI Operating System for cities" that autonomously verifies,
 - **📋 Citizen Audit Trail**: Full transparency timeline showing every action taken on a report — who reported, which AI agent classified, which officer was assigned, and when it was resolved.
 - **🔑 Firebase Google Sign-In**: Real Firebase Authentication using Google OAuth — no mocks, no simulated OTP.
 - **🎤 Voice / Gemini Live**: Hands-free multilingual reporting using Web Speech API and Gemini transcription.
-- **👓 CivicLens AR**: Real-time browser-based computer vision overlay to visually identify infrastructure damage.
+- **👓 CivicLens AR**: Real-time browser-based computer vision overlay supporting both static images and **live video frames** for infrastructure damage detection — directly addressing the spec's video-based reporting requirement.
 - **🚨 Disaster Mode**: Instant flood simulation that overrides the Digital Twin to trigger NDRF alerts.
 - **🏛️ Civic AI Mayor**: Core LLM explicitly prompted with BBMP SLAs to enforce strict municipal codes.
 - **✈️ Offline PWA**: Service Worker integration allows reporting even in low-connectivity zones.
@@ -75,8 +75,8 @@ To ensure a flawless, high-fidelity presentation during the 24-hour hackathon, w
 Due to Google Cloud Sandbox billing limitations that require multi-day verification for premium services (like SMS billing and BigQuery ML), the following systems are conceptually designed but **simulated in the frontend**:
 
 * **Google Gen AI ADK**: The 5-agent pipeline is implemented using sequential **Gemini 2.0 Flash API calls** (all 5 agents are 100% Google AI). The Google ADK framework package was not used directly — the orchestration logic is custom Node.js code designed to be migrated to the full ADK once GCP billing is verified.
-* **BigQuery ML**: The predictive risk percentages (e.g., "82% Flood Risk") and heatmap data are simulated. In a production environment, these would be powered by live `LOGISTIC_REG` models trained on historical BigQuery datasets. 
-* **Firebase Auth & FCM**: We built a custom UI that mimics Firebase Phone OTP and utilizes the browser's native Notification API to emulate Cloud Messaging.
+* **BigQuery ML**: The predictive risk model is **architected for BigQuery ML** (`LOGISTIC_REG` trained on BBMP historical incident data). During the hackathon sandbox period, a rule-based fallback (severity × incident density × ward score) is active in place of the live trained model — the BigQuery dataset schema and SQL setup script (`bqml_setup.sql`) are included in the repository.
+* **FCM**: Browser-native Notification API is used as a fallback for Cloud Messaging during the sandbox period.
 
 The frontend dashboard, PWA infrastructure, Voice APIs, real-time RBAC polling, and UI/UX are 100% real and built to plug seamlessly into these live GCP services once billing is approved.
 
@@ -120,12 +120,14 @@ gcloud run deploy civicpulse \
 
 ## 🎬 Demo Walkthrough
 
-1. **Step 1**: Login as Citizen → submit voice complaint in Kannada.
-2. **Step 2**: Watch agent pipeline trace fire and evaluate the issue.
-3. **Step 3**: Login as Admin (new tab) → see Digital Twin update instantly.
-4. **Step 4**: Click Simulate Flood → Disaster Mode activates city-wide warnings.
-5. **Step 5**: Simulate Fake Closure → Integrity Score spikes on the officer leaderboard.
-6. **Step 6**: View AI Thinking modal to see exactly how Gemini reached its conclusion.
+1. **Step 1**: Login as Citizen via **Google Sign-In** → submit a voice complaint in Kannada.
+2. **Step 2**: Watch the **5-agent Gemini pipeline** trace fire — Reporter → Verification → Routing → Escalation → Civic AI Mayor.
+3. **Step 3**: Login as Admin (new tab) → see the **Digital Twin** map update with the new report pin instantly.
+4. **Step 4**: Click **Simulate Flood** → Disaster Mode activates city-wide NDRF warnings.
+5. **Step 5**: Simulate **Fake Closure** → Integrity Score spikes on the officer leaderboard.
+6. **Step 6**: View the **AI Thinking** modal to see exactly how Gemini reached its conclusion.
+7. **Step 7**: As a second citizen, click **"👍 Verify Report"** on the same issue 3 times → watch the priority auto-escalate to HIGH with the "🔺 COMMUNITY ESCALATED" badge.
+8. **Step 8**: Click **"📋 Audit Trail"** on any issue → see the full transparency timeline of who acted, when, and what the AI decided at each step.
 
 ---
 
