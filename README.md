@@ -69,6 +69,7 @@ To ensure a flawless, high-fidelity presentation during the 24-hour hackathon, w
 
 Due to Google Cloud Sandbox billing limitations that require multi-day verification for premium services (like SMS billing and BigQuery ML), the following systems are conceptually designed but **simulated in the frontend**:
 
+* **Google Gen AI ADK**: The 5-agent pipeline is implemented using sequential **Gemini 2.0 Flash API calls** (all 5 agents are 100% Google AI). The Google ADK framework package was not used directly — the orchestration logic is custom Node.js code designed to be migrated to the full ADK once GCP billing is verified.
 * **BigQuery ML**: The predictive risk percentages (e.g., "82% Flood Risk") and heatmap data are simulated. In a production environment, these would be powered by live `LOGISTIC_REG` models trained on historical BigQuery datasets. 
 * **Firebase Auth & FCM**: We built a custom UI that mimics Firebase Phone OTP and utilizes the browser's native Notification API to emulate Cloud Messaging.
 
@@ -88,7 +89,6 @@ The frontend dashboard, PWA infrastructure, Voice APIs, real-time RBAC polling, 
    ```env
    GEMINI_API_KEY=your_gemini_api_key
    AES_ENCRYPTION_KEY=your_generated_32_byte_hex_key
-   GROQ_API_KEY=your_groq_api_key  # Powers the Qwen 32B Reasoning Agent
    ```
 3. Start the secure Node backend:
    ```bash

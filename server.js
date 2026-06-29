@@ -201,16 +201,14 @@ Output JSON only: {"sla_deadline_hours": number, "escalate_to_mayor": boolean}`]
       traceLog.push({ agent: 'EscalationAgent', tool: 'gemini_sla_calculator()', result: `SLA: 24h (Normal) (Fallback)` });
     }
 
-    // AGENT 5: Qwen 3 32B Deep Reasoning (Groq)
+    // AGENT 5: Gemini 2.0 Flash — Deep Reasoning (100% Google-Native)
     let reasoning = '';
     try {
-      const reasoningRes = await groq.chat.completions.create({
-        model: GROQ_REASONING_MODEL,
-        messages: [{
-          role: 'user',
-          content: `You are an expert municipal AI analyst for Bengaluru city.
+      const reasoningRes = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [`You are the Civic AI Mayor for Bengaluru city — an expert municipal analyst.
 
-A citizen submitted a civic complaint. Provide a concise analysis:
+A citizen submitted a civic complaint. Provide a concise, actionable analysis:
 1. What exactly happened (root cause)
 2. Public safety risk level
 3. Recommended action steps for the officer
@@ -223,20 +221,17 @@ Details:
 - Department: ${department} (SLA: ${slaHours}h)
 - Location: ${lat ? lat+','+lng : 'Bengaluru'}
 - Assigned Officer: ${assignedOfficer}
+- Mayor Escalation: ${mayorAlert ? 'YES — CRITICAL' : 'No'}
 
-Be concise and actionable. Use clear numbered sections.
-IMPORTANT: Output ONLY the final report. Do NOT include any internal thoughts, reasoning steps, or conversational filler like 'Okay, let's tackle this...'. Start directly with the first section. Use **bold** markdown tags to highlight key findings.`
-        }],
-        temperature: 0.6,
-        max_tokens: 600
+Output ONLY the final report. Start directly with section 1. Use **bold** markdown for key findings.`]
       });
-      reasoning = reasoningRes.choices[0]?.message?.content || '';
+      reasoning = reasoningRes.text || '';
     } catch (e) {
-      console.warn('Groq reasoning error:', e.message?.slice(0, 80));
+      console.warn('Gemini reasoning error:', e.message?.slice(0, 80));
       reasoning = `Issue: ${aiOutput.category} at ${lat ? lat+','+lng : 'Bengaluru'}.\nSeverity: ${aiOutput.severity.toUpperCase()} — Priority ${aiOutput.priority_score}/100.\nAssigned to ${assignedOfficer} (${department}) for inspection within ${slaHours} hours.\nRecommendation: Inspect site, document findings, initiate repair per SLA.`;
     }
 
-    traceLog.push({ agent: 'ReasoningAgent', tool: 'qwen3_32b_reasoning()', result: 'Deep analysis complete' });
+    traceLog.push({ agent: 'CivicAIMayor', tool: 'gemini_deep_reasoning()', result: 'Deep analysis complete — 100% Google AI' });
 
     // Save Issue to Firestore
     const issueRef = await db.collection('issues').add({
