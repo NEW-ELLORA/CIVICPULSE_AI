@@ -3,8 +3,8 @@
     "purpose": "CivicPulse AI Knowledge Graph — READ THIS FIRST before the PDF",
     "instruction": "Any AI model working on this project MUST read this JSON graph before doing any work. This encodes the full 20-page CivicPulse_AI_v5_FINAL.pdf in structured form. Do NOT re-parse the PDF unless you need raw quote text.",
     "source_pdf": "CivicPulse_AI_v5_FINAL.pdf",
-    "version": "v5.2",
-    "last_updated": "2026-06-27",
+    "version": "v6.0",
+    "last_updated": "2026-06-29",
     "ui_pages": ["index.html (marketing/pitch site)", "demo.html (interactive working app)", "civicpulse-app (React + TypeScript production version)"],
     "graph_sections": ["project_summary", "agents", "features", "tech_stack", "frontend_stack", "database_schema", "backend_apis_needed", "metrics_kpis", "sdg_alignment", "submission_checklist", "demo_script", "architecture", "competitive_analysis", "cost_analysis", "security", "scalability", "roadmap"]
   },
@@ -28,7 +28,7 @@
       "cost_per_report": "<₹0.10",
       "monthly_cost": "~₹4,400/month for 50,000 reports"
     },
-    "differentiators": ["CivicLens AR overlay", "Corruption Detection AI", "Civic Digital Twin", "Offline PWA", "5-agent Google ADK orchestration", "Premium Apple/Linear aesthetic UI"]
+    "differentiators": ["CivicLens AR overlay", "Corruption Detection AI", "Civic Digital Twin", "Offline PWA", "Real 5-agent Gemini API orchestration", "Community Upvoting + Auto-Escalation", "Citizen Audit Trail", "Firebase Google Sign-In", "AES-256 Encryption", "Premium Apple/Linear aesthetic UI"]
   },
   "problems_solved": [
     {"id": "P1", "title": "Fragmented Reporting", "description": "Citizens use WhatsApp, calls, or Twitter — no unified channel. Most issues never officially logged."},
@@ -197,7 +197,7 @@
   "tech_stack": [
     {"layer": "Vision + Classification", "google_tech": "Gemini 2.0 Flash (multimodal)", "replaces": "Claude Vision", "justification": "Image+voice in one API call, native JSON mode"},
     {"layer": "Voice / STT", "google_tech": "Gemini Live API", "replaces": "OpenAI Whisper", "justification": "Streaming, same model — no extra API, 12 Indic languages"},
-    {"layer": "Agent Framework", "google_tech": "Google ADK", "replaces": "Custom code pipeline", "justification": "Purpose-built multi-agent orchestration with tool calling"},
+    {"layer": "Agent Framework", "google_tech": "Gemini 2.0 Flash API Orchestration", "replaces": "Custom Node.js 5-agent chain", "justification": "All 5 agents (Reporter, Verification, Routing, Escalation, CivicAIMayor) use sequential Gemini 2.0 Flash API calls — 100% Google-native, no external LLMs"},
     {"layer": "LLM — Civic Mayor", "google_tech": "Gemini 2.0 Pro (2M context)", "replaces": "Manual RAG", "justification": "Entire BBMP guidebook in system prompt — no vector DB needed"},
     {"layer": "Backend Hosting", "google_tech": "Cloud Run (min-instances=1)", "replaces": "Railway.app", "justification": "Google-native, zero cold-starts, auto-scale, production SLA"},
     {"layer": "Frontend Hosting", "google_tech": "Firebase Hosting", "replaces": "Vercel", "justification": "Native Google, CDN, integrates with Firebase Auth"},

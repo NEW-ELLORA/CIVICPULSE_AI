@@ -24,6 +24,9 @@ CivicPulse AI is an "AI Operating System for cities" that autonomously verifies,
 - **🏆 Gamification (Civic Points Leaderboard)**: Citizens earn points and unlock digital civic badges for accurate reporting, driving community engagement and consistent app usage.
 - **🔐 Enterprise Security (AES-256)**: All citizen PII and GPS data is strictly encrypted at rest via AES-256. API routes are hardened with Helmet, Rate Limiting, and XSS sanitization.
 - **🛡️ RBAC**: Distinct login views for Citizens (reporting) and Admins (city-wide dashboard).
+- **👍 Community Upvoting & Auto-Escalation**: Citizens near a report can verify it. Once 3+ verifications are received, the system automatically escalates the priority to HIGH — powering true community collaboration.
+- **📋 Citizen Audit Trail**: Full transparency timeline showing every action taken on a report — who reported, which AI agent classified, which officer was assigned, and when it was resolved.
+- **🔑 Firebase Google Sign-In**: Real Firebase Authentication using Google OAuth — no mocks, no simulated OTP.
 - **🎤 Voice / Gemini Live**: Hands-free multilingual reporting using Web Speech API and Gemini transcription.
 - **👓 CivicLens AR**: Real-time browser-based computer vision overlay to visually identify infrastructure damage.
 - **🚨 Disaster Mode**: Instant flood simulation that overrides the Digital Twin to trigger NDRF alerts.
@@ -53,13 +56,15 @@ graph TD
 | :--- | :--- |
 | **AI / Vision** | Gemini 2.0 Flash |
 | **Voice / STT** | Web Speech API + Gemini Live |
+| **Agent Framework** | Gemini 2.0 Flash API (5-agent chain) |
 | **Backend** | Node.js + Express |
 | **Database** | Firebase Firestore |
+| **Auth** | Firebase Google Sign-In (OAuth) |
 | **Hosting** | Firebase Hosting + Railway |
 | **Maps** | Google Maps JS API |
-| **Auth** | Firebase OTP (simulated) |
 | **Notifications** | FCM / Browser API |
 | **PWA** | Service Worker + manifest.json |
+| **Security** | AES-256-CBC + Helmet + Rate Limiting |
 
 ---
 
