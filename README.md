@@ -110,6 +110,7 @@ A custom-built step-by-step tooltip tour that auto-starts for new users to guide
 | Layer | Technology | Purpose |
 |---|---|---|
 | AI Engine | Google Gemini 2.0 Flash (`@google/genai`) | Multimodal analysis, reasoning, predictions, chatbot |
+| Inference Accelerator | Groq LPU™ API (Llama-3) | Ultra-fast initial text/intent routing (under 100ms) before hitting Gemini |
 | Database | Google Firebase Firestore (`firebase-admin`) | Real-time NoSQL, instant UI sync |
 | Frontend Hosting | Google Firebase Hosting | Static dashboard delivery |
 | Backend | Node.js + Express (Render) | API server, Gemini proxy |
