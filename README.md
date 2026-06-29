@@ -1,159 +1,85 @@
-# CivicPulse AI 🏙️
-**Next-Generation Civic Issue Management powered by Google Gemini 2.0 Flash**
+# 🏙️ CivicPulse AI — The Autonomous "AI Mayor"
 
-🔗 **Live Demo:** [https://civicpulse-79eeb.web.app](https://civicpulse-79eeb.web.app)
-
-![CivicPulse Live Demo Screenshot](./assets/demo_screenshot.png)
-
-*Built for Google for Developers Hackathon 2026*
+CivicPulse AI is a next-generation civic management dashboard designed to bridge the gap between citizens and municipal authorities (like the BBMP). It leverages powerful Google AI (Gemini 2.0 Flash) to autonomously verify, classify, prioritize, and manage urban infrastructure issues (potholes, garbage, waterlogging, etc.).
 
 ---
 
-## 🛑 The Problem
-
-Civic infrastructure reporting in India is broken, siloed, and highly opaque. It hurts citizens who face unsafe urban conditions and overwhelms city officials who lack automated triaging tools. Existing platforms (like the BBMP app or Swachhata) fail because they lack intelligent verification, resulting in massive spam and misclassification. **Over 60% of municipal complaints are duplicates or misrouted, wasting thousands of man-hours annually.**
-
-## 💡 The Solution
-
-CivicPulse AI is an "AI Operating System for cities" that autonomously verifies, routes, and escalates infrastructure reports. By leveraging Gemini 2.0 Flash and Google Cloud, we instantly bridge the gap between a citizen's complaint and a BBMP officer's dispatch, ensuring transparent, unbiased, and rapid urban resolution.
+## 🚀 The Tech Stack (Google-Powered)
+- **AI Brain:** Google Gemini 2.0 Flash via `@google/genai` (Handles all reasoning, multimodal image analysis, and predictions).
+- **Database:** Google Firebase Firestore (Real-time NoSQL cloud database for instant UI syncing).
+- **Hosting / Deployment:** Google Firebase Hosting (Frontend) & Render (Node.js/Express Backend).
+- **Frontend UI:** Vanilla JS, HTML5, CSS3, Chart.js (for Analytics), Leaflet Maps.
 
 ---
 
-## 🌟 Key Features
+## 🌟 Detailed Features & Architecture
 
-- **🏆 Gamification (Civic Points Leaderboard)**: Citizens earn XP points and unlock digital civic badges (like "First Responder") for accurate reporting, driving community engagement and consistent app usage. Fully implemented in the Citizen Dashboard view.
-- **🔐 Enterprise Security (AES-256)**: All citizen PII and GPS data is strictly encrypted at rest via AES-256. API routes are hardened with Helmet, Rate Limiting, and XSS sanitization.
-- **🛡️ RBAC**: Distinct login views for Citizens (reporting) and Admins (city-wide dashboard).
-- **👍 Community Upvoting & Auto-Escalation**: Citizens near a report can verify it. Once 3+ verifications are received, the system automatically escalates the priority to HIGH — powering true community collaboration.
-- **📋 Citizen Audit Trail**: Full transparency timeline showing every action taken on a report — who reported, which AI agent classified, which officer was assigned, and when it was resolved.
-- **🔑 Firebase Google Sign-In**: Real Firebase Authentication using Google OAuth — no mocks, no simulated OTP.
-- **🎤 Voice / Gemini Live**: Hands-free multilingual reporting using Web Speech API and Gemini transcription.
-- **👓 CivicLens AR**: Real-time browser-based computer vision overlay supporting both static images and **live video frames** for infrastructure damage detection — directly addressing the spec's video-based reporting requirement.
-- **🚨 AI-Triggered Disaster Mode**: When Gemini detects a cluster of `critical` severity flood/waterlogging reports in the same ward within a short time window, it **autonomously activates Disaster Mode** — no human click required. When triggered (manually or by AI):
-  - The **Digital Twin map switches to full red emergency mode**
-  - All **CCTV nodes flip to 🔴 ALERT status** city-wide
-  - A **city-wide NDRF emergency warning banner** fires across all admin dashboards
-  - The dashboard **overrides normal operations** to display a crisis command center
-  - An escalation log entry is written to Firestore with the triggering AI reasoning
-- **🏛️ Civic AI Mayor**: Core LLM explicitly prompted with BBMP SLAs to enforce strict municipal codes.
-- **✈️ Offline PWA**: Service Worker integration allows reporting even in low-connectivity zones.
-- **⚖️ Corruption / Integrity Score**: Algorithmic monitoring of officer task resolution to prevent false closures.
-- **🗺️ Digital Twin**: Real-time map reflecting city health, live CCTV node status, and risk heatmaps.
+### 1. Multimodal AI Issue Verification (CivicLens)
+- **What it does:** Citizens upload a photo of an issue (e.g., a pothole) and type a short description. The AI analyzes the photo and text *together* to verify if it's a real issue, extracts the severity, assigns it to a municipal department, and writes a professional summary.
+- **Where it is located:** "All Reports" / "Report Issue" module. Backend: `/api/report` in `server.js`.
+- **Tech Used Behind it:** Gemini 2.0 Flash (`generateContent`). We use a highly specific prompt with `responseMimeType: "application/json"` to force the AI to return structured data.
+- **Why we built it:** To eliminate fake spam reports and automate the grueling manual triage process for government workers. 
 
----
+### 2. AI Repair Blueprint (Deep Dive)
+- **What it does:** Generates a real-time, highly detailed civil engineering repair plan for any reported issue. It outputs Root Cause Analysis, Estimated Cost (INR), Materials Needed, and a Step-by-Step execution plan.
+- **Where it is located:** The purple **"🔍 Blueprint"** button on every ticket in the dashboard. Backend: `/api/blueprint` in `server.js`.
+- **Tech Used Behind it:** Gemini 2.0 Flash with a system prompt roleplaying as a senior civil engineer.
+- **Why we built it:** To not just report problems, but actively provide the municipal workers with the exact technical steps and budgets to fix them immediately.
 
-## 🏗️ Architecture Diagram
+### 3. Predictive Department Analytics (AI Insights)
+- **What it does:** The AI ingests the entire city's live ticket database, analyzes the workload of all departments (Roads, SWM, Water), and predicts which department will become overwhelmed next week.
+- **Where it is located:** Admin Dashboard -> **📈 Analytics** tab -> **🤖 Run AI Predictive Analysis** button. Backend: `/api/department-insights`.
+- **Tech Used Behind it:** Firestore aggregation queries + Gemini 2.0 Flash. The backend counts the tickets, converts the stats into a JSON payload, and asks Gemini to act as a Municipal Strategist to generate predictive insights.
+- **Why we built it:** To transition city governance from *reactive* (fixing things after they break) to *proactive* (allocating resources before a crisis happens).
 
-```mermaid
-graph TD
-    A[Citizen] -->|Image/Voice| B(Reporter Node)
-    B -->|Gemini Vision| C(Verification Node)
-    C -->|PostGIS/Firestore| D(Routing Node)
-    D -->|Cloud Tasks SLA| E(Escalation Node)
-    E -->|BigQuery ML| F(Prediction Node)
-```
+### 4. Role-Based Access Control (RBAC)
+- **What it does:** Separates the view into two distinct experiences. 
+  - **Citizen View:** Can only see their *own* reported issues. Has access to the Gamification Leaderboard.
+  - **Admin View:** Sees all city-wide issues, the Digital Twin Map, and Department Analytics.
+- **Where it is located:** The "Switch Role / Logout" button at the bottom left. Powered by `window.currentUserRole` and `localStorage` in `demo.html`.
+- **Why we built it:** To protect data privacy for citizens while giving absolute omniscient control to the government authorities.
 
----
+### 5. Community Upvoting & Auto-Escalation
+- **What it does:** Allows citizens to verify each other's reports. If a ticket receives 3 upvotes, the system automatically escalates the severity to `CRITICAL`.
+- **Where it is located:** The **"👍 Verify & Resolve"** button on open tickets. Backend: `/api/upvote` in `server.js`.
+- **Tech Used Behind it:** Firestore `FieldValue.increment(1)`.
+- **Why we built it:** To democratize issue prioritization. If the community cares about a pothole, the system automatically forces the government to care about it too.
 
-## 🛠️ Tech Stack
+### 6. Voice Reporting (Multilingual)
+- **What it does:** Allows citizens to speak their report instead of typing it. 
+- **Where it is located:** The **🎙️ Mic icon** in the bottom right chat widget in `demo.html`.
+- **Tech Used Behind it:** HTML5 Web Speech API (`SpeechRecognition`).
+- **Why we built it:** To make civic reporting accessible to all demographics, including the elderly or visually impaired, without requiring them to type long descriptions.
 
-| Layer | Technology |
-| :--- | :--- |
-| **AI / Vision** | Gemini 2.0 Flash |
-| **Voice / STT** | Web Speech API + Gemini Live |
-| **Agent Framework** | Gemini 2.0 Flash API (5-agent chain) |
-| **Backend** | Node.js + Express |
-| **Database** | Firebase Firestore |
-| **Auth** | Firebase Google Sign-In (OAuth) |
-| **Hosting** | Firebase Hosting + Railway |
-| **Maps** | Google Maps JS API |
-| **Notifications** | FCM / Browser API |
-| **PWA** | Service Worker + manifest.json |
-| **Security** | AES-256-CBC + Helmet + Rate Limiting |
+### 7. Immutable Citizen Audit Trail
+- **What it does:** Tracks the exact timeline of a ticket—from when the citizen reported it, to when the AI verified it, to when it was resolved.
+- **Where it is located:** The **"📋 Audit Trail / Agentic Trace"** button on tickets.
+- **Tech Used Behind it:** Arrays of timestamped logs stored in Firestore for each document.
+- **Why we built it:** To enforce absolute transparency and combat municipal corruption. Citizens can hold officers accountable by seeing exactly how long a ticket has been sitting in the system.
 
----
+### 8. Gamification & Civic Points Leaderboard
+- **What it does:** Rewards citizens with XP points and digital badges for reporting real issues and verifying other people's reports.
+- **Where it is located:** Citizen Dashboard view (Top metrics cards).
+- **Tech Used Behind it:** Vanilla JS DOM manipulation tying into the user's report count in Firestore.
+- **Why we built it:** To incentivize civic engagement. Making city improvement fun increases participation.
 
-## ⚠️ Hackathon Architecture Note (Simulated Cloud Infrastructure)
-
-To ensure a flawless, high-fidelity presentation during the 24-hour hackathon, we employed **"Wizard of Oz" prototyping** for some of our heavy cloud infrastructure. 
-
-Due to Google Cloud Sandbox billing limitations that require multi-day verification for premium services (like SMS billing and BigQuery ML), the following systems are conceptually designed but **simulated in the frontend**:
-
-* **Google Gen AI ADK**: The 5-agent pipeline is implemented using sequential **Gemini 2.0 Flash API calls** (all 5 agents are 100% Google AI). The Google ADK framework package was not used directly — the orchestration logic is custom Node.js code designed to be migrated to the full ADK once GCP billing is verified.
-* **BigQuery ML**: The predictive risk model is **architected for BigQuery ML** (`LOGISTIC_REG` trained on BBMP historical incident data). During the hackathon sandbox period, a rule-based fallback (severity × incident density × ward score) is active in place of the live trained model — the BigQuery dataset schema and SQL setup script (`bqml_setup.sql`) are included in the repository.
-* **FCM**: Browser-native Notification API is used as a fallback for Cloud Messaging during the sandbox period.
-
-The frontend dashboard, PWA infrastructure, Voice APIs, real-time RBAC polling, and UI/UX are 100% real and built to plug seamlessly into these live GCP services once billing is approved.
+### 9. Digital Twin Map (Leaflet)
+- **What it does:** Plots all reported issues visually on a city map.
+- **Where it is located:** Admin Dashboard view.
+- **Tech Used Behind it:** Leaflet.js (Open-source mapping fallback to prevent Google Maps API billing/crashing issues during the hackathon).
+- **Why we built it:** A spatial view helps admins group repairs geographically (e.g., sending one truck to fix 5 potholes on the same street).
 
 ---
 
-## 🚀 How to Run Locally
+## 🛠️ How to Run Locally
 
-**Prerequisites:** Node.js (v18+) and Python 3 installed.
-
-1. Install backend dependencies:
+1. **Install Dependencies:**
    ```bash
    npm install
    ```
-2. Create a `.env` file in the root directory with the following keys:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key
-   AES_ENCRYPTION_KEY=your_generated_32_byte_hex_key
-   ```
-3. Start the secure Node backend:
+2. **Start the Backend:**
    ```bash
    node server.js
    ```
-4. In a separate terminal, serve the frontend HTML/PWA files:
-   ```bash
-   python -m http.server 8080
-   ```
-5. Open your browser and navigate to `http://localhost:8080/demo.html`.
-
----
-
-## ☁️ How to Deploy to Cloud Run
-
-```bash
-gcloud run deploy civicpulse \
-  --source . \
-  --region asia-south1 \
-  --allow-unauthenticated
-```
-
----
-
-## 🎬 Demo Walkthrough
-
-1. **Step 1**: Login as Citizen via **Google Sign-In** → submit a voice complaint in Kannada.
-2. **Step 2**: Watch the **5-agent Gemini pipeline** trace fire — Reporter → Verification → Routing → Escalation → Civic AI Mayor.
-3. **Step 3**: Login as Admin (new tab) → see the **Digital Twin** map update with the new report pin instantly.
-4. **Step 4**: Click **Simulate Flood** → Disaster Mode activates city-wide NDRF warnings.
-5. **Step 5**: Simulate **Fake Closure** → Integrity Score spikes on the officer leaderboard.
-6. **Step 6**: View the **AI Thinking** modal to see exactly how Gemini reached its conclusion.
-7. **Step 7**: As a second citizen, click **"👍 Verify Report"** on the same issue 3 times → watch the priority auto-escalate to HIGH with the "🔺 COMMUNITY ESCALATED" badge.
-8. **Step 8**: Click **"📋 Audit Trail"** on any issue → see the full transparency timeline of who acted, when, and what the AI decided at each step.
-
----
-
-## 🌍 UN SDG Alignment
-
-* **SDG 11 — Sustainable Cities**: Directing immediate municipal attention to failing infrastructure to keep urban environments safe and resilient.
-* **SDG 16 — Strong Institutions**: Eliminating corruption and false SLA closures through the AI Integrity Score and transparent civic tracking.
-* **SDG 10 — Reduced Inequalities**: Democratizing civic access via multi-lingual voice reporting for citizens who cannot read or write.
-
-*Compliant with the Smart Cities Mission & DPDP Act 2023.*
-
----
-
-## 🛣️ Roadmap
-
-* **Phase 1**: Real ADK pipeline + BigQuery ML (post GCP billing approval).
-* **Phase 2**: Live BBMP HRMS API integration for real officer assignments.
-* **Phase 3**: Rollout to 100 cities via the national Smart Cities Mission.
-
----
-
-## 👥 Team
-
-* **Ayush C S** — Lead AI Engineer & Full-Stack Developer
+3. **Open the Frontend:**
+   Just double-click `demo.html` in your browser (or use VS Code Live Server). Make sure you update the `fetch` endpoints in `demo.html` to point to `http://localhost:5000` if you want to test completely locally!
