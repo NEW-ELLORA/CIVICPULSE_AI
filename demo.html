@@ -337,6 +337,7 @@ input,textarea,select{font-family:inherit}
       document.getElementById('nav-myreports').innerHTML = '<span class="sb-icon">📋</span>My Reports';
       if (document.getElementById('card-officers')) document.getElementById('card-officers').style.display = 'none';
       if (document.getElementById('card-gamification')) document.getElementById('card-gamification').style.display = 'block';
+      if (document.getElementById('card-recent')) document.getElementById('card-recent').style.display = 'none';
       document.getElementById('nav-dashboard').click();
     } else {
       document.getElementById('nav-cctv').style.display = 'flex';
@@ -349,6 +350,7 @@ input,textarea,select{font-family:inherit}
       document.getElementById('nav-myreports').innerHTML = '<span class="sb-icon">📋</span>All Reports';
       if (document.getElementById('card-officers')) document.getElementById('card-officers').style.display = 'block';
       if (document.getElementById('card-gamification')) document.getElementById('card-gamification').style.display = 'none';
+      if (document.getElementById('card-recent')) document.getElementById('card-recent').style.display = 'block';
       document.getElementById('nav-twin').click();
     }
   }
@@ -673,7 +675,7 @@ input,textarea,select{font-family:inherit}
       </div>
 
       <!-- Recent Issues -->
-      <div class="card">
+      <div class="card" id="card-recent">
         <div class="card-head">
           <div class="card-title">📡 Recent Reports <span class="card-tag">Live Feed</span></div>
         </div>
@@ -1074,7 +1076,10 @@ function setNav(el) { switchView(el); }
 async function fetchIssues() {
   try {
     const res = await fetch('https://civicpulse-ai-cqro.onrender.com/api/issues');
-    const issues = await res.json();
+    let issues = await res.json();
+    if (window.currentUserRole === 'citizen') {
+      issues = issues.filter(i => i.reporterName === 'Suresh K.');
+    }
     const feed = document.getElementById('feed-items');
     if (feed) {
       feed.innerHTML = issues.map(issue => `
