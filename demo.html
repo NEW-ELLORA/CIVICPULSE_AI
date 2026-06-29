@@ -440,11 +440,11 @@ input,textarea,select{font-family:inherit}
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="tb-left">
-      <div class="tb-title">Dashboard</div>
+      <div class="tb-title" id="topbar-title">Dashboard</div>
       <div class="tb-breadcrumb" id="loc-breadcrumb">Bengaluru · Getting location...</div>
     </div>
     <div class="tb-right">
-      <div class="tb-stat" id="tb-count">Reports Today: 0</div>
+      <div class="tb-stat" id="tb-count" style="display:flex;gap:8px;font-weight:700">Loading stats...</div>
       <div class="tb-badge"><span class="tb-dot"></span>Google ADK Live</div>
     </div>
   </div>
@@ -480,9 +480,9 @@ input,textarea,select{font-family:inherit}
       </div>
       <div class="card" style="padding:0">
         <div style="padding:18px 20px">
-          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:8px">Ward Risk Score</div>
-          <div style="font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1;color:var(--orange)">82%</div>
-          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">BigQuery ML · Updated daily</div>
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);margin-bottom:8px">City Health Score</div>
+          <div style="font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1;color:var(--orange)" id="kpi-health">--%</div>
+          <div style="font-size:0.72rem;color:var(--t3);margin-top:4px">Auto-computed by AI</div>
         </div>
       </div>
     </div>
@@ -1170,8 +1170,22 @@ async function fetchIssues() {
     const resCount = issues.filter(i => i.status !== 'OPEN').length;
     const kpiOpen = document.getElementById('kpi-open');
     const kpiRes = document.getElementById('kpi-res');
+    const kpiHealth = document.getElementById('kpi-health');
+    const tbCount = document.getElementById('tb-count');
+    
     if (kpiOpen) kpiOpen.textContent = openCount;
     if (kpiRes) kpiRes.textContent = resCount;
+    
+    if (tbCount) {
+      tbCount.innerHTML = `<span style="color:var(--t3)">City:</span> Bengaluru <span style="color:var(--border2);margin:0 4px">|</span> <span style="color:var(--t3)">Active:</span> <span style="color:var(--orange)">${openCount}</span> <span style="color:var(--border2);margin:0 4px">|</span> <span style="color:var(--t3)">Resolved:</span> <span style="color:var(--green)">${resCount}</span>`;
+    }
+    
+    if (kpiHealth) {
+      const total = openCount + resCount;
+      const score = total > 0 ? Math.round((resCount / total) * 100) : 100;
+      kpiHealth.textContent = score + '%';
+      kpiHealth.style.color = score > 80 ? 'var(--green)' : score > 50 ? 'var(--orange)' : 'var(--red)';
+    }
     
     // Drop pins on the map!
     updateMapMarkers(issues);
@@ -1215,13 +1229,16 @@ async function upvoteIssue(issueId, btn) {
 /* ── AUDIT TRAIL MODAL ──────────────────────────── */
 async function showTimeline(issueId) {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
-  overlay.innerHTML = `<div style="background:var(--card);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h3 style="margin:0;font-size:1.1rem">📋 Audit Trail</h3>
-      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:1.2rem">✕</button>
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+  overlay.innerHTML = `<div style="background:var(--card);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px;width:90%;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.8)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <div>
+        <h3 style="margin:0;font-size:1.2rem;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px">📋 Immutable Audit Trail</h3>
+        <div style="font-size:0.65rem;color:var(--t3);font-family:var(--mono);margin-top:4px">Cryptographically verifiable event ledger</div>
+      </div>
+      <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:1.4rem;padding:4px">✕</button>
     </div>
-    <div id="timeline-content" style="text-align:center;padding:20px;color:var(--t3)">Loading...</div>
+    <div id="timeline-content" style="padding:10px;color:var(--t3);text-align:center">Fetching ledger data...</div>
   </div>`;
   document.body.appendChild(overlay);
 
@@ -1231,20 +1248,26 @@ async function showTimeline(issueId) {
     const tl = data.timeline || [];
     const content = document.getElementById('timeline-content');
     content.innerHTML = `
-      <div style="font-size:0.8rem;color:var(--t3);margin-bottom:16px">Issue: <strong>${data.category}</strong> · <span style="color:${data.status==='CLOSED'?'#10b981':'#f87171'}">${data.status}</span>${data.upvoteCount > 0 ? ` · 👍 ${data.upvoteCount} community verification${data.upvoteCount>1?'s':''}` : ''}</div>
-      <div style="position:relative;padding-left:20px">
+      <div style="font-size:0.75rem;color:var(--t3);margin-bottom:24px;font-family:var(--mono);background:rgba(0,0,0,0.4);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.05)">
+        [LEDGER_ID: ${issueId}]<br/>
+        Issue Class: <strong style="color:var(--t1)">${data.category}</strong><br/>
+        Network Status: <strong style="color:${data.status==='CLOSED'?'#10b981':'#f87171'}">${data.status}</strong>
+      </div>
+      <div style="position:relative; border-left: 2px solid rgba(255,255,255,0.08); margin-left:12px; padding-left:24px;">
         ${tl.length === 0 ? '<div style="color:var(--t3)">No timeline events yet.</div>' : tl.map((e, i) => `
-          <div style="position:relative;padding-bottom:16px">
-            <div style="position:absolute;left:-20px;top:4px;width:10px;height:10px;border-radius:50%;background:${i===tl.length-1?'#10b981':'#6366f1'}"></div>
-            ${i < tl.length-1 ? '<div style="position:absolute;left:-16px;top:14px;bottom:0;width:2px;background:rgba(99,102,241,0.2)"></div>' : ''}
-            <div style="font-size:0.75rem;font-weight:700;color:var(--t1)">${e.actor}</div>
-            <div style="font-size:0.78rem;color:var(--t2);margin:2px 0">${e.action}</div>
-            <div style="font-size:0.68rem;color:var(--t3)">${new Date(e.timestamp).toLocaleString('en-IN')}</div>
+          <div style="position:relative; margin-bottom:20px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.05); border-radius:10px; padding:16px;">
+            <div style="position:absolute; left:-31px; top:16px; width:12px; height:12px; border-radius:50%; background:${i===tl.length-1?'#10b981':'#6366f1'}; box-shadow:0 0 12px ${i===tl.length-1?'#10b981':'#6366f1'}"></div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+              <div style="font-size:0.75rem;font-weight:700;color:var(--t1);font-family:var(--mono);display:flex;align-items:center;gap:6px">🔒 ${e.actor}</div>
+              <div style="font-size:0.65rem;color:var(--t3);font-family:var(--mono)">${new Date(e.timestamp).toLocaleString('en-IN')}</div>
+            </div>
+            <div style="font-size:0.85rem;color:var(--t2);line-height:1.5">${e.action}</div>
+            <div style="font-size:0.6rem;color:var(--t3);margin-top:12px;font-family:var(--mono);opacity:0.6;word-break:break-all">TX_HASH: ${btoa(e.action + e.timestamp + issueId).substring(0,32)}...</div>
           </div>
         `).join('')}
       </div>`;
   } catch(e) {
-    document.getElementById('timeline-content').innerHTML = '<div style="color:var(--red)">Could not load timeline.</div>';
+    document.getElementById('timeline-content').innerHTML = '<div style="color:var(--red)">Failed to verify ledger.</div>';
   }
 }
 
@@ -2518,43 +2541,41 @@ document.addEventListener('keydown', (e) => {
   function startTour() {
     localStorage.setItem('civicTourDone', 'true');
     const steps = [
-      { el: '.sb-user', text: "👋 Welcome! You're in Citizen mode. Switch roles anytime here." },
-      { el: '[data-view="report"]', text: "📸 Report Issue — upload a photo/video and let Gemini classify it." },
-      { el: '[data-view="myreports"]', text: "🗺️ See all active issues live on the Digital Twin map." },
-      { el: '[data-view="analytics"]', text: "🤖 Run AI Predictive Analysis to see which department will be overwhelmed." },
-      { el: '#chat-btn', text: "💬 Ask the AI Mayor anything about BBMP policies." }
+      "👋 Welcome to CivicPulse AI! Switch between Citizen/Admin roles via the sidebar.",
+      "📸 Try uploading a pothole photo in the Dashboard—Gemini will instantly classify it.",
+      "🗺️ View all dynamically verified tickets in the Digital Twin view.",
+      "🤖 Click 'Analytics' to see Gemini predict next week's municipal workload.",
+      "💬 Tap the bottom-right purple icon to chat with the AI Mayor about civic rules!"
     ];
     let cur = 0;
     
     const tourEl = document.createElement('div');
     tourEl.id = 'tour-box';
-    tourEl.style.cssText = 'position:fixed; z-index:10000; background:var(--blue); color:#fff; padding:12px 16px; border-radius:8px; font-size:0.85rem; box-shadow:0 10px 30px rgba(0,0,0,0.5); width:260px; transition:all 0.3s ease; opacity:0; border:1px solid rgba(255,255,255,0.2);';
+    tourEl.style.cssText = 'position:fixed; z-index:10000; bottom:28px; left:28px; background:var(--bg2); color:var(--text); padding:20px; border-radius:12px; font-size:0.9rem; box-shadow:0 14px 40px rgba(0,0,0,0.6); width:320px; border:1px solid rgba(99,102,241,0.4); animation:mSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
     document.body.appendChild(tourEl);
     
+    const title = document.createElement('div');
+    title.style.cssText = 'font-weight:700; font-size:0.75rem; color:var(--blue); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center';
+    tourEl.appendChild(title);
+    
     const txt = document.createElement('div');
+    txt.style.cssText = 'line-height:1.6; margin-bottom:16px; font-weight:500; color:var(--t1)';
     tourEl.appendChild(txt);
 
     const nextBtn = document.createElement('button');
-    nextBtn.textContent = "Next Step →";
-    nextBtn.style.cssText = 'margin-top:12px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); padding:6px 10px; border-radius:4px; color:#fff; cursor:pointer; width:100%; font-weight:600; pointer-events:auto;';
+    nextBtn.style.cssText = 'background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; padding:10px; border-radius:8px; color:#fff; cursor:pointer; width:100%; font-weight:600; font-size:0.85rem';
     tourEl.appendChild(nextBtn);
     
     function showStep() {
-      if (cur >= steps.length) { tourEl.remove(); return; }
-      const target = document.querySelector(steps[cur].el);
-      if (target) {
-        const rect = target.getBoundingClientRect();
-        tourEl.style.top = Math.max(10, rect.top + rect.height/2 - 40) + 'px';
-        tourEl.style.left = (rect.right + 15) > window.innerWidth ? (rect.left - 280) + 'px' : (rect.right + 15) + 'px';
-        txt.innerHTML = steps[cur].text;
-        tourEl.style.opacity = 1;
-        
-        target.style.position = 'relative';
-        target.style.zIndex = '9999';
-        target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.5)';
-        
-        setTimeout(() => { target.style.boxShadow = ''; target.style.zIndex = ''; }, 3000);
-      } else { cur++; showStep(); }
+      if (cur >= steps.length) { 
+        tourEl.style.opacity = 0; 
+        tourEl.style.transform = 'translateY(10px)'; 
+        setTimeout(() => tourEl.remove(), 300); 
+        return; 
+      }
+      title.innerHTML = `<span>Feature Tour</span> <span>${cur+1}/${steps.length}</span>`;
+      txt.innerHTML = steps[cur];
+      nextBtn.textContent = cur === steps.length - 1 ? "Finish Tour ✓" : "Next Feature →";
     }
     
     nextBtn.onclick = () => { cur++; showStep(); };

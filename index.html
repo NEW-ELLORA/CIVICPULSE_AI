@@ -892,6 +892,16 @@
         <div class="impact-note">Civic AI Mayor recommendation, pilot</div>
       </div>
     </div>
+    
+    <div class="reveal" style="text-align:center; margin-top:40px; padding:24px; background:rgba(255,255,255,0.03); border-radius:16px; border:1px solid rgba(255,255,255,0.08); max-width:600px; margin-left:auto; margin-right:auto;">
+      <div style="font-size:0.95rem; font-weight:700; color:var(--t2); margin-bottom:18px;">
+        Scale to your city: <span id="slider-val" style="color:var(--green); font-size:1.1rem; margin-left:4px">10,000</span> reports/month
+      </div>
+      <input type="range" id="econ-slider" min="1000" max="100000" step="1000" value="10000" style="width:100%; height:6px; -webkit-appearance:none; background:rgba(255,255,255,0.1); border-radius:3px; outline:none; transition:background 0.2s;">
+      <style>
+        #econ-slider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background:var(--green); cursor:pointer; box-shadow:0 0 10px rgba(16,185,129,0.5); }
+      </style>
+    </div>
   </div>
 </section>
 
@@ -1015,6 +1025,26 @@
     <p style="font-size:0.88rem;color:var(--t2);line-height:1.65;margin-top:20px;">
       <strong>Tech:</strong> Browser <code style="background:var(--bg-2);padding:2px 6px;border-radius:4px;">MediaDevices API</code> for camera, <code style="background:var(--bg-2);padding:2px 6px;border-radius:4px;">DeviceOrientation API</code> for gyroscope, Google Maps for geocoding, optional Gemini Vision scan on tap.
     </p>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-blueprint" role="dialog" aria-modal="true" aria-label="AI Repair Blueprint">
+  <div class="modal" style="max-width:650px;">
+    <button class="modal-close" onclick="closeModal('modal-blueprint')" aria-label="Close">✕</button>
+    <h3>📐 AI Generated Repair Blueprint</h3>
+    <div style="background:var(--bg-2); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; font-family:var(--mono); font-size:0.85rem; color:var(--t2); margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px;">
+        <div><strong>ISSUE ID:</strong> #POT-9821</div>
+        <div><strong>AGENT:</strong> Gemini 2.0 Flash Civil Engineering</div>
+      </div>
+      <div style="margin-bottom:12px;"><span style="color:var(--green)">✓</span> <strong>Material Estimate:</strong> 120 kg Asphalt mix, 20L Bitumen emulsion</div>
+      <div style="margin-bottom:12px;"><span style="color:var(--green)">✓</span> <strong>Labor Required:</strong> 2 workers (4 hours est.)</div>
+      <div style="margin-bottom:12px;"><span style="color:var(--green)">✓</span> <strong>Estimated Cost:</strong> ₹4,250</div>
+      <div style="margin-bottom:12px;"><span style="color:var(--orange)">⚠️</span> <strong>Risk Factor:</strong> High traffic area. Requires night closure (11 PM - 3 AM).</div>
+      <div style="margin-top:20px; padding:12px; background:rgba(0,0,0,0.4); border-radius:6px; font-size:0.75rem;">
+        > Pothole volume calculated via reference object scaling (Citizen photo). Depth est: 4.5 inches.
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1273,25 +1303,57 @@ function initTwinMap() {
 
 // ── IMPACT COUNTERS ──────────────────────────────────────────
 function initCounters() {
-  const targets = [{id:'c1',val:'8.4'},{id:'c2',val:'2.1'},{id:'c3',val:'1.8'}];
+  const targets = [{id:'c1',val:8.4},{id:'c2',val:2.1},{id:'c3',val:1.8}];
+  let hasAnimated = false;
+
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const t = targets.find(x => x.id === e.target.id);
-      if (!t) return;
-      let n = 0, end = parseFloat(t.val), dur = 2000, start = null;
-      const step = ts => {
-        if (!start) start = ts;
-        const p = Math.min((ts - start) / dur, 1);
-        n = end * (1 - Math.pow(1 - p, 3));
-        e.target.textContent = `₹${n.toFixed(1)} Cr`;
-        if (p < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-      obs.unobserve(e.target);
+      if (!e.isIntersecting || hasAnimated) return;
+      hasAnimated = true;
+      targets.forEach(t => animateCounter(t.id, t.val));
     });
   }, { threshold: 0.5 });
-  targets.forEach(t => { const el = document.getElementById(t.id); if (el) obs.observe(el); });
+
+  const econSlider = document.getElementById('econ-slider');
+  const sliderVal = document.getElementById('slider-val');
+
+  if (econSlider) {
+    econSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      sliderVal.textContent = val.toLocaleString();
+      
+      const v1 = (val * 0.00084).toFixed(1);
+      const v2 = (val * 0.00021).toFixed(1);
+      const v3 = (val * 0.00018).toFixed(1);
+      
+      if (!hasAnimated) {
+        targets[0].val = parseFloat(v1);
+        targets[1].val = parseFloat(v2);
+        targets[2].val = parseFloat(v3);
+      } else {
+        document.getElementById('c1').textContent = `₹${v1} Cr`;
+        document.getElementById('c2').textContent = `₹${v2} Cr`;
+        document.getElementById('c3').textContent = `₹${v3} Cr`;
+      }
+    });
+  }
+
+  function animateCounter(id, endVal) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let n = 0, dur = 2000, start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / dur, 1);
+      n = endVal * (1 - Math.pow(1 - p, 3));
+      el.textContent = `₹${n.toFixed(1)} Cr`;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  const el = document.getElementById('impact');
+  if (el) obs.observe(el);
 }
 
 // ── MODALS ───────────────────────────────────────────────────
