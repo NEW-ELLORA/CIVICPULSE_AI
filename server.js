@@ -9,13 +9,11 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const helmet = require('helmet');
-const xssClean = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 
 const app = express();
 app.use(helmet());
-app.use(xssClean());
 app.use(cors());
 app.use(express.json());
 
