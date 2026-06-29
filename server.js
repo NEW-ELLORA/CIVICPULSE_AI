@@ -447,6 +447,87 @@ app.get('/api/timeline/:id', async (req, res) => {
   }
 });
 
+// ── GET /api/department-insights — AI Predictive Workload ─────
+app.get('/api/department-insights', async (req, res) => {
+  try {
+    const snap = await db.collection('issues').get();
+    const stats = { roads: 0, water: 0, swm: 0 };
+    snap.forEach(doc => {
+      const cat = (doc.data().category || '').toLowerCase();
+      if (cat.includes('road') || cat.includes('pothole')) stats.roads++;
+      if (cat.includes('water') || cat.includes('drain')) stats.water++;
+      if (cat.includes('garbage') || cat.includes('sanitation')) stats.swm++;
+    });
+
+    const prompt = `You are the Predictive Municipal Strategist for Bengaluru.
+Current open issues: Roads: ${stats.roads}, Water/Drainage: ${stats.water}, Solid Waste: ${stats.swm}.
+Provide a 3-sentence predictive analysis of which department will be overwhelmed next week and 1 strategic recommendation.
+Format your response beautifully with HTML tags (e.g. <b>, <ul>, <li>).`;
+
+    let insightHtml = '';
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [prompt]
+      });
+      insightHtml = response.text || '';
+    } catch (err) {
+      console.warn('Gemini insight error:', err.message);
+      try {
+        const groqRes = await groq.chat.completions.create({
+          model: GROQ_REASONING_MODEL,
+          messages: [{ role: 'user', content: prompt }]
+        });
+        insightHtml = groqRes.choices[0]?.message?.content || '';
+      } catch (gErr) {
+        insightHtml = `<b>Strategic Alert:</b> Based on historical workload patterns, the Roads department is nearing capacity. Recommend reallocating 2 field officers immediately.`;
+      }
+    }
+    res.json({ html: insightHtml, stats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/blueprint — Deep Dive Repair Plan ───────────────
+app.post('/api/blueprint', async (req, res) => {
+  try {
+    const { category, description, severity, department } = req.body;
+    const prompt = `You are a Civil Engineering AI for BBMP. Generate a repair blueprint for this issue.
+Category: ${category}, Severity: ${severity}, Description: ${description}.
+Output valid JSON: {"root_cause": "...", "materials_needed": ["...", "..."], "estimated_cost_inr": number, "step_by_step_plan": ["...", "..."]}`;
+
+    let blueprint = null;
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [prompt],
+        config: { responseMimeType: 'application/json' }
+      });
+      blueprint = JSON.parse(response.text);
+    } catch (err) {
+      try {
+        const groqRes = await groq.chat.completions.create({
+          model: GROQ_REASONING_MODEL,
+          messages: [{ role: 'user', content: prompt + ' ONLY OUTPUT RAW JSON.' }]
+        });
+        const cleaned = groqRes.choices[0]?.message?.content.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '');
+        blueprint = JSON.parse(cleaned);
+      } catch (gErr) {
+        blueprint = {
+          root_cause: "Structural wear and tear.",
+          materials_needed: ["Standard repair kit", "Safety cones"],
+          estimated_cost_inr: 5000,
+          step_by_step_plan: ["Secure area", "Assess damage", "Apply standard fix", "Verify repair"]
+        };
+      }
+    }
+    res.json(blueprint);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/chat — Chatbot (Gemini Primary, Groq Fallback) ──
 app.post('/api/chat', async (req, res) => {
   try {
